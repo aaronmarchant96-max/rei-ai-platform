@@ -1,24 +1,18 @@
 # Debate Furnace
 
-Debate Furnace is an argument pressure-testing prototype. It runs both sides of a question through structured debate rounds, flags weak reasoning, shows where each side cracked, and gives the user a final decision compass.
+Debate Furnace pressure-tests both sides of a question so you can see the real tradeoffs.
 
-> We do not give you the answer. We show you what survived the heat.
-
-![Debate Furnace preview](assets/debate-furnace-preview.png)
+> We pressure-test both sides. You decide what matters.
 
 ## Live Demo
 
 Live Vercel deployment: https://debate-furnace-prompthound.vercel.app/
 
-```text
-Add live Vercel URL here
-```
-
-The app is deployed on Vercel. Once the final public URL is copied from the Vercel dashboard, replace the placeholder above with the live link.
-
 ## What It Does
 
-Debate Furnace takes a question and pressure-tests both sides instead of giving a single answer.
+Most arguments are not really about facts alone. They are about which values matter more.
+
+Debate Furnace breaks an argument into structured rounds, shows where each side is strong, shows where each side cracks, and gives the decision back to the user.
 
 It currently supports:
 
@@ -32,7 +26,7 @@ It currently supports:
 - where each side cracked
 - unburned claims to verify
 - what would change the verdict
-- decision compass
+- what the choice really depends on
 - copyable markdown report
 
 The current version is a scripted prototype, not a live research engine. It is designed to test the product concept, interface, debate structure, and report format before adding a real model-backed debate engine.
@@ -48,6 +42,23 @@ The current version is a scripted prototype, not a live research engine. It is d
 7. Read the final report and use **Copy Full Report** to save or share it.
 
 Starter questions are the most polished. Custom questions are supported, but some may fall back to a more general debate frame until the real AI backend is added.
+
+## Starter Topics
+
+- ChatGPT vs Grok
+- gun control
+- love
+- AI art
+- UAPs
+- frontier AI regulation
+- remote work
+- seed oils
+- free will
+- free college
+- pineapple on pizza
+- social media
+- money as the root of evil
+- cats vs dogs
 
 ## Tech Stack
 
@@ -77,8 +88,6 @@ No API key is required for the current deployed version.
 Planned next steps:
 
 ```text
-V4 richer debate script restoration
-better short labels for custom sides
 more polished topic profiles
 real AI-generated debate backend
 optional web search / research mode
@@ -99,7 +108,7 @@ user question
 
 ## Reference Docs
 
-The current app is intentionally compact for local testing and deployment. The richer V4 script and report language is archived here:
+The richer script and report language reference is archived here:
 
 - [Debate Furnace Rich Script Reference](docs/Debate_Furnace_Rich_Script_Reference.md)
 

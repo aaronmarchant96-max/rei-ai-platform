@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import DebateFurnace from "./App.jsx";
+import DebateFurnace from "./DebateFurnace.jsx";
 import "./style.css";
 
 createRoot(document.getElementById("root")).render(
