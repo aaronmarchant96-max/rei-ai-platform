@@ -8,7 +8,7 @@ Debate Furnace is an argument pressure-testing prototype. It runs both sides of 
 
 ## Live Demo
 
-Live Vercel deployment:
+Live Vercel deployment: https://debate-furnace-prompthound.vercel.app/
 
 ```text
 Add live Vercel URL here
