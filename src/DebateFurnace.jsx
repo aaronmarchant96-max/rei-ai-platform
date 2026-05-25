@@ -268,6 +268,7 @@ function isStarterQuestion(q) {
 function classify(question) {
   const l = question.toLowerCase();
   if (l.includes("bush") && l.includes("obama")) return "policy";
+  if (l.includes("bald") || (l.includes("hair") && (l.includes("better") || l.includes("than")))) return "personal";
   if (["uap", "ufo", "alien", "non-human", "non human", "unidentified anomalous", "bob lazar", "lazar", "area 51", "s4", "element 115", "sport model", "reverse engineering", "flying saucer"].some((x) => l.includes(x))) return "extraordinary";
   if (["seed oil", "seed oils"].some((x) => l.includes(x))) return "factual";
   if (["free will", "money the root", "pineapple on pizza"].some((x) => l.includes(x))) return "moral";
@@ -282,6 +283,7 @@ function classify(question) {
 function inferSides(question, type) {
   const l = question.toLowerCase();
   if (l.includes("bush") && l.includes("obama")) return ["George W. Bush", "Barack Obama"];
+  if (l.includes("bald") || (l.includes("hair") && (l.includes("better") || l.includes("than")))) return ["Being bald is better", "Having hair is better"];
   if (l.includes("bob lazar") || l.includes("lazar")) return ["Bob Lazar is telling the truth", "Bob Lazar has not proven his core claims"];
   if (l.includes("remote work") || l.includes("office work")) return ["Remote work is better", "Office work is better"];
   if (l.includes("seed oil")) return ["Seed oils are actually bad for you", "Seed oils are not uniquely bad for you"];
@@ -399,6 +401,57 @@ function genericProfile(question, a, b) {
 
 function getArgs(question, type, a, b) {
   const l = question.toLowerCase();
+  if (l.includes("bald") || (l.includes("hair") && (l.includes("better") || l.includes("than")))) return {
+    label: "Personal / Aesthetic",
+    icon: "🪞",
+    criteria: ["confidence", "style", "maintenance", "identity", "practicality", "personal preference"],
+    desc: "This is a personal and aesthetic question. The real answer depends less on objective superiority and more on confidence, maintenance, identity, comfort, and the kind of look the person actually wants to carry.",
+    rounds: [
+      [
+        "Being bald can look cleaner, more intentional, and more confident than trying to fight hair loss. It removes a daily maintenance problem, saves time and money, and can become part of a strong personal style. For some people, baldness reads as sharper and more self-assured than hair ever did.",
+        "Having hair gives people more styling options and more ways to shape how they present themselves. Hair can add texture, softness, and variety, and it often feels easier to change than a shaved head. For many people, keeping hair is less about vanity and more about preserving a familiar part of their identity."
+      ],
+      [
+        "The bald side has a practical point: if hair is thinning, patchy, or expensive to manage, going bald can be the cleaner choice. It often looks better when it looks deliberate instead of defensive. The strongest bald argument is that confidence usually beats pretending you do not care.",
+        "The hair side has a flexibility point: not everyone wants a fixed look, and hair gives more room to adapt over time. Some people also feel that hair softens appearance, fits their face better, or simply makes them feel more like themselves. The strongest hair argument is that preference matters more than a single style rule."
+      ],
+      [
+        "The final bald case is that better can mean easier, cleaner, and more confident. If the person wants low maintenance and a direct look, bald is often the stronger aesthetic choice. A deliberate bald look can feel stronger than hanging onto hair out of habit.",
+        "The final hair case is that better can mean choice, expression, and familiarity. If the person values styling range, identity, or a look that feels more natural to them, hair remains the better fit. The real question is not which is superior in theory, but which better matches the person wearing it."
+      ]
+    ],
+    take: [
+      ["Most people assume this is about looks alone", "but this debate revealed that maintenance, confidence, and identity matter just as much."],
+      ["This debate revealed that deliberate style can beat default style", "whether that means embracing baldness or keeping hair with intention."],
+      ["Most people assume hair is the safer default", "but this debate revealed that the better choice is the one that actually fits the person."]
+    ],
+    strongA: "Being bald's strongest case is confidence plus simplicity: less maintenance, a cleaner look, and a style that can read as more intentional.",
+    strongB: "Having hair's strongest case is flexibility plus identity: more styling options, more familiarity, and a look that can feel more personal.",
+    crackA: "Being bald cracks if it is framed as a universal upgrade instead of a deliberate style choice.",
+    crackB: "Having hair cracks if it becomes an expensive way to avoid a look the person would actually wear better bald.",
+    verify: [
+      "The person's face shape, hairline, and current hair condition.",
+      "How much maintenance the person actually wants.",
+      "Whether the goal is confidence, style variety, or preserving a familiar look.",
+      "Whether the person is choosing intentionally or just avoiding a change."
+    ],
+    changeA: [
+      "Visible hair loss or high maintenance costs.",
+      "A preference for low-effort grooming.",
+      "A style goal that favors sharper, cleaner presentation."
+    ],
+    changeB: [
+      "A face or style that works better with hair.",
+      "A strong preference for styling range.",
+      "A desire to preserve identity or familiarity."
+    ],
+    core: "The hinge is whether the person values a cleaner, lower-maintenance look more than keeping the styling options and familiarity that hair provides.",
+    comp: [
+      "confidence, low maintenance, and a cleaner look",
+      "styling flexibility, familiarity, and personal identity",
+      "which option actually fits the person better"
+    ]
+  };
   if (l.includes("bush") && l.includes("obama")) return {
     label: "Presidential Comparison",
     icon: "🏛",
