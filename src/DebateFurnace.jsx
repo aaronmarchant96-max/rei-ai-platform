@@ -589,6 +589,12 @@ function profile(question, type, a, b) {
 function normalizeAiProfile(ai, fallback) {
   const validTypes = new Set(["product", "policy", "moral", "practical", "factual", "extraordinary", "open"]);
   const asText = (value, fallbackValue = "") => (typeof value === "string" && value.trim() ? value.trim() : fallbackValue);
+  const asIcon = (value, fallbackValue = "") => {
+    const text = asText(value, fallbackValue);
+    if (!text) return fallbackValue;
+    if (/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\uFE0F]+$/u.test(text)) return text;
+    return fallbackValue;
+  };
   const asList = (value, fallbackValue, min = 3) => {
     const list = Array.isArray(value) ? value.filter((item) => typeof item === "string" && item.trim()).map((item) => item.trim()) : [];
     return list.length >= min ? list : fallbackValue;
@@ -617,7 +623,7 @@ function normalizeAiProfile(ai, fallback) {
     sideA: asText(ai?.sideA),
     sideB: asText(ai?.sideB),
     label: asText(ai?.label, fallback.label),
-    icon: asText(ai?.icon, fallback.icon),
+    icon: asIcon(ai?.icon, fallback.icon),
     criteria: asList(ai?.criteria, fallback.criteria, 4),
     desc: asText(ai?.desc, fallback.desc),
     rounds,
