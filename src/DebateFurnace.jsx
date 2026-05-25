@@ -586,7 +586,7 @@ function profile(question, type, a, b) {
   return genericProfile(question, a, b);
 }
 
-function normalizeAiProfile(ai, fallback) {
+function normalizeAiProfile(ai, fallback, question = "") {
   const validTypes = new Set(["product", "policy", "moral", "practical", "factual", "extraordinary", "open"]);
   const asText = (value, fallbackValue = "") => (typeof value === "string" && value.trim() ? value.trim() : fallbackValue);
   const asIcon = (value, fallbackValue = "") => {
@@ -594,6 +594,28 @@ function normalizeAiProfile(ai, fallback) {
     if (!text) return fallbackValue;
     if (/^[\p{Extended_Pictographic}\p{Emoji_Presentation}\uFE0F]+$/u.test(text)) return text;
     return fallbackValue;
+  };
+  const asCompass = (value, fallbackValue = "") => {
+    let text = asText(value, fallbackValue);
+    if (!text) return fallbackValue;
+    text = text
+      .replace(/^if you value\s+/i, "")
+      .replace(/^if\s+/i, "")
+      .replace(/^whether\s+/i, "")
+      .replace(/^the real question is:\s*/i, "")
+      .replace(/^the question is:\s*/i, "")
+      .replace(/^do you prioritize\s+/i, "")
+      .replace(/^prioritize\s+/i, "")
+      .replace(/^should\s+/i, "")
+      .replace(/^would\s+/i, "")
+      .replace(/^can\s+/i, "")
+      .replace(/\?+$/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!text) return fallbackValue;
+    if (text.length > 70) return fallbackValue;
+    return text;
   };
   const asList = (value, fallbackValue, min = 3) => {
     const list = Array.isArray(value) ? value.filter((item) => typeof item === "string" && item.trim()).map((item) => item.trim()) : [];
@@ -616,6 +638,15 @@ function normalizeAiProfile(ai, fallback) {
     ];
   });
   const qType = asText(ai?.qType, "").toLowerCase();
+  const q = question.toLowerCase();
+  const isFreeWillPunishment = q.includes("free will") || (q.includes("punish") && q.includes("free will"));
+  const comp = isFreeWillPunishment
+    ? [
+        "public safety, deterrence, and rehabilitation",
+        "moral desert, dignity, and limits on state power",
+        "whether punishment needs moral blame, or whether harm reduction is enough"
+      ]
+    : asList(ai?.comp, fallback.comp, 3).slice(0, 3).map((item, i) => asCompass(item, fallback.comp[i] || ""));
 
   return {
     ...fallback,
@@ -636,7 +667,7 @@ function normalizeAiProfile(ai, fallback) {
     changeA: asList(ai?.changeA, fallback.changeA, 3),
     changeB: asList(ai?.changeB, fallback.changeB, 3),
     core: asText(ai?.core, fallback.core),
-    comp: asList(ai?.comp, fallback.comp, 3).slice(0, 3)
+    comp
   };
 }
 
@@ -779,7 +810,7 @@ function generate(questionRaw, sideARaw, sideBRaw, intensity, aiProfile = null) 
   const fallbackSideA = sideARaw.trim() || aiProfile?.sideA?.trim() || fallbackSides[0];
   const fallbackSideB = sideBRaw.trim() || aiProfile?.sideB?.trim() || fallbackSides[1];
   const fallbackProfile = genericProfile(question, fallbackSideA, fallbackSideB);
-  const ai = aiProfile ? normalizeAiProfile(aiProfile, fallbackProfile) : null;
+  const ai = aiProfile ? normalizeAiProfile(aiProfile, fallbackProfile, question) : null;
   const qType = ai?.qType || fallbackType;
   const inferred = ai?.sideA && ai?.sideB ? [ai.sideA, ai.sideB] : inferSides(question, qType);
   const sideA = sideARaw.trim() || inferred[0];
