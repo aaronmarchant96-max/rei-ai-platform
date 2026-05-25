@@ -1,5 +1,15 @@
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const GENERIC_PHRASES = [
+  "the exact claim matters",
+  "definitions do work",
+  "definitions do real work",
+  "uncertainty is not a verdict",
+  "the original question survived",
+  "a clearer standard of proof",
+  "the real question is whether",
+  "what this really depends on",
+];
 
 function extractJson(text) {
   const trimmed = String(text || "").trim();
@@ -29,23 +39,35 @@ function truncate(value, limit = 600) {
   return text.length > limit ? `${text.slice(0, limit)}…` : text;
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+function containsGenericPhrasing(value) {
+  const text = String(value ?? "").toLowerCase();
+  return GENERIC_PHRASES.some((phrase) => text.includes(phrase));
+}
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.error("[debate] Missing GEMINI_API_KEY");
-    return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
-  }
+function isGenericDebate(debate) {
+  if (!debate || typeof debate !== "object") return false;
 
-  const { question, sideA, sideB, intensity = "balanced" } = req.body || {};
-  if (!question || !question.trim()) {
-    return res.status(400).json({ error: "Question is required" });
-  }
+  const fields = [
+    debate.desc,
+    debate.core,
+    debate.strongA,
+    debate.strongB,
+    debate.crackA,
+    debate.crackB,
+    ...(Array.isArray(debate.take) ? debate.take.flat() : []),
+    ...(Array.isArray(debate.changeA) ? debate.changeA : []),
+    ...(Array.isArray(debate.changeB) ? debate.changeB : []),
+    ...(Array.isArray(debate.rounds) ? debate.rounds.flatMap((round) => {
+      if (Array.isArray(round)) return round;
+      return [round?.aArg, round?.bArg];
+    }) : []),
+  ];
 
-  const prompt = `You generate structured debate reports for Debate Furnace.
+  return fields.some(containsGenericPhrasing);
+}
+
+function buildPrompt(question, sideA, sideB, intensity, retry = false) {
+  const base = `You generate structured debate reports for Debate Furnace.
 
 Return valid JSON only. Do not use markdown. Do not include commentary outside JSON.
 
@@ -99,37 +121,71 @@ Return exactly this JSON shape:
   "comp": ["value A noun phrase", "value B noun phrase", "The real question neither side resolved is whether ..."]
 }`;
 
-  try {
-    const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: intensity === "ruthless" ? 0.85 : intensity === "aggressive" ? 0.75 : 0.65,
-          responseMimeType: "application/json",
-        },
-      }),
+  if (!retry) return base;
+  return `${base}
+
+Your previous answer was too generic. Rewrite it with topic-specific stakes, concrete examples, actual tradeoffs, and no meta-debate filler.`;
+}
+
+async function requestGemini(apiKey, prompt, temperature) {
+  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature,
+        responseMimeType: "application/json",
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("[debate] Gemini API error", {
+      status: response.status,
+      statusText: response.statusText,
+      body: truncate(errorText)
     });
+    throw new Error(`Gemini API returned ${response.status}: ${truncate(errorText, 300)}`);
+  }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("[debate] Gemini API error", {
-        status: response.status,
-        statusText: response.statusText,
-        body: truncate(errorText)
-      });
-      throw new Error(`Gemini API returned ${response.status}: ${truncate(errorText, 300)}`);
+  const body = await response.json();
+  const text = body.candidates?.[0]?.content?.parts?.map((part) => part?.text || "").join("") || "";
+  if (!text.trim()) {
+    console.error("[debate] Empty Gemini candidate payload", {
+      body: truncate(JSON.stringify(body))
+    });
+  }
+  return extractJson(text);
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    console.error("[debate] Missing GEMINI_API_KEY");
+    return res.status(500).json({ error: "Missing GEMINI_API_KEY" });
+  }
+
+  const { question, sideA, sideB, intensity = "balanced" } = req.body || {};
+  if (!question || !question.trim()) {
+    return res.status(400).json({ error: "Question is required" });
+  }
+
+  try {
+    const temperature = intensity === "ruthless" ? 0.85 : intensity === "aggressive" ? 0.75 : 0.65;
+    const prompt = buildPrompt(question, sideA, sideB, intensity, false);
+    let debate = await requestGemini(apiKey, prompt, temperature);
+
+    if (isGenericDebate(debate)) {
+      console.warn("[debate] Generic debate detected, retrying once with stricter prompt");
+      debate = await requestGemini(apiKey, buildPrompt(question, sideA, sideB, intensity, true), Math.max(0.35, temperature - 0.15));
     }
 
-    const body = await response.json();
-    const text = body.candidates?.[0]?.content?.parts?.map((part) => part?.text || "").join("") || "";
-    if (!text.trim()) {
-      console.error("[debate] Empty Gemini candidate payload", {
-        body: truncate(JSON.stringify(body))
-      });
-    }
-    const debate = extractJson(text);
     return res.status(200).json(debate);
   } catch (error) {
     console.error("[debate] AI debate generation failed", {
