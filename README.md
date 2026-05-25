@@ -1,10 +1,24 @@
 # Debate Furnace
 
-Debate Furnace pressure-tests both sides of a question so you can see the real tradeoffs.
-
-> We pressure-test both sides. You decide what matters.
+> Pressure-test both sides. Find the hinge. Decide what matters.
 
 ![Debate Furnace preview](assets/debate-furnace-preview.png)
+
+## About Debate Furnace
+
+Debate Furnace slows arguments down. It pressure-tests both sides, exposes the real hinge, and shows what the decision actually depends on.
+
+The goal is not fake neutrality or a louder answer. It is to make the strongest version of each side visible, reveal where each side holds up or breaks, and give the decision back to the user.
+
+Many arguments are not simple yes or no questions. They are collisions between safety and freedom, fairness and responsibility, truth and uncertainty, progress and risk. Debate Furnace is built to make that structure visible.
+
+Not every disagreement needs a winner. Sometimes the real value is seeing what the argument actually depends on.
+
+## Problem / Approach / Result
+
+- **Problem:** Most tools flatten disagreement into a yes/no answer.
+- **Approach:** Build a structured debate engine that pressure-tests both sides, scores rounds, surfaces the hinge, and gives the decision back to the user.
+- **Result:** A working app with Gemini-backed custom debates, local fallback, share links, history, mobile polish, and copyable reports.
 
 ## Live Demo
 
@@ -12,14 +26,12 @@ Live Vercel deployment: https://debate-furnace-prompthound.vercel.app/
 
 ## What It Does
 
-Most arguments are not really about facts alone. They are about which values matter more.
-
-Debate Furnace breaks an argument into structured rounds, shows where each side is strong, shows where each side cracks, and gives the decision back to the user.
+Debate Furnace turns a question into a structured pressure test, shows where each side is strong, shows where each side cracks, and gives the decision back to the user.
 
 It currently supports:
 
 - starter questions with polished topic-specific debate logic
-- custom questions with a general argument-testing fallback
+- custom questions routed through Gemini with a local fallback when generation fails
 - three debate rounds: Opening Arguments, Rebuttals, and Final Pressure
 - judge notes for each round
 - final result summary
@@ -29,9 +41,15 @@ It currently supports:
 - unburned claims to verify
 - what would change the verdict
 - what the choice really depends on
+- decision compass values that stay short and readable
 - copyable markdown report
+- copy individual rounds
+- shareable debate links
+- debate history saved in localStorage
+- mobile-specific layout polish and sticky actions
+- footer links to X and GitHub
 
-The current version is a scripted prototype, not a live research engine. It is designed to test the product concept, interface, debate structure, and report format before adding a real model-backed debate engine.
+The current version is a live public prototype with a Gemini-backed custom debate path. Starter questions still use the tuned local debate engine so the app stays fast and stable when you test the most common prompts.
 
 ## How to Use
 
@@ -43,7 +61,7 @@ The current version is a scripted prototype, not a live research engine. It is d
 6. Step through the rounds.
 7. Read the final report and use **Copy Full Report** to save or share it.
 
-Starter questions are the most polished. Custom questions are supported, but some may fall back to a more general debate frame until the real AI backend is added.
+Starter questions are the most polished. Custom questions use Gemini when available and fall back to the local engine if generation fails.
 
 ## Starter Topics
 
@@ -76,14 +94,23 @@ GitHub
 
 ```text
 React frontend
-local scripted debate engine
+Vite build
+Vercel serverless API route for Gemini
+local scripted starter engine
 question classifier
 topic profiles
+hash-based share links
+localStorage debate history
 structured final report renderer
 copyable markdown output
 ```
 
-No API key is required for the current deployed version.
+Environment variables:
+
+```text
+GEMINI_API_KEY=required for custom debates
+GEMINI_MODEL=optional, defaults to gemini-2.5-flash-lite
+```
 
 ## Roadmap
 
@@ -91,11 +118,12 @@ Planned next steps:
 
 ```text
 more polished topic profiles
-real AI-generated debate backend
 optional web search / research mode
 citations for researched debates
 rate limiting and caching
 cleaner mobile polish
+shorter share URLs backed by stored debate records
+export as image or PDF
 ```
 
 Longer-term goal:
@@ -139,4 +167,4 @@ Root Directory: ./
 
 ## Status
 
-Debate Furnace is currently a working public prototype. The main goal of this version is to get feedback, see what questions users try, identify where the scripted engine breaks, and use that feedback to guide the real AI-backed version.
+Debate Furnace is a working public prototype with a live Gemini path for custom debates, saved history, and share links. The current goal is to keep tightening the prompt quality, improve profile coverage, and turn the strongest user patterns into stable product features.

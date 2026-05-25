@@ -8,9 +8,19 @@ function extractJson(text) {
   try {
     return JSON.parse(trimmed);
   } catch {
-    const match = trimmed.match(/\{[\s\S]*\}/);
-    if (!match) throw new Error("Model response did not contain JSON");
-    return JSON.parse(match[0]);
+    const cleaned = trimmed
+      .replace(/^```json\s*/i, "")
+      .replace(/^```\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    try {
+      return JSON.parse(cleaned);
+    } catch {
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("Model response did not contain JSON");
+      return JSON.parse(match[0]);
+    }
   }
 }
 
@@ -50,7 +60,14 @@ Write tight, vivid, specific arguments. Keep each field short and punchy.
 Use concrete examples, tradeoffs, and consequences. Avoid generic debate filler, hedging, and repeated phrasing.
 Do not restate the question in every section. Do not use full-sentence compass values.
 For the compass, use short noun phrases only.
-Keep round arguments to 2-4 sentences each. Keep takeaways to brief clauses.
+Keep round arguments to 2-4 sentences each.
+Make each takeaway a complete sentence starting with "Most people assume..." or "This debate revealed...".
+The unresolved question must be a complete sentence that starts with "The real question neither side resolved is...".
+Do not use labels, fragments, or one-word summaries for takeaways or the unresolved question.
+Use this exact shape as a guide:
+- "take": [["Most people assume X, but this debate revealed Y.", "Most people assume X, but this debate revealed Y."], ["This debate revealed X about the tradeoff.", "This debate revealed Y about the tradeoff."], ["Most people assume X, but this debate revealed Y.", "Most people assume X, but this debate revealed Y."]]
+- "core": "The real question neither side resolved is whether ..."
+- "comp": ["value A noun phrase", "value B noun phrase", "The real question neither side resolved is whether ..."]
 
 Return exactly this JSON shape:
 {
@@ -66,7 +83,11 @@ Return exactly this JSON shape:
     { "aArg": "", "bArg": "" },
     { "aArg": "", "bArg": "" }
   ],
-  "take": [["", ""], ["", ""], ["", ""]],
+  "take": [
+    ["Most people assume X", "Most people assume X, but this debate revealed Y."],
+    ["This debate revealed X", "This debate revealed X about the tradeoff."],
+    ["Most people assume X", "Most people assume X, but this debate revealed Y."]
+  ],
   "strongA": "",
   "strongB": "",
   "crackA": "",
@@ -74,8 +95,8 @@ Return exactly this JSON shape:
   "verify": ["", "", "", ""],
   "changeA": ["", "", ""],
   "changeB": ["", "", ""],
-  "core": "",
-  "comp": ["", "", ""]
+  "core": "The real question neither side resolved is whether ...",
+  "comp": ["value A noun phrase", "value B noun phrase", "The real question neither side resolved is whether ..."]
 }`;
 
   try {

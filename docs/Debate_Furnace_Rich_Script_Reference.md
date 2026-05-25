@@ -6,6 +6,8 @@ Prepared: 2026-05-24 UTC
 
 Use this document as the reference/archive for the richer Debate Furnace script and report language. The GitHub app can stay as a compact testing build, while this file preserves the fuller product logic, stronger wording, and intended report structure for future rebuilds or comparison.
 
+This is an archive, not the live source of truth. The current app has a Gemini-backed custom debate path, share links, saved history, and copy actions that may differ from the older V4 reference language below. Use the README for the current shipped feature set.
+
 ## 1. Product Identity
 
 Debate Furnace is not an answer bot. It is an argument pressure-testing interface. The purpose is to show which side held up better under structured pressure while making clear that the output is not objective truth.
