@@ -27,7 +27,7 @@ Core tension: What happens when an empire mistakes occupation for control?
 Why it works: A disciplined empire walks into terrain, weather, and local resistance it does not truly understand.  
 Best genre lanes: military tragedy, anti-imperial fantasy, survival drama, strategy campaign  
 Best human POVs: guide, defector, standard bearer, local ally, exhausted officer  
-Sensitivity note: Avoid treating tribal resistance as primitive spectacle; keep the power imbalance visible.  
+Sensitivity note: Avoid treating tribal resistance as crude spectacle; keep the power imbalance visible.  
 Story Forge rating: High
 
 ### Bronze Age Collapse
@@ -311,3 +311,256 @@ Best genre lanes: frontier drama, anti-imperial thriller, industrial survival fi
 Best human POVs: mechanic, hired hand, cook, dock worker, family left behind  
 Sensitivity note: Keep class and colonial dynamics visible rather than treating exploration as pure heroism.  
 Story Forge rating: Medium-High
+
+## WW1 Human Pressure
+
+### The Lost Battalion
+Historical or mythic anchor: the American unit isolated during the Meuse-Argonne offensive in 1918  
+Category: WW1 Human Pressure  
+Source type: battlefield isolation / survival under command failure  
+Core tension: What does loyalty mean when command keeps asking trapped people to hold a position that may already be lost?  
+Why it works: It compresses duty, abandonment, friendly-fire risk, and survival into one boxed-in war engine.  
+Best genre lanes: trench survival drama, military thriller, anti-war prestige film  
+Best human POVs: runner, medic, trapped infantryman, officer under strain  
+Sensitivity note: Keep the human cost central; avoid turning entrapment into pure heroics.  
+Story Forge rating: High
+
+### The Christmas Truce
+Historical or mythic anchor: informal ceasefires between opposing soldiers on parts of the Western Front in 1914  
+Category: WW1 Human Pressure  
+Source type: battlefield pause / human contact under war systems  
+Core tension: Can people recognize each other as human without breaking the machine that requires them to kill?  
+Why it works: It creates immediate emotional pressure between shared humanity and the return of orders, duty, and artillery.  
+Best genre lanes: anti-war drama, bittersweet historical fiction, chamber-piece war story  
+Best human POVs: young infantryman, translator, chaplain, messenger, officer  
+Sensitivity note: Do not romanticize the war because of one humane interval; keep the larger slaughter visible.  
+Story Forge rating: High
+
+### The Harlem Hellfighters
+Historical or mythic anchor: the 369th Infantry Regiment and its combat record during World War I  
+Category: WW1 Human Pressure  
+Source type: military history / racial inequality under war  
+Core tension: What does service mean when the institution needing your courage still denies your dignity?  
+Why it works: It combines battlefield excellence, racism, identity, music, propaganda, and memory.  
+Best genre lanes: war epic, social drama, music-inflected historical film, political period piece  
+Best human POVs: infantryman, band member, family at home, war correspondent, officer  
+Sensitivity note: Keep anti-Black racism and institutional context explicit; do not reduce the story to inspirational simplification.  
+Story Forge rating: High
+
+## Spanish and Rif War Resilience
+
+### The Last Bandage at Teruel
+Historical or mythic anchor: the attritional urban fighting and winter suffering associated with Teruel in the Spanish Civil War  
+Category: Spanish and Rif War Resilience  
+Source type: siege warfare / medical survival under ideological conflict  
+Core tension: What does mercy look like when every side is freezing, starving, and running out of time?  
+Why it works: It shrinks a brutal civil war into a finite resource story where bandages, heat, and endurance matter as much as bullets.  
+Best genre lanes: siege drama, medical war thriller, anti-war tragedy  
+Best human POVs: field nurse, exhausted doctor, courier, civilian sheltering nearby  
+Sensitivity note: Keep the civil-war context grounded and avoid flattening ideology into simple costume drama.  
+Story Forge rating: High
+
+### The Lion of the Rif
+Historical or mythic anchor: Abd el-Krim and anti-colonial resistance in the Rif War  
+Category: Spanish and Rif War Resilience  
+Source type: anti-colonial war / resistance history  
+Core tension: Can an outmatched resistance hold moral and political coherence while fighting empire?  
+Why it works: It joins mountain warfare, charisma, colonial violence, strategy, and legitimacy.  
+Best genre lanes: resistance epic, political war drama, mountain campaign thriller  
+Best human POVs: village courier, fighter, negotiator, family member, opposing conscript  
+Sensitivity note: Keep anti-colonial context explicit and avoid romanticizing war into frontier adventure.  
+Story Forge rating: High
+
+### The One-Eyed Ghost
+Historical or mythic anchor: source-note placeholder tied to Spanish or Rif War endurance and battlefield legend; exact archival anchor to confirm before app use  
+Category: Spanish and Rif War Resilience  
+Source type: war legend / survival memory  
+Core tension: When does a survivor become more useful to the war as a symbol than as a person?  
+Why it works: The title carries identity, rumor, and battlefield mythmaking pressure even before full archival confirmation.  
+Best genre lanes: wartime legend, grim survival story, political ghost narrative without literal haunting  
+Best human POVs: wounded scout, camp witness, propagandist, rival soldier  
+Sensitivity note: Confirm the historical anchor before promoting this entry into the live app.  
+Story Forge rating: Medium
+
+## Animal Loyalty and Survival
+
+### The Last Message of Cher Ami
+Historical or mythic anchor: the pigeon Cher Ami carrying a critical message during World War I  
+Category: Animal Loyalty and Survival  
+Source type: wartime animal service / survival under fire  
+Core tension: What does it mean when the last chance for human survival depends on a creature that does not understand the war?  
+Why it works: It is immediate, visual, and emotionally precise without needing a giant cast.  
+Best genre lanes: war drama, short film, family-safe historical story, pressure-cooker thriller  
+Best human POVs: signalman, trapped soldier, pigeon handler, medic  
+Sensitivity note: Keep the human stakes and the animal's treatment grounded rather than sentimentalizing everything into legend.  
+Story Forge rating: High
+
+### The Long Run of Togo
+Historical or mythic anchor: Togo and the long serum-run stage in Alaska  
+Category: Animal Loyalty and Survival  
+Source type: endurance rescue / transport history  
+Core tension: How far can trust carry a team when weather and distance should make success impossible?  
+Why it works: It is a rescue engine built from weather, exhaustion, navigation, and devotion under pressure.  
+Best genre lanes: survival adventure, family historical drama, wilderness thriller  
+Best human POVs: musher, trail witness, waiting parent, relay handoff partner  
+Sensitivity note: Keep the event grounded in labour, skill, and harsh conditions rather than turning it into pure inspirational myth.  
+Story Forge rating: High
+
+## Warhorses and Battlefield Legends
+
+### The Mare Who Carried Fire
+Historical or mythic anchor: source-note placeholder for a battlefield horse legend tied to carrying warning, fire, or survival; exact archival anchor to confirm before app use  
+Category: Warhorses and Battlefield Legends  
+Source type: warhorse legend / battlefield memory  
+Core tension: Why do people remember the animal that kept moving when everyone else broke?  
+Why it works: It has immediate visual identity and can anchor a battle story through one living witness that cannot give testimony.  
+Best genre lanes: battlefield elegy, mythic war story, family historical drama  
+Best human POVs: handler, stable hand, surviving rider, child hearing the legend later  
+Sensitivity note: Confirm the underlying source tradition before moving this into a finished seed.  
+Story Forge rating: Medium
+
+## Ancient Myth and Mortality
+
+### The Price of Immortality
+Historical or mythic anchor: ancient mortality myths built around the cost of escaping death  
+Category: Ancient Myth and Mortality  
+Source type: mythic pattern / death bargain  
+Core tension: What does endless life destroy in the person who wanted it most?  
+Why it works: It turns a familiar wish into a pressure pattern about loss, time, and what makes life human.  
+Best genre lanes: mythic fantasy, tragic romance, philosophical science fiction  
+Best human POVs: seeker, grieving lover, priest, witness to a long aftermath  
+Sensitivity note: Use specific source anchors carefully when later promoting this beyond a planning note.  
+Story Forge rating: High
+
+## Stories, Trickery, and Survival
+
+### The Storyteller's Gambit
+Historical or mythic anchor: survival patterns where story, wit, or narrative control prevents death or conquest  
+Category: Stories, Trickery, and Survival  
+Source type: folktale pattern / narrative survival engine  
+Core tension: Can control of the story become a form of material survival?  
+Why it works: It gives Story Forge a meta-engine about narration as strategy rather than decoration.  
+Best genre lanes: frame-story fantasy, court intrigue, heist fiction, literary thriller  
+Best human POVs: captive teller, ruler, scribe, listener who realizes the trap  
+Sensitivity note: Tie future live seeds to specific source traditions instead of treating all trickster storytelling as one interchangeable pool.  
+Story Forge rating: High
+
+## Welsh Myth and Broken Taboos
+
+### The Flower Woman
+Historical or mythic anchor: Blodeuwedd and related Welsh mythic themes of creation, desire, betrayal, and transformation  
+Category: Welsh Myth and Broken Taboos  
+Source type: myth / taboo breaking  
+Core tension: What happens when a person created for a role decides the role is a cage?  
+Why it works: It combines beauty, artificial creation, betrayal, and punishment in a way that supports both intimate and mythic scales.  
+Best genre lanes: dark fairy tale, feminist myth retelling, gothic fantasy  
+Best human POVs: the created woman, reluctant husband, secret lover, witness to punishment  
+Sensitivity note: Keep the mythic source visible and avoid flattening Welsh tradition into generic fairy imagery.  
+Story Forge rating: High
+
+### The Cauldron of Inspiration
+Historical or mythic anchor: Ceridwen, Gwion Bach, and the cauldron of knowledge in Welsh tradition  
+Category: Welsh Myth and Broken Taboos  
+Source type: myth / transformative knowledge tale  
+Core tension: Is wisdom a gift, a theft, or a burden that remakes the body carrying it?  
+Why it works: It joins hunger for knowledge, pursuit, metamorphosis, and artistic vocation into one clean engine.  
+Best genre lanes: mythic fantasy, alchemical coming-of-age, visionary tale  
+Best human POVs: apprentice, pursuer, parent, poet in hindsight  
+Sensitivity note: Keep the cultural specificity visible and avoid treating sacred transformation motifs as mere content prompts.  
+Story Forge rating: High
+
+## Norse Myth and Broken Oaths
+
+### The Binding of Fenrir
+Historical or mythic anchor: the Norse myth of binding Fenrir through trickery and doomed foresight  
+Category: Norse Myth and Broken Oaths  
+Source type: myth / oath-breaking power conflict  
+Core tension: Does preventing a feared future justify betrayal in the present?  
+Why it works: It is a perfect pattern for preemptive violence, manipulated trust, and the creation of the very catastrophe one fears.  
+Best genre lanes: epic fantasy, political allegory, prison myth, tragic speculative fiction  
+Best human POVs: bound force, oath-keeper, fearful ruler, witness who sees the cost too late  
+Sensitivity note: Keep Norse material as source pattern, not franchise shorthand.  
+Story Forge rating: High
+
+## Mystics, Vision, and Inner Warfare
+
+### The Desert Fire
+Historical or mythic anchor: ascetic and visionary traditions of desert struggle, temptation, and revelation; exact source anchor to confirm before app use  
+Category: Mystics, Vision, and Inner Warfare  
+Source type: religious vision / inner warfare pattern  
+Core tension: Is isolation a path to clarity, or a place where the self becomes its own enemy?  
+Why it works: It turns spiritual struggle into a contained dramatic engine without requiring armies or kingdoms.  
+Best genre lanes: psychological religious drama, visionary horror, austerity-driven fantasy  
+Best human POVs: hermit, disciple, tempter, recorder, visitor  
+Sensitivity note: Religious material needs careful boundary language and should not be reduced to exoticized madness.  
+Story Forge rating: Medium-High
+
+### The Scribe of God
+Historical or mythic anchor: source-note placeholder for a visionary or scriptural witness figure; exact textual anchor to confirm before app use  
+Category: Mystics, Vision, and Inner Warfare  
+Source type: religious text / revelatory writing pattern  
+Core tension: What does it cost to record a message that may destroy the life of the one chosen to carry it?  
+Why it works: It gives a strong inward conflict between obedience, doubt, transmission, and the fear of misreading revelation.  
+Best genre lanes: theological thriller, visionary drama, apocalyptic fiction  
+Best human POVs: scribe, disciple, skeptic patron, hostile authority  
+Sensitivity note: Confirm the exact source tradition before promoting this into a finished seed.  
+Story Forge rating: Medium
+
+## Living Traditions, Land, and Sacred Story
+
+### Sedna Beneath the Sea
+Historical or mythic anchor: Sedna traditions in Inuit cosmology and sea relations  
+Category: Living Traditions, Land, and Sacred Story  
+Source type: sacred story / land-and-sea cosmology  
+Core tension: What happens when survival depends on restoring a relationship people have already violated?  
+Why it works: It ties sustenance, moral order, weather, and kinship to a living relationship rather than a monster plot.  
+Best genre lanes: ecological myth, sea-bound fantasy, austere spiritual drama  
+Best human POVs: hunter, daughter, angakkuq, family witness, community keeper  
+Sensitivity note: Use with extreme care. This is tied to living Indigenous traditions and should not be mined as generic fantasy material.  
+Story Forge rating: High
+
+### Rangi and Papa
+Historical or mythic anchor: Maori creation traditions involving Rangi and Papa  
+Category: Living Traditions, Land, and Sacred Story  
+Source type: sacred story / creation relationship  
+Core tension: Is separation the beginning of life, or the first wound every generation inherits?  
+Why it works: It is a profound pattern for family fracture, world-making, grief, and the cost of making space to live.  
+Best genre lanes: mythic family saga, ecological fantasy, sacred cosmology-inspired fiction  
+Best human POVs: child of divided worlds, witness to separation, guardian of lineage, ritual keeper  
+Sensitivity note: Treat as living cultural material. Do not promote this into live app content without strong source care and boundary language.  
+Story Forge rating: High
+
+## Canadian Frontier, Labour, and Wilderness
+
+### The Queen of the Klondike
+Historical or mythic anchor: source-note placeholder tied to a prominent woman figure in Klondike-era frontier memory; exact biographical anchor to confirm before app use  
+Category: Canadian Frontier, Labour, and Wilderness  
+Source type: frontier personality / gendered survival history  
+Core tension: What kind of authority can a woman build in a gold-rush world designed to consume people?  
+Why it works: Frontier labour, reinvention, rumor, and public persona all collide in one harsh setting.  
+Best genre lanes: frontier character study, social survival drama, gold-rush noir  
+Best human POVs: performer, business owner, worker, rival, newspaperman  
+Sensitivity note: Confirm the historical figure and avoid gold-rush glamour that erases exploitation.  
+Story Forge rating: Medium-High
+
+### Skookum Jim's Discovery
+Historical or mythic anchor: Skookum Jim Mason and the discovery that triggered the Klondike Gold Rush  
+Category: Canadian Frontier, Labour, and Wilderness  
+Source type: gold-rush origin / Indigenous and frontier history  
+Core tension: Who gets written into history when a discovery becomes too profitable for the truth to stay intact?  
+Why it works: It joins labour, land, extraction, fame, erasure, and the rewriting of credit.  
+Best genre lanes: frontier drama, extraction thriller, anti-myth historical fiction  
+Best human POVs: discoverer, partner, recorder, trader, family member  
+Sensitivity note: Keep Indigenous history, credit, and colonial extraction central rather than decorative.  
+Story Forge rating: High
+
+### The Iron Road Builders
+Historical or mythic anchor: railway labour in Canada, especially workers exposed to danger, exclusion, and nation-building rhetoric  
+Category: Canadian Frontier, Labour, and Wilderness  
+Source type: labour history / industrial frontier  
+Core tension: What does a nation owe the people whose bodies made its map possible?  
+Why it works: It turns infrastructure into a human-pressure engine built from risk, exploitation, and permanence.  
+Best genre lanes: labour drama, industrial epic, migration story, political historical fiction  
+Best human POVs: rail worker, cook, foreman, translator, family left behind  
+Sensitivity note: Labour exploitation, migration, and racial exclusion need to stay explicit.  
+Story Forge rating: High
