@@ -1,6 +1,13 @@
-# Debate Furnace
+# PromptHound Labs — Debate Furnace & Companions
 
-> Pressure-test both sides. Find the hinge. Decide what matters.
+> Bring the hard question. We’ll find the hinge.
+
+**Tools in this repo:**
+
+- **Debate Furnace** — Structured debate engine that pressure-tests arguments and surfaces the real decision hinge.
+- **Story Forge** — Turns messy historical/mythic sources into usable story blueprints while keeping the source trail visible.
+- **CARDO GUARD** — Synthetic decision validation tool that makes the cost-weighted breakeven (the hinge) explicit before anyone acts on an AI risk score.
+- **Storm Replay** — Historical storm imagery analysis focused on separating signal from noise with strong calibration discipline (explicitly not forecasting or alerting).
 
 ## CARDO REI Method
 
@@ -10,13 +17,13 @@ Debate Furnace uses the CARDO REI Method to separate what sounds good from what 
 
 ## About Debate Furnace
 
-Debate Furnace is a structured debate tool for questions that deserve more than a quick yes or no.
+Debate Furnace is the core structured debate tool in the PromptHound Labs suite. It is designed for questions that deserve more than a quick yes/no.
 
-The goal is to make both sides clear, show where each one holds up or breaks, and give the decision back to the user.
+It pressure-tests both sides of an argument, surfaces where each side is strong or weak, and makes the actual hinge of the decision visible so the user can decide with eyes open.
 
-It is especially useful when the real disagreement is about values, tradeoffs, or what evidence should count.
+It is especially useful when the disagreement is really about values, tradeoffs, missing evidence, or what should even count as evidence.
 
-Not every disagreement needs a winner. Sometimes the useful part is seeing what survived the pressure and what the choice actually depends on.
+The broader suite in this repo also includes Story Forge (source-faithful story development), CARDO GUARD (synthetic decision validation), and Storm Replay (historical storm imagery calibration).
 
 ## Problem / Approach / Result
 
@@ -27,13 +34,22 @@ Not every disagreement needs a winner. Sometimes the useful part is seeing what 
 
 ## Live Demo
 
-[Try Debate Furnace](https://debate-furnace-prompthound.vercel.app/)
+[Try the full PromptHound Labs suite](https://debate-furnace-prompthound.vercel.app/)
 
-Story Forge is available from the header in the same live app.
+The same app contains:
+
+- **Debate Furnace** (default)
+- **Story Forge**
+- **CARDO GUARD** — the synthetic decision validation / launch gate tool
+- **Storm Replay** — historical storm imagery analysis and calibration
+
+Switch tools from the top navigation.
 
 ## What It Does
 
-Debate Furnace turns a question into a structured pressure test, shows where each side is strong, shows where each side cracks, and gives the decision back to the user.
+This repo contains a suite of tools built around the same core idea: turn messy input into reviewable structure and make the real hinge visible.
+
+**Debate Furnace** turns a question into a structured pressure test, shows where each side is strong, shows where each side cracks, and gives the decision back to the user.
 
 It currently supports:
 
@@ -80,28 +96,47 @@ The strongest proof pieces for Story Forge are in the seed library, source trail
 - [Story Forge QA Checklist](docs/story_forge_qa_checklist.md)
 - [Story Forge Source Bank](docs/story_forge_source_bank.md)
 
+## Storm Replay
+
+Storm Replay is a historical storm imagery analysis tool focused on separating visual signal from noise under real-world conditions.
+
+It processes sequences of weather imagery, extracts motion and intensity signals, and produces structured, reviewable artifacts (events, calibration metrics, review notes) so a human analyst can inspect what the system actually surfaced and what it missed.
+
+Key characteristics:
+
+- Explicitly not a forecasting or warning system
+- Strong calibration mindset (motion, intensity, combined scoring)
+- Designed for careful post-event analysis and evidence building
+- Keeps limitations loud and visible at every step
+
+Current focus: Tornado outbreak replays and similar high-stakes historical events, with heavy emphasis on false positive / false negative discipline.
+
+Related work lives in the broader PromptHound analysis tooling.
+
 ## CARDO GUARD
 
-CARDO GUARD is the PromptHound Labs launch-gate tool for synthetic decision validation. It takes a scenario, a confidence score, the cost to act, and the cost of missing, then makes the hinge visible before anyone treats the score like a verdict.
+CARDO GUARD is the flagship PromptHound Labs tool for making the real decision hinge visible.
 
-It is built to:
+It is a synthetic decision checker that forces a clear comparison between the cost of acting on an AI risk score versus the cost of ignoring it. Instead of treating model confidence as the answer, CARDO GUARD surfaces the actual breakeven point and decision strength so the trade-off is explicit and auditable.
 
-- keep the workflow synthetic-first
-- compare action waste against miss loss in plain units
-- make the recommendation easy to audit
-- stay narrow instead of becoming generic AI governance
+Core capabilities:
 
-The reusable launch gate is documented here:
+- Calculates risk-adjusted miss loss vs expected action waste
+- Surfaces the exact breakeven miss cost where the recommendation flips
+- Labels decision strength (Very Strong → Very Close)
+- Explains the hinge in plain language
+- Shows what would actually change the verdict
+- Keeps every input and assumption visible and synthetic-first
+
+Strong emphasis on guardrails: this is explicitly a synthetic demo tool. It is not operational advice, not a forecasting system, and not generic AI governance.
+
+Documentation & artifacts:
 
 - [CARDO GUARD Launch Gate Checklist](docs/cardo_guard_checklist.md)
 - [CARDO GUARD Manual Test Script](docs/cardo_guard_manual_test.md)
-- [CARDO GUARD Calibration Spec](docs/cardo_guard_calibration_spec.md)
+- [Hinge Meter design spec](docs/hinge-meter/hinge_meter_design_spec.md)
 
-Future calibration path:
-
-- Arena Harness evaluation logs feed a calibration artifact
-- CARDO GUARD can consume calibrated probabilities instead of demo bands
-- the first read stays human-first, but the engine can grow into real calibration later
+Future direction: feed real calibration bands from evaluation harnesses while keeping the human-first read and synthetic defaults as the safe starting point.
 
 ## Method
 
@@ -119,9 +154,10 @@ Every PromptHound Labs project follows the same proof loop: define the idea, fra
 
 ## Project Mapping
 
-- Debate Furnace: input is arguments, pressure point is the hinge the disagreement turns on, output is a pressure-tested decision path.
-- Story Forge: input is history, myth, archives, and strange sources, pressure point is the core tension inside the source, output is a story blueprint with the source trail kept visible.
-- Storm Replay: input is historical storm imagery, pressure point is visual signal versus noise, output is JSONL events, calibration metrics, review notes, and case validation.
+- **Debate Furnace**: Input is arguments. Pressure point is the hinge the disagreement actually turns on. Output is a pressure-tested decision path with the reasoning made visible.
+- **Story Forge**: Input is history, myth, archives, and strange sources. Pressure point is the core tension inside the source material. Output is a story blueprint that keeps the source trail visible.
+- **CARDO GUARD**: Input is an AI risk score plus real business costs. Pressure point is the breakeven between acting and not acting. Output is an auditable decision hinge with strength, breakeven point, and what would actually flip the recommendation.
+- **Storm Replay**: Input is historical storm imagery. Pressure point is visual signal versus noise under real conditions. Output is structured events, calibration metrics, review notes, and case validation — explicitly not a forecast or alert.
 
 ## How to Use
 
