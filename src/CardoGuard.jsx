@@ -229,6 +229,11 @@ export default function CardoGuard() {
           <div className="mini-grid">
             <Metric label="Confidence" value={`${review.confidence}%`} note={confidenceBandLabel} />
             <Metric label="False alarm rate" value={`${Math.round(review.falseAlarmRate * 100)}%`} note="Synthetic band" />
+            <Metric
+              label="Chance the event is real after calibration"
+              value={`${Math.round(review.calibratedEventLikelihood * 100)}%`}
+              note="Based on the synthetic false-alarm band."
+            />
             <Metric label="Expected action waste" value={formatMoney(review.expectedActionWaste)} />
             <Metric label="Expected miss loss" value={formatMoney(review.expectedMissLoss)} />
           </div>
@@ -237,8 +242,8 @@ export default function CardoGuard() {
             <div className="card-label">The hinge</div>
             <div>
               {review.shouldAct
-                ? `Missing-loss ${formatMoney(review.expectedMissLoss)} is higher than action-waste ${formatMoney(review.expectedActionWaste)}.`
-                : `Action-waste ${formatMoney(review.expectedActionWaste)} is higher than missing-loss ${formatMoney(review.expectedMissLoss)}.`}
+                ? `Expected miss loss ${formatMoney(review.expectedMissLoss)} is higher than expected action waste ${formatMoney(review.expectedActionWaste)}.`
+                : `Expected action waste ${formatMoney(review.expectedActionWaste)} is higher than expected miss loss ${formatMoney(review.expectedMissLoss)}.`}
             </div>
           </div>
 

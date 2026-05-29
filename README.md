@@ -94,6 +94,7 @@ It is built to:
 The reusable launch gate is documented here:
 
 - [CARDO GUARD Launch Gate Checklist](docs/cardo_guard_checklist.md)
+- [CARDO GUARD Manual Test Script](docs/cardo_guard_manual_test.md)
 
 ## Method
 
@@ -209,6 +210,7 @@ The richer script and report language reference, source-bank notes, and product 
 - [Debate Furnace QA Checklist](docs/debate_furnace_qa_checklist.md)
 - [Story Forge QA Checklist](docs/story_forge_qa_checklist.md)
 - [CARDO GUARD Launch Gate Checklist](docs/cardo_guard_checklist.md)
+- [CARDO GUARD Manual Test Script](docs/cardo_guard_manual_test.md)
 
 ## Local Setup
 

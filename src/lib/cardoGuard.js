@@ -76,9 +76,10 @@ export function calculateCardoGuardReview({
   const numericCostToAct = toMoneyNumber(costToAct);
   const numericCostToMiss = toMoneyNumber(costToMiss);
   const falseAlarmRate = getSyntheticFalseAlarmRate(numericConfidence);
+  const calibratedEventLikelihood = 1 - falseAlarmRate;
   const confidenceBand = getConfidenceBand(numericConfidence);
   const expectedActionWaste = numericCostToAct * falseAlarmRate;
-  const expectedMissLoss = numericCostToMiss * (1 - numericConfidence / 100);
+  const expectedMissLoss = numericCostToMiss * calibratedEventLikelihood;
   const recommendation = expectedMissLoss > expectedActionWaste ? "ACT" : "DO NOT ACT";
   const margin = Math.abs(expectedMissLoss - expectedActionWaste);
   const shouldAct = recommendation === "ACT";
@@ -90,31 +91,32 @@ export function calculateCardoGuardReview({
     costToAct: numericCostToAct,
     costToMiss: numericCostToMiss,
     falseAlarmRate,
+    calibratedEventLikelihood,
     expectedActionWaste,
     expectedMissLoss,
     recommendation,
     margin,
     shouldAct,
     explanation: shouldAct
-      ? `Missing-loss ${formatMoney(expectedMissLoss)} exceeds action-waste ${formatMoney(expectedActionWaste)}.`
-      : `Action-waste ${formatMoney(expectedActionWaste)} exceeds missing-loss ${formatMoney(expectedMissLoss)}.`
+      ? `The calibrated event likelihood makes the cost of missing higher than the expected waste of acting.`
+      : `The calibrated event likelihood does not justify the expected cost of acting.`
   };
 }
 
 export function buildCardoGuardComparison(review) {
   if (review.shouldAct) {
     return [
-      "Lower the cost of acting.",
-      "Show a lower calibrated false-alarm band.",
+      "Raise the cost of acting.",
+      "Show a higher calibrated false-alarm band.",
       "Prove the miss cost is smaller than assumed.",
-      "Narrow the scenario so the action is less broad."
+      "Show that the disruption impact is smaller or less likely than assumed."
     ];
   }
 
   return [
-    "Raise the calibrated miss cost with better evidence.",
-    "Show a lower cost to act.",
-    "Move the confidence into a stronger calibration band.",
-    "Prove the current action would prevent a real loss."
+    "Lower the cost of acting.",
+    "Show a lower calibrated false-alarm band.",
+    "Prove the miss cost is smaller than assumed.",
+    "Show that the disruption impact is smaller or less likely than assumed."
   ];
 }

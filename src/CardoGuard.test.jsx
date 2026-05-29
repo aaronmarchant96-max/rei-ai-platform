@@ -23,7 +23,10 @@ describe("CardoGuard", () => {
     fireEvent.click(screen.getByRole("button", { name: /run guard check/i }));
 
     expect(screen.getByText(/^ACT$/i)).toBeInTheDocument();
-    expect(screen.getByText(/missing-loss \$500 exceeds action-waste \$450\./i)).toBeInTheDocument();
+    expect(screen.getByText(/expected miss loss \$9,100 is higher than expected action waste \$450\./i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/calibrated event likelihood/i, { selector: ".card-label" })
+    ).toBeInTheDocument();
     expect(screen.getByText(/what would change the verdict/i)).toBeInTheDocument();
     expect(screen.getByText(/not a prediction model/i)).toBeInTheDocument();
   });
@@ -49,7 +52,7 @@ describe("CardoGuard", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /reset synthetic example/i }));
 
-    expect(screen.getByText(/action-waste \$35,200 exceeds missing-loss \$19,800\./i)).toBeInTheDocument();
+    expect(screen.getByText(/expected miss loss \$50,400 is higher than expected action waste \$35,200\./i)).toBeInTheDocument();
   });
 
   it("coerces invalid numeric input to zero", () => {
@@ -60,7 +63,7 @@ describe("CardoGuard", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /run guard check/i }));
 
-    expect(screen.getByText(/expected action waste/i)).toBeInTheDocument();
+    expect(screen.getByText(/expected action waste/i, { selector: ".card-label" })).toBeInTheDocument();
     expect(screen.getByText(/\$0/, { selector: ".cardo-guard__metric-value" })).toBeInTheDocument();
   });
 });

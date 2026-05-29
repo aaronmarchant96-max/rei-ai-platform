@@ -14,11 +14,12 @@ describe("cardoGuard", () => {
     });
 
     expect(getSyntheticFalseAlarmRate(78)).toBe(0.44);
-    expect(review.recommendation).toBe("DO NOT ACT");
-    expect(review.shouldAct).toBe(false);
+    expect(review.calibratedEventLikelihood).toBeCloseTo(0.56);
+    expect(review.recommendation).toBe("ACT");
+    expect(review.shouldAct).toBe(true);
     expect(review.expectedActionWaste).toBeCloseTo(35200);
-    expect(review.expectedMissLoss).toBeCloseTo(19800);
-    expect(review.explanation).toContain("Action-waste");
+    expect(review.expectedMissLoss).toBeCloseTo(50400);
+    expect(review.explanation).toContain("calibrated event likelihood");
   });
 
   it("describes what would change the verdict", () => {
@@ -30,10 +31,10 @@ describe("cardoGuard", () => {
     });
 
     expect(buildCardoGuardComparison(review)).toEqual([
-      "Lower the cost of acting.",
-      "Show a lower calibrated false-alarm band.",
+      "Raise the cost of acting.",
+      "Show a higher calibrated false-alarm band.",
       "Prove the miss cost is smaller than assumed.",
-      "Narrow the scenario so the action is less broad."
+      "Show that the disruption impact is smaller or less likely than assumed."
     ]);
   });
 
