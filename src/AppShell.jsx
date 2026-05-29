@@ -7,17 +7,17 @@ const TOP_LEVEL = [
   {
     id: "furnace",
     label: "Debate Furnace",
-    subtitle: "CARDO REI Method for arguments"
+    subtitle: "Arguments get pressure-tested here."
   },
   {
     id: "story-forge",
     label: "Story Forge",
-    subtitle: "Find the story engine inside history"
+    subtitle: "Old sources turn into story blueprints."
   },
   {
     id: "storm-replay",
     label: "Storm Replay",
-    subtitle: "Extract signal from storm imagery"
+    subtitle: "Storm imagery gets a careful read."
   }
 ];
 
@@ -53,6 +53,8 @@ export default function AppShell() {
           <div className="shell-brand__eyebrow">AI tools lab</div>
           <div className="shell-brand__title">PromptHound Labs</div>
           <div className="shell-brand__sub">Structured outputs for messy input.</div>
+          <div className="shell-brand__method">Bring the hard question. We’ll find the hinge.</div>
+          <div className="shell-brand__method shell-brand__method--sub">CARDO REI loop: build the slice, test what holds, keep the limits visible.</div>
         </div>
 
         <nav className="top-tabs" aria-label="Top-level tools">
@@ -70,11 +72,7 @@ export default function AppShell() {
           ))}
         </nav>
       </header>
-
       <main className="shell-main">
-        <div className="method-chip" aria-label="PromptHound Labs method note">
-          CARDO REI loop: build small, verify, review, document.
-        </div>
         {tool === "story-forge" ? <CreativeEngine /> : tool === "storm-replay" ? <StormReplay /> : <DebateFurnace />}
       </main>
     </div>
