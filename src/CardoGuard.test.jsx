@@ -86,4 +86,15 @@ describe("CardoGuard", () => {
     ).toBeInTheDocument();
     expect(screen.getByText(/\$0/, { selector: ".cardo-guard__metric-value" })).toBeInTheDocument();
   });
+
+  it("shows the cautious synthetic band for low-confidence scenarios", () => {
+    render(<CardoGuard />);
+
+    fireEvent.change(screen.getByLabelText(/model confidence/i), {
+      target: { value: "70" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: /run guard check/i }));
+
+    expect(screen.getByText(/cautious synthetic band/i)).toBeInTheDocument();
+  });
 });

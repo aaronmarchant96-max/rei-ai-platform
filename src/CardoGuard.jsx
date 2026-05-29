@@ -60,7 +60,8 @@ export default function CardoGuard() {
   const comparison = useMemo(() => buildCardoGuardComparison(review), [review]);
   const whyThisVerdict = useMemo(() => buildCardoGuardWhyThisVerdict(review), [review]);
 
-  const confidenceBandLabel = `${review.confidenceBand} calibration band`;
+  const confidenceBandLabel =
+    review.confidenceBand === "low" ? "cautious synthetic band" : `${review.confidenceBand} calibration band`;
 
   function updateDraft(field, value) {
     setDraft((current) => ({ ...current, [field]: value }));
@@ -350,7 +351,7 @@ export default function CardoGuard() {
             <div className="card-label">What this is not</div>
             <div className="stacked-list">
               <span>Not a prediction model.</span>
-              <span>Not expert replacement.</span>
+              <span>Not an expert replacement.</span>
               <span>Not a generic AI governance dashboard.</span>
             </div>
           </div>
