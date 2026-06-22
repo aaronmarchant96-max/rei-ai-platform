@@ -26,6 +26,21 @@ describe("AppShell", () => {
     expect(screen.getByText("Find the real pattern. Forge a new story.")).toBeInTheDocument();
   });
 
+  it("routes to the Tools landing page", async () => {
+    render(<AppShell />);
+
+    fireEvent.click(screen.getByRole("button", { name: /^tools/i }));
+
+    await waitFor(() => {
+      expect(window.location.pathname).toBe("/tools");
+    });
+    await waitFor(() => {
+      expect(document.title).toBe("PromptHound Labs | Tools");
+    });
+    expect(screen.getByRole("button", { name: /^tools/i })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
+  });
+
   it("respects the initial hash on load", () => {
     window.history.replaceState({}, "", "/#storm-replay");
 
@@ -51,5 +66,15 @@ describe("AppShell", () => {
 
     expect(screen.getByRole("button", { name: /tracepoint/i })).toHaveAttribute("aria-pressed", "true");
     expect(document.title).toBe("PromptHound Labs | Tracepoint");
+  });
+
+  it("loads Tools from the pathname", () => {
+    window.history.replaceState({}, "", "/tools");
+
+    render(<AppShell />);
+
+    expect(screen.getByRole("button", { name: /^tools/i })).toHaveAttribute("aria-pressed", "true");
+    expect(document.title).toBe("PromptHound Labs | Tools");
+    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
   });
 });

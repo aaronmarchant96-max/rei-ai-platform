@@ -4,8 +4,14 @@ import CreativeEngine from "./CreativeEngine.jsx";
 import StormReplay from "./StormReplay.jsx";
 import CardoGuard from "./CardoGuard.jsx";
 import Tracepoint from "./Tracepoint.jsx";
+import ToolsLanding from "./ToolsLanding.jsx";
 
 const TOP_LEVEL = [
+  {
+    id: "tools",
+    label: "Tools",
+    subtitle: "Pick the slice you need."
+  },
   {
     id: "furnace",
     label: "Debate Furnace",
@@ -35,6 +41,7 @@ const TOP_LEVEL = [
 
 function getInitialTool() {
   if (typeof window === "undefined") return "furnace";
+  if (window.location.pathname === "/tools" || window.location.pathname === "/tools/") return "tools";
   if (window.location.hash === "#story-forge") return "story-forge";
   if (window.location.hash === "#storm-replay") return "storm-replay";
   if (window.location.hash === "#cardo-guard") return "cardo-guard";
@@ -42,24 +49,28 @@ function getInitialTool() {
   return "furnace";
 }
 
+function getToolPath(tool) {
+  if (tool === "tools") return "/tools";
+  if (tool === "story-forge") return "/#story-forge";
+  if (tool === "storm-replay") return "/#storm-replay";
+  if (tool === "cardo-guard") return "/#cardo-guard";
+  if (tool === "tracepoint") return "/#tracepoint";
+  return "/";
+}
+
 export default function AppShell() {
   const [tool, setTool] = useState(getInitialTool);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const hashByTool = {
-      furnace: "#furnace",
-      "story-forge": "#story-forge",
-      "storm-replay": "#storm-replay",
-      "cardo-guard": "#cardo-guard",
-      tracepoint: "#tracepoint"
-    };
-    const resolvedHash = hashByTool[tool] || "#furnace";
-    if (window.location.hash !== resolvedHash) {
-      window.history.replaceState({}, "", resolvedHash);
+    const resolvedPath = getToolPath(tool);
+    if (`${window.location.pathname}${window.location.hash}` !== resolvedPath) {
+      window.history.replaceState({}, "", resolvedPath);
     }
     document.title =
-      tool === "story-forge"
+      tool === "tools"
+        ? "PromptHound Labs | Tools"
+        : tool === "story-forge"
         ? "PromptHound Labs | Story Forge"
         : tool === "storm-replay"
           ? "PromptHound Labs | Storm Replay"
@@ -97,7 +108,9 @@ export default function AppShell() {
         </nav>
       </header>
       <main className="shell-main">
-        {tool === "story-forge" ? (
+        {tool === "tools" ? (
+          <ToolsLanding onOpenTool={setTool} />
+        ) : tool === "story-forge" ? (
           <CreativeEngine />
         ) : tool === "storm-replay" ? (
           <StormReplay />

@@ -147,7 +147,7 @@ button { font-family: inherit; }
 .top-tabs {
   align-items: stretch;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
   width: 100%;
 }
@@ -2241,6 +2241,93 @@ button { font-family: inherit; }
   max-width: 66ch;
 }
 
+.tools-page {
+  display: grid;
+  gap: 12px;
+}
+
+.tools-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 16px;
+}
+
+.tools-hero h1 {
+  margin: 4px 0 0;
+  font-size: clamp(34px, 4vw, 48px);
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.tools-hero__sub {
+  margin-top: 10px;
+  max-width: 68ch;
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.tools-hero__aside {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  align-self: start;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.tools-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(9, 13, 18, 0.98));
+  border-color: rgba(240, 199, 94, 0.1);
+}
+
+.tools-card h2 {
+  margin: 0;
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.tools-card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.tools-card__actions {
+  margin-top: 2px;
+}
+
+.tools-card__link {
+  text-decoration: none;
+}
+
+.tools-feedback {
+  background: linear-gradient(180deg, rgba(17, 24, 39, 0.95), rgba(10, 13, 18, 0.98));
+}
+
+.tools-feedback__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.tools-feedback__prompt {
+  color: var(--text-secondary);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
 @media (max-width: 900px) {
   .shell-header,
   .panel__head {
@@ -2323,6 +2410,12 @@ button { font-family: inherit; }
   .tracepoint__hero,
   .tracepoint__review-grid,
   .tracepoint__limits-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tools-hero,
+  .tools-grid,
+  .tools-feedback__grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
@@ -2579,7 +2672,9 @@ button { font-family: inherit; }
   .tracepoint-card,
   .tracepoint__evidence,
   .tracepoint__notes,
-  .tracepoint__summary-grid div {
+  .tracepoint__summary-grid div,
+  .tools-card,
+  .tools-feedback .mini-card {
     border-radius: 12px;
   }
 }
@@ -2624,6 +2719,10 @@ button { font-family: inherit; }
   }
 
   .tracepoint__hero {
+    padding: 18px 16px;
+  }
+
+  .tools-hero {
     padding: 18px 16px;
   }
 

@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/tools",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/tools/",
+      "destination": "/index.html"
+    }
+  ]
+}

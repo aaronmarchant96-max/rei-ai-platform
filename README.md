@@ -37,6 +37,8 @@ The broader suite in this repo also includes Story Forge (source-faithful story 
 
 [Try the full PromptHound Labs suite](https://debate-furnace-prompthound.vercel.app/)
 
+[Open the Tools page](https://debate-furnace-prompthound.vercel.app/tools)
+
 The same app contains:
 
 - **Debate Furnace** (default)
