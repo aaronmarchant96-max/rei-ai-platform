@@ -543,7 +543,7 @@ export default function Tracepoint() {
           </div>
           <div className="control-group">
             <label className="control-label" htmlFor="tracepoint-harm-reduction">
-              Estimated harm reduction from inspection/action
+              Intervention effectiveness after issue is confirmed
             </label>
             <input
               id="tracepoint-harm-reduction"
@@ -618,6 +618,9 @@ export default function Tracepoint() {
               <div>
                 Not acting: {formatTracepointPercent(calibratedProbability, 2)} × {formatTracepointMoney(missCost)} ={" "}
                 {formatTracepointMoney(decision.expectedCostNoAct)}
+              </div>
+              <div className="tracepoint__precision-note">
+                Figures may differ slightly because calculations use unrounded values.
               </div>
             </div>
           </div>
