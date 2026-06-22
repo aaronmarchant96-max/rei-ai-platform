@@ -16,8 +16,8 @@ import {
 const STORAGE_KEY = "prompthound.tracepoint.reviewer";
 
 const DEFAULT_COSTS = {
-  inspectionCost: 9200,
-  missCost: 180000
+  inspectionCost: 91900,
+  missCost: 163900
 };
 
 function safeReadState() {
@@ -524,7 +524,7 @@ export default function Tracepoint() {
           </div>
           <div className="control-group">
             <label className="control-label" htmlFor="tracepoint-probability">
-              Synthetic scenario likelihood estimate
+              Estimated calibrated probability issue is real
             </label>
             <input
               id="tracepoint-probability"
@@ -573,7 +573,7 @@ export default function Tracepoint() {
             <div className="tracepoint-card__value">
               {formatTracepointPercent(
                 decisionDefaults.detectionRate * decisionDefaults.followThroughRate * harmReduction,
-                2
+                0
               )}
             </div>
             <div className="tracepoint-card__note">Detection × follow-through × intervention effectiveness.</div>

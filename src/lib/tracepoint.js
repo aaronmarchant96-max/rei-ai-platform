@@ -459,10 +459,10 @@ export function calculateTracepointDecision({
 }
 
 export function getTracepointDecisionInputsFromScore(combinedScore) {
-  const probability = clamp(0.12 + combinedScore / 180, 0.12, 0.93);
-  const detectionRate = clamp(0.62 + combinedScore / 320, 0.62, 0.94);
-  const followThroughRate = clamp(0.7 + combinedScore / 420, 0.7, 0.96);
-  const harmReduction = clamp(0.42 + combinedScore / 360, 0.42, 0.9);
+  const probability = clamp(0.15 + combinedScore * 0.0068, 0.15, 0.83);
+  const detectionRate = clamp(0.7 + combinedScore * 0.00234, 0.7, 0.934);
+  const followThroughRate = clamp(0.78 + combinedScore * 0.00157, 0.78, 0.937);
+  const harmReduction = clamp(0.28 + combinedScore * 0.0021, 0.28, 0.49);
 
   return {
     calibratedProbability: roundTo(probability, 3),
