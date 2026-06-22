@@ -598,7 +598,7 @@ export default function Tracepoint() {
               {decision.economicallyJustified ? "Inspection is economically justified." : "Inspection is not economically justified."}
             </div>
             <div className="muted">
-              Estimated gap: {formatTracepointMoney(decision.expectedGap)} in favor of{" "}
+              Estimated gap: {formatTracepointMoney(Math.abs(decision.expectedGap))} in favor of{" "}
               {decision.economicallyJustified ? "acting" : "not acting"}.
             </div>
             <div className="tracepoint__decision-formula">
