@@ -258,6 +258,79 @@ export function buildTracepointRows(scenarioId = TRACEPOINT_SCENARIOS[0].id) {
   return rows;
 }
 
+function correlation(xValues, yValues) {
+  const n = Math.min(xValues.length, yValues.length);
+  if (n < 2) return 0;
+
+  const x = xValues.slice(0, n);
+  const y = yValues.slice(0, n);
+  const sumX = x.reduce((acc, value) => acc + value, 0);
+  const sumY = y.reduce((acc, value) => acc + value, 0);
+  const sumXY = x.reduce((acc, value, index) => acc + value * y[index], 0);
+  const sumX2 = x.reduce((acc, value) => acc + value * value, 0);
+  const sumY2 = y.reduce((acc, value) => acc + value * value, 0);
+  const numerator = n * sumXY - sumX * sumY;
+  const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY));
+  if (!denominator) return 0;
+  return roundTo(numerator / denominator, 3);
+}
+
+export function buildTracepointCorrelationSnapshot(rows) {
+  const recentRows = rows.slice(-24);
+  const baselineRows = rows.slice(0, 24);
+
+  const pairs = [
+    {
+      id: "vibration-temperature",
+      label: "Vibration / temperature",
+      xKey: "vibration_rms",
+      yKey: "bearing_temperature"
+    },
+    {
+      id: "pressure-flow",
+      label: "Pressure / flow",
+      xKey: "pressure",
+      yKey: "flow_rate"
+    },
+    {
+      id: "vibration-pressure",
+      label: "Vibration / pressure",
+      xKey: "vibration_rms",
+      yKey: "pressure"
+    }
+  ];
+
+  const correlations = pairs.map((pair) => {
+    const recent = correlation(
+      recentRows.map((row) => row[pair.xKey]),
+      recentRows.map((row) => row[pair.yKey])
+    );
+    const baseline = correlation(
+      baselineRows.map((row) => row[pair.xKey]),
+      baselineRows.map((row) => row[pair.yKey])
+    );
+    const delta = roundTo(recent - baseline, 3);
+    return {
+      ...pair,
+      recent,
+      baseline,
+      delta
+    };
+  });
+
+  const breakSignals = correlations.filter((pair) => pair.recent < 0.7 || pair.delta < -0.2);
+  const crossSensorFlag = breakSignals.length
+    ? `${breakSignals[0].label} is diverging from its baseline coupling`
+    : "Coupling looks stable in the recent window";
+
+  return {
+    windowHours: 24,
+    correlations,
+    breakSignals,
+    crossSensorFlag
+  };
+}
+
 function average(values) {
   if (!values.length) return 0;
   return values.reduce((sum, value) => sum + value, 0) / values.length;
@@ -582,6 +655,64 @@ export function buildTracepointReviewPacket({
       effective_harm_reduction: decision.effectiveHarmReduction,
       residual_harm_after_action: decision.residualHarmAfterAction
     },
+    limitation_statement:
+      "Synthetic calibration demo only. Not operational advice, not a forecasting system, and not a replacement for inspection, maintenance procedures, or safety controls.",
+    export_timestamp: exportTimestamp
+  };
+}
+
+export function buildTracepointHandoverReport({
+  scenario,
+  review,
+  decision,
+  reviewerMark,
+  reviewerNotes,
+  queueState,
+  auditTrail,
+  baselineState,
+  exportTimestamp
+}) {
+  return {
+    report_title: "Tracepoint shift handover",
+    scenario_metadata: {
+      scenario_id: scenario.id,
+      asset_id: scenario.assetId,
+      label: scenario.label,
+      baseline_scope: "Asset-specific baseline",
+      operating_context: scenario.subtitle
+    },
+    baseline_metadata: baselineState
+      ? {
+          asset_id: baselineState.assetId || scenario.assetId,
+          label: baselineState.label || scenario.label,
+          source: baselineState.source || "first 24 stable hours",
+          start_timestamp: baselineState.startTimestamp || "",
+          end_timestamp: baselineState.endTimestamp || "",
+          operator: baselineState.operator || "local"
+        }
+      : null,
+    review_snapshot: {
+      status: review.status,
+      combined_score: review.combinedScore,
+      main_driver: review.mainDriver,
+      multi_sensor_correlation: review.concordance,
+      suggested_action: queueState?.recommendedAction || "Monitor"
+    },
+    queue_state: {
+      owner: queueState?.owner || "Unassigned",
+      status: queueState?.status || "Queued",
+      next_handoff: queueState?.nextHandoff || "Shift review",
+      response_sla: queueState?.responseSla || "Before next shift handover"
+    },
+    decision_result: {
+      economically_justified: decision.economicallyJustified,
+      expected_cost_act: decision.expectedCostAct,
+      expected_cost_not_act: decision.expectedCostNoAct,
+      expected_gap: decision.expectedGap
+    },
+    reviewer_mark: reviewerMark || "unmarked",
+    reviewer_notes: reviewerNotes || "",
+    audit_trail: Array.isArray(auditTrail) ? auditTrail : [],
     limitation_statement:
       "Synthetic calibration demo only. Not operational advice, not a forecasting system, and not a replacement for inspection, maintenance procedures, or safety controls.",
     export_timestamp: exportTimestamp

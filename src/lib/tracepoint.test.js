@@ -1,5 +1,7 @@
 import {
   buildTracepointRows,
+  buildTracepointCorrelationSnapshot,
+  buildTracepointHandoverReport,
   buildTracepointReviewPacket,
   calculateTracepointDecision,
   calculateTracepointReview,
@@ -137,6 +139,59 @@ describe("tracepoint", () => {
     expect(packet.cost_inputs.calibrated_probability_issue_is_real).toBe(inputs.calibratedProbability);
     expect(packet.limitation_statement).toMatch(/synthetic calibration demo only/i);
     expect(packet.export_timestamp).toBe("2026-06-22T00:00:00.000Z");
+  });
+
+  it("builds a recent correlation snapshot for the workflow card", () => {
+    const rows = buildTracepointRows();
+    const snapshot = buildTracepointCorrelationSnapshot(rows);
+
+    expect(snapshot.windowHours).toBe(24);
+    expect(snapshot.correlations).toHaveLength(3);
+    expect(snapshot.breakSignals.length).toBeGreaterThan(0);
+    expect(snapshot.crossSensorFlag).toMatch(/diverging|stable/i);
+  });
+
+  it("builds a handover report with workflow and audit fields", () => {
+    const scenario = getTracepointScenarioById("pump-station-p-204");
+    const rows = buildTracepointRows();
+    const review = calculateTracepointReview(rows);
+    const inputs = getTracepointDecisionInputsFromScore(review.combinedScore);
+    const decision = calculateTracepointDecision({
+      inspectionCost: 91900,
+      missCost: 163900,
+      calibratedProbability: inputs.calibratedProbability,
+      detectionRate: inputs.detectionRate,
+      followThroughRate: inputs.followThroughRate,
+      harmReduction: inputs.harmReduction
+    });
+
+    const report = buildTracepointHandoverReport({
+      scenario,
+      review,
+      decision,
+      reviewerMark: "needs more data",
+      reviewerNotes: "Request sensor validation before escalation.",
+      queueState: {
+        owner: "Reliability tech",
+        status: "Queued",
+        nextHandoff: "Shift lead review",
+        responseSla: "Before next shift handover",
+        recommendedAction: "Validate sensors / targeted review before full inspection"
+      },
+      auditTrail: [
+        { timestamp: "2026-06-22T00:00:00.000Z", message: "Tracepoint opened for review" },
+        { timestamp: "2026-06-22T00:05:00.000Z", message: "Reviewer marked needs more data" }
+      ],
+      exportTimestamp: "2026-06-22T00:10:00.000Z"
+    });
+
+    expect(report.scenario_metadata.asset_id).toBe("P-204");
+    expect(report.scenario_metadata.baseline_scope).toMatch(/asset-specific/i);
+    expect(report.review_snapshot.suggested_action).toMatch(/validate sensors/i);
+    expect(report.queue_state.owner).toBe("Reliability tech");
+    expect(report.audit_trail).toHaveLength(2);
+    expect(report.reviewer_mark).toBe("needs more data");
+    expect(report.export_timestamp).toBe("2026-06-22T00:10:00.000Z");
   });
 
   it("summarizes the signal and economics readout for the decision card", () => {

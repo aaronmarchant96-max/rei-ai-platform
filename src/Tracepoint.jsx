@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   buildTracepointRows,
+  buildTracepointHandoverReport,
   buildTracepointReviewPacket,
+  buildTracepointCorrelationSnapshot,
   buildTracepointSensorSeries,
   calculateTracepointDecision,
   calculateTracepointReview,
@@ -21,6 +23,46 @@ const DEFAULT_COSTS = {
   inspectionCost: 91900,
   missCost: 163900
 };
+
+const DEFAULT_WORKFLOW = {
+  owner: "Reliability tech",
+  status: "Queued",
+  nextHandoff: "Shift lead review",
+  responseSla: "Before next shift handover"
+};
+
+const DEFAULT_BASELINE = {
+  assetId: "",
+  label: "",
+  startTimestamp: "",
+  endTimestamp: "",
+  operator: "local",
+  source: "first 24 stable hours"
+};
+
+const WORKFLOW_QUEUE = [
+  {
+    id: "reliability-tech",
+    label: "Reliability tech",
+    detail: "First pass on the signal and sensors",
+    response: "15 min",
+    note: "Validate sensors / targeted review"
+  },
+  {
+    id: "shift-lead",
+    label: "Shift lead",
+    detail: "Operational context and handover",
+    response: "Before handover",
+    note: "Review the queue and decide next step"
+  },
+  {
+    id: "supervisor",
+    label: "Operations supervisor",
+    detail: "Escalation if the signal stays elevated",
+    response: "As needed",
+    note: "Escalate only if the review stays open"
+  }
+];
 
 function safeReadState() {
   if (typeof window === "undefined") {
@@ -52,6 +94,37 @@ function downloadJsonFile(filename, data) {
   anchor.click();
   anchor.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function downloadTextFile(filename, text, type = "text/markdown;charset=utf-8") {
+  const blob = new Blob([text], { type });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function createAuditEntry(message, timestamp = new Date().toISOString()) {
+  return { timestamp, message };
+}
+
+function formatAuditStamp(timestamp) {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeStyle: "short",
+    dateStyle: "short",
+    timeZone: "America/Edmonton"
+  }).format(new Date(timestamp));
+}
+
+function formatBaselineStamp(timestamp) {
+  return new Intl.DateTimeFormat("en-CA", {
+    dateStyle: "medium",
+    timeZone: "America/Edmonton"
+  }).format(new Date(timestamp));
 }
 
 function buildSparklinePath(values, width = 260, height = 96) {
@@ -194,6 +267,76 @@ function ChartCard({ title, values, unitKey, tone, note, evidence, series, prima
   );
 }
 
+function CorrelationCard({ snapshot, rows }) {
+  const tiles = snapshot.correlations.slice(0, 2).map((pair) => {
+    const sampleRows = rows.slice(-24);
+    const points = sampleRows.map((row) => ({
+      x: row[pair.xKey],
+      y: row[pair.yKey]
+    }));
+    const xValues = points.map((point) => point.x);
+    const yValues = points.map((point) => point.y);
+    const xMin = Math.min(...xValues);
+    const xMax = Math.max(...xValues);
+    const yMin = Math.min(...yValues);
+    const yMax = Math.max(...yValues);
+    const xRange = xMax - xMin || 1;
+    const yRange = yMax - yMin || 1;
+    const width = 112;
+    const height = 86;
+
+    return {
+      ...pair,
+      points,
+      width,
+      height,
+      xMin,
+      yMin,
+      xRange,
+      yRange
+    };
+  });
+
+  return (
+    <article className="panel tracepoint-correlation">
+      <div className="panel__head">
+        <div>
+          <div className="card-label">Multi-sensor correlation</div>
+          <h2>How the signals move together</h2>
+        </div>
+        <div className="tracepoint-correlation__flag">{snapshot.crossSensorFlag}</div>
+      </div>
+      <div className="tracepoint-correlation__grid">
+        {tiles.map((tile) => (
+          <div key={tile.id} className="tracepoint-correlation__tile">
+            <div className="tracepoint-correlation__tile-head">
+              <strong>{tile.label}</strong>
+              <span>{(tile.recent * 100).toFixed(0)}%</span>
+            </div>
+            <svg viewBox={`0 0 ${tile.width} ${tile.height}`} className="tracepoint-correlation__svg" aria-hidden="true">
+              <line x1="10" y1={tile.height - 10} x2={tile.width - 10} y2="10" className="tracepoint-correlation__trend" />
+              {tile.points.map((point, index) => {
+                const cx = 10 + ((point.x - tile.xMin) / tile.xRange) * (tile.width - 20);
+                const cy = tile.height - 10 - ((point.y - tile.yMin) / tile.yRange) * (tile.height - 20);
+                return <circle key={`${tile.id}-${index}`} cx={cx} cy={cy} r="2.1" className="tracepoint-correlation__point" />;
+              })}
+            </svg>
+          </div>
+        ))}
+      </div>
+      <div className="tracepoint-correlation__meta">
+        {snapshot.correlations.map((pair) => (
+          <div key={pair.id} className="tracepoint-correlation__meta-row">
+            <span>{pair.label}</span>
+            <strong>{(pair.recent * 100).toFixed(0)}%</strong>
+            <em>{pair.delta >= 0 ? "+" : ""}{(pair.delta * 100).toFixed(0)} vs baseline</em>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
 function ReviewMarkButton({ active, children, ...props }) {
   return (
     <button type="button" className={active ? "pill tracepoint-pill is-active" : "pill tracepoint-pill"} {...props}>
@@ -306,7 +449,7 @@ function SignalStack({ sensorDetails, concordance }) {
         </div>
       ))}
       <div className="tracepoint-agreement">
-        <div className="tracepoint-agreement__label">Sensor agreement</div>
+        <div className="tracepoint-agreement__label">Multi-sensor correlation</div>
         <div className="tracepoint-agreement__nodes" aria-hidden="true">
           <span />
           <span />
@@ -386,6 +529,19 @@ export default function Tracepoint() {
   const [missCost, setMissCost] = useState(DEFAULT_COSTS.missCost);
   const [calibratedProbability, setCalibratedProbability] = useState(decisionDefaults.calibratedProbability);
   const [harmReduction, setHarmReduction] = useState(decisionDefaults.harmReduction);
+  const [workflowOwner, setWorkflowOwner] = useState(DEFAULT_WORKFLOW.owner);
+  const [workflowStatus, setWorkflowStatus] = useState(DEFAULT_WORKFLOW.status);
+  const [workflowNextHandoff, setWorkflowNextHandoff] = useState(DEFAULT_WORKFLOW.nextHandoff);
+  const [workflowResponseSla, setWorkflowResponseSla] = useState(DEFAULT_WORKFLOW.responseSla);
+  const [baselineState, setBaselineState] = useState({
+    ...DEFAULT_BASELINE,
+    assetId: scenario.assetId,
+    label: scenario.label,
+    startTimestamp: rows[0]?.timestamp || "",
+    endTimestamp: rows[23]?.timestamp || rows[0]?.timestamp || "",
+    source: "first 24 stable hours"
+  });
+  const [auditTrail, setAuditTrail] = useState([createAuditEntry("Tracepoint opened for review")]);
   const [savedStateLoaded, setSavedStateLoaded] = useState(false);
 
   useEffect(() => {
@@ -398,12 +554,40 @@ export default function Tracepoint() {
       setMissCost(Number(entry.missCost) || DEFAULT_COSTS.missCost);
       setCalibratedProbability(Number(entry.calibratedProbability) || decisionDefaults.calibratedProbability);
       setHarmReduction(Number(entry.harmReduction) || decisionDefaults.harmReduction);
+      setWorkflowOwner(entry.workflowOwner || DEFAULT_WORKFLOW.owner);
+      setWorkflowStatus(entry.workflowStatus || DEFAULT_WORKFLOW.status);
+      setWorkflowNextHandoff(entry.workflowNextHandoff || DEFAULT_WORKFLOW.nextHandoff);
+      setWorkflowResponseSla(entry.workflowResponseSla || DEFAULT_WORKFLOW.responseSla);
+      setBaselineState(
+        entry.baselineState || {
+          ...DEFAULT_BASELINE,
+          assetId: scenario.assetId,
+          label: scenario.label,
+          startTimestamp: rows[0]?.timestamp || "",
+          endTimestamp: rows[23]?.timestamp || rows[0]?.timestamp || "",
+          source: "first 24 stable hours"
+        }
+      );
+      setAuditTrail(Array.isArray(entry.auditTrail) && entry.auditTrail.length ? entry.auditTrail : [createAuditEntry("Review reopened from saved state")]);
     } else {
       setCalibratedProbability(decisionDefaults.calibratedProbability);
       setHarmReduction(decisionDefaults.harmReduction);
+      setWorkflowOwner(DEFAULT_WORKFLOW.owner);
+      setWorkflowStatus(DEFAULT_WORKFLOW.status);
+      setWorkflowNextHandoff(DEFAULT_WORKFLOW.nextHandoff);
+      setWorkflowResponseSla(DEFAULT_WORKFLOW.responseSla);
+      setBaselineState({
+        ...DEFAULT_BASELINE,
+        assetId: scenario.assetId,
+        label: scenario.label,
+        startTimestamp: rows[0]?.timestamp || "",
+        endTimestamp: rows[23]?.timestamp || rows[0]?.timestamp || "",
+        source: "first 24 stable hours"
+      });
+      setAuditTrail([createAuditEntry("Tracepoint opened for review")]);
     }
     setSavedStateLoaded(true);
-  }, [decisionDefaults.calibratedProbability, decisionDefaults.harmReduction, scenario.id]);
+  }, [decisionDefaults.calibratedProbability, decisionDefaults.harmReduction, rows, scenario.assetId, scenario.id, scenario.label]);
 
   useEffect(() => {
     if (!savedStateLoaded) return;
@@ -416,12 +600,33 @@ export default function Tracepoint() {
         inspectionCost,
         missCost,
         calibratedProbability,
-        harmReduction
+        harmReduction,
+        workflowOwner,
+        workflowStatus,
+        workflowNextHandoff,
+        workflowResponseSla,
+        baselineState,
+        auditTrail
       }
     };
 
     safeWriteState(next);
-  }, [calibratedProbability, harmReduction, inspectionCost, missCost, reviewerMark, reviewerNotes, savedStateLoaded, scenario.id]);
+  }, [
+    auditTrail,
+    calibratedProbability,
+    harmReduction,
+    inspectionCost,
+    missCost,
+    reviewerMark,
+    reviewerNotes,
+    savedStateLoaded,
+    scenario.id,
+    workflowNextHandoff,
+    workflowOwner,
+    workflowResponseSla,
+    workflowStatus,
+    baselineState
+  ]);
 
   const decision = useMemo(
     () =>
@@ -439,6 +644,7 @@ export default function Tracepoint() {
   const currentRow = rows[rows.length - 1];
   const scenarioIndex = TRACEPOINT_SCENARIOS.findIndex((item) => item.id === scenario.id);
   const sensorByKey = review.sensorMap || {};
+  const correlationSnapshot = useMemo(() => buildTracepointCorrelationSnapshot(rows), [rows]);
   const seriesByKey = useMemo(
     () => ({
       vibration_rms: buildTracepointSensorSeries(rows, "vibration_rms"),
@@ -474,9 +680,17 @@ export default function Tracepoint() {
       : review.status === "Watch"
           ? "Collect more data"
           : "Monitor";
+  const workflowQueue = useMemo(
+    () =>
+      WORKFLOW_QUEUE.map((item) => ({
+        ...item,
+        active: item.label === workflowOwner
+      })),
+    [workflowOwner]
+  );
   const reviewExplainer =
     review.status === "Review Recommended"
-      ? `Review recommended. Vibration is ${vibrationEvidence ? vibrationEvidence.driftPercent : 0}% above its baseline median after EWMA smoothing. Bearing temperature is ${temperatureEvidence ? temperatureEvidence.driftPercent : 0}% above baseline and has stayed elevated for ${temperatureEvidence ? temperatureEvidence.persistenceCount : 0} readings. Pressure and flow are moving in the expected direction with ${Math.round((review.concordance || 0) * 100)}% sensor agreement.`
+      ? `Review recommended. Vibration is ${vibrationEvidence ? vibrationEvidence.driftPercent : 0}% above its asset-specific baseline after EWMA smoothing. Bearing temperature is ${temperatureEvidence ? temperatureEvidence.driftPercent : 0}% above baseline and has stayed elevated for ${temperatureEvidence ? temperatureEvidence.persistenceCount : 0} readings. Pressure and flow are moving in the expected direction with ${Math.round((review.concordance || 0) * 100)}% multi-sensor correlation.`
       : review.status === "Watch"
         ? `Watch. The signal is moving away from baseline, but it has not crossed the review threshold yet.`
         : `Normal. The combined signal stays within the conservative threshold band used for this synthetic demo.`;
@@ -484,6 +698,83 @@ export default function Tracepoint() {
 
   function handleMark(mark) {
     setReviewerMark(mark);
+    setAuditTrail((trail) => [createAuditEntry(`Reviewer marked ${mark}`), ...trail].slice(0, 8));
+  }
+
+  function routeWorkflow(item) {
+    setWorkflowOwner(item.label);
+    setWorkflowStatus(item.id === "supervisor" ? "Escalated" : item.id === "shift-lead" ? "Queued for shift review" : "Queued");
+    setWorkflowNextHandoff(item.note);
+    setWorkflowResponseSla(item.response);
+    setAuditTrail((trail) => [createAuditEntry(`Queued for ${item.label}`), ...trail].slice(0, 8));
+  }
+
+  function saveBaseline() {
+    setBaselineState({
+      assetId: scenario.assetId,
+      label: scenario.label,
+      startTimestamp: rows[0]?.timestamp || "",
+      endTimestamp: rows[23]?.timestamp || rows[0]?.timestamp || "",
+      operator: "local",
+      source: "first 24 stable hours"
+    });
+    setAuditTrail((trail) => [createAuditEntry(`Saved asset baseline for ${scenario.assetId}`), ...trail].slice(0, 8));
+  }
+
+  function exportHandoverReport() {
+    const report = buildTracepointHandoverReport({
+      scenario,
+      review,
+      decision,
+      reviewerMark,
+      reviewerNotes,
+      baselineState,
+      queueState: {
+        owner: workflowOwner,
+        status: workflowStatus,
+        nextHandoff: workflowNextHandoff,
+        responseSla: workflowResponseSla,
+        recommendedAction: actionRecommendation,
+        baseline: baselineState
+      },
+      auditTrail,
+      exportTimestamp: new Date().toISOString()
+    });
+
+    const markdown = [
+      "# Tracepoint shift handover",
+      "",
+      `- Asset: ${report.scenario_metadata.asset_id} (${report.scenario_metadata.label})`,
+      `- Scenario: ${report.scenario_metadata.baseline_scope} / ${report.scenario_metadata.operating_context}`,
+      `- Review status: ${report.review_snapshot.status}`,
+      `- Signal review score: ${report.review_snapshot.combined_score.toFixed(1)}`,
+      `- Multi-sensor correlation: ${(report.review_snapshot.multi_sensor_correlation * 100).toFixed(0)}%`,
+      `- Recommended action: ${report.review_snapshot.suggested_action}`,
+      `- Queue owner: ${report.queue_state.owner}`,
+      `- Queue status: ${report.queue_state.status}`,
+      `- Next handoff: ${report.queue_state.next_handoff}`,
+      `- Response target: ${report.queue_state.response_sla}`,
+      `- Baseline: ${baselineState.assetId || scenario.assetId} / ${baselineState.source} / ${baselineState.startTimestamp ? formatBaselineStamp(baselineState.startTimestamp) : "n/a"} to ${baselineState.endTimestamp ? formatBaselineStamp(baselineState.endTimestamp) : "n/a"}`,
+      `- Reviewer mark: ${report.reviewer_mark}`,
+      `- Reviewer note: ${report.reviewer_notes || "none"}`,
+      "",
+      "## Evidence",
+      ...review.sensorDetails.map(
+        (detail) =>
+          `- ${detail.label}: ${formatMetric(detail.latestValue, detail.unit)} | EWMA ${formatMetric(detail.ewmaCurrent, detail.unit)} | baseline ${formatMetric(detail.baselineMedian, detail.unit)} | z ${formatRobustZ(detail.robustZ)}`
+      ),
+      "",
+      "## Audit trail",
+      ...(report.audit_trail.length
+        ? report.audit_trail.map((entry) => `- ${formatAuditStamp(entry.timestamp)}: ${entry.message}`)
+        : ["- No workflow actions logged."]),
+      "",
+      `Limitation: ${report.limitation_statement}`,
+      `Exported: ${report.export_timestamp}`
+    ].join("\n");
+
+    downloadTextFile("tracepoint-handover-report.md", markdown);
+    setAuditTrail((trail) => [createAuditEntry("Exported shift handover report"), ...trail].slice(0, 8));
   }
 
   function exportPacket() {
@@ -595,7 +886,7 @@ export default function Tracepoint() {
             </div>
             <div>
               <span>Baseline</span>
-              <strong>first 24 stable hours</strong>
+              <strong>asset-specific, first 24 stable hours</strong>
             </div>
             <div>
               <span>Windows</span>
@@ -608,6 +899,23 @@ export default function Tracepoint() {
             <div>
               <span>Generator</span>
               <strong>deterministic-synthetic-v1</strong>
+            </div>
+          </div>
+          <div className="tracepoint-baseline">
+            <div className="card-label">Asset-specific baseline</div>
+            <div className="tracepoint-baseline__meta">
+              <span>{baselineState.assetId || scenario.assetId}</span>
+              <strong>{baselineState.source}</strong>
+              <span>
+                {baselineState.startTimestamp ? formatBaselineStamp(baselineState.startTimestamp) : "n/a"} to{" "}
+                {baselineState.endTimestamp ? formatBaselineStamp(baselineState.endTimestamp) : "n/a"}
+              </span>
+              <span>Operator: {baselineState.operator}</span>
+            </div>
+            <div className="tracepoint-baseline__actions">
+              <button type="button" className="pill" onClick={saveBaseline}>
+                Set Baseline
+              </button>
             </div>
           </div>
         </article>
@@ -630,6 +938,8 @@ export default function Tracepoint() {
         </div>
 
         <SignalTimeline scenario={scenario} />
+
+        <CorrelationCard snapshot={correlationSnapshot} rows={rows} />
 
         <div className="tracepoint__chart-grid">
           <ChartCard
@@ -869,41 +1179,99 @@ export default function Tracepoint() {
       <section className="panel tracepoint__reviewer">
         <div className="panel__head">
           <div>
-            <div className="eyebrow">Reviewer workflow</div>
-            <h2>Mark the review, keep the judgment human</h2>
+            <div className="eyebrow">Team workflow</div>
+            <h2>Keep the review human and the handoff visible</h2>
           </div>
         </div>
         <div className="tracepoint__reviewer-note">
           The score prepares a review. A reviewer decides whether action is justified.
         </div>
+        <div className="tracepoint__reviewer-grid">
+          <div className="tracepoint__reviewer-main">
+            <div className="button-row tracepoint__mark-row">
+              {TRACEPOINT_REVIEW_MARKS.map((mark) => (
+                <ReviewMarkButton
+                  key={mark}
+                  active={reviewerMark === mark}
+                  onClick={() => handleMark(mark)}
+                  aria-pressed={reviewerMark === mark}
+                >
+                  {mark}
+                </ReviewMarkButton>
+              ))}
+            </div>
 
-        <div className="button-row tracepoint__mark-row">
-          {TRACEPOINT_REVIEW_MARKS.map((mark) => (
-            <ReviewMarkButton
-              key={mark}
-              active={reviewerMark === mark}
-              onClick={() => handleMark(mark)}
-              aria-pressed={reviewerMark === mark}
-            >
-              {mark}
-            </ReviewMarkButton>
-          ))}
+            <div className="control-group">
+              <label className="control-label" htmlFor="tracepoint-notes">
+                Add review note
+              </label>
+              <textarea
+                id="tracepoint-notes"
+                className="tracepoint__notes"
+                value={reviewerNotes}
+                onChange={(event) => setReviewerNotes(event.target.value)}
+                placeholder="Write what you saw, what else could explain it, and what should be checked next."
+              />
+            </div>
+
+            <div className="tracepoint__saved">Saved locally for this browser session.</div>
+          </div>
+
+          <div className="tracepoint__workflow-panel">
+            <div className="mini-card">
+              <div className="card-label">Team queue</div>
+              <div className="tracepoint__queue-state">{workflowStatus}</div>
+              <div className="tracepoint__queue-meta">
+                <span>Owner</span>
+                <strong>{workflowOwner}</strong>
+              </div>
+              <div className="tracepoint__queue-meta">
+                <span>Next handoff</span>
+                <strong>{workflowNextHandoff}</strong>
+              </div>
+              <div className="tracepoint__queue-meta">
+                <span>Response target</span>
+                <strong>{workflowResponseSla}</strong>
+              </div>
+            </div>
+
+            <div className="tracepoint__queue-list">
+              {workflowQueue.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={item.active ? "tracepoint__queue-item is-active" : "tracepoint__queue-item"}
+                  onClick={() => routeWorkflow(item)}
+                >
+                  <span className="tracepoint__queue-item-title">{item.label}</span>
+                  <span className="tracepoint__queue-item-detail">{item.detail}</span>
+                  <span className="tracepoint__queue-item-response">{item.response}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mini-card">
+              <div className="card-label">Audit trail</div>
+              <div className="tracepoint__audit-trail">
+                {auditTrail.slice(0, 4).map((entry) => (
+                  <div key={`${entry.timestamp}-${entry.message}`} className="tracepoint__audit-entry">
+                    <span>{formatAuditStamp(entry.timestamp)}</span>
+                    <strong>{entry.message}</strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="tracepoint__workflow-actions">
+              <button type="button" className="pill pill--primary" onClick={exportHandoverReport}>
+                Export Handover Report
+              </button>
+              <div className="tracepoint__workflow-note">
+                Shift handover captures the current queue, notes, and audit trail for the next reviewer.
+              </div>
+            </div>
+          </div>
         </div>
-
-        <div className="control-group">
-          <label className="control-label" htmlFor="tracepoint-notes">
-            Add review note
-          </label>
-          <textarea
-            id="tracepoint-notes"
-            className="tracepoint__notes"
-            value={reviewerNotes}
-            onChange={(event) => setReviewerNotes(event.target.value)}
-            placeholder="Write what you saw, what else could explain it, and what should be checked next."
-          />
-        </div>
-
-        <div className="tracepoint__saved">Saved locally for this browser session.</div>
       </section>
 
       <section className="panel tracepoint__limits">
