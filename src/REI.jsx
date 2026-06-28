@@ -5,57 +5,33 @@ const DOMAIN_PROFILES = [
     id: "assistant",
     label: "General Assistant",
     badge: "Active",
-    description: "General-purpose methodology assistant applying CARDO REI to clarify reasoning, find hinges, and verify claims.",
-    rules: ["Separate facts from interpretation", "Isolate key decision variables", "Define bounds of evidence"],
-    exemplar: "Logical decomposition of complex qualitative policy queries."
+    description: "A standard, friendly LLM assistant to converse naturally, answer general questions, and help with daily tasks.",
+    rules: ["Clear and friendly replies", "Constructive, natural dialogue", "Brevity by default"],
+    exemplar: "Conversing naturally on various everyday subjects."
   },
   {
-    id: "gpt",
-    label: "GPT Mode",
+    id: "coding",
+    label: "Coding Helper",
     badge: "Active",
-    description: "Proprietary reasoning router mapping requests to high-performance closed-source models.",
-    rules: ["Identify logic loops", "Coerce structured JSON output format"],
-    exemplar: "Multi-layered debate summary and sentiment breakdown."
-  },
-  {
-    id: "oss",
-    label: "OSS Mode",
-    badge: "Active",
-    description: "Strict open-source routing using highly performant Llama and Mixtral models.",
-    rules: ["Optimize for low latency", "Enforce local model fallback triggers"],
-    exemplar: "Context-aware token routing for long telemetry files."
+    description: "Rigorous system evaluation engine designed to write obvious, testable, and boring code.",
+    rules: ["Verify API shapes before coding", "Name hinges explicitly", "Stop and ask if underspecified"],
+    exemplar: "Decomposing complex requirements into small, testable coding iterations."
   },
   {
     id: "genealogy",
-    label: "Genealogy",
+    label: "Genealogy Helper",
     badge: "Active",
-    description: "Family Archive data pipeline managing 117 profiles and 73 documents.",
-    rules: ["Parent age min: 13", "Mother age max: 55", "Father age max: 80"],
-    exemplar: "Thomas Ramsey same-name disambiguation profile separation."
+    description: "Historian evidence evaluation framework tiering sources and separating same-name profiles.",
+    rules: ["Compare parent-child age limits", "Assign primary/strong evidence tiers", "Log negative search query results"],
+    exemplar: "Thomas Ramsey same-name disambiguation and parish register evaluation."
   },
   {
-    id: "llm",
-    label: "LLM Arena",
+    id: "story",
+    label: "Story Builder",
     badge: "Active",
-    description: "Adversarial testing harness probing prompt injections and semantic leakage.",
-    rules: ["Control/poison run isolation", "Verbatim snippet extraction checks"],
-    exemplar: "Case 006 poisoned context resistance analysis."
-  },
-  {
-    id: "debate",
-    label: "Debate Furnace",
-    badge: "Active",
-    description: "Orchestration layer evaluating arguments under custom heat profiles.",
-    rules: ["Verdict compass mapping", "Decision path classification"],
-    exemplar: "Balanced/Aggressive topic profile weight comparisons."
-  },
-  {
-    id: "risk",
-    label: "CARDO GUARD",
-    badge: "Active",
-    description: "Expected cost evaluator gating action on model confidence scores.",
-    rules: ["Action Waste = Cost * False Alarm Rate", "Miss Loss = Cost * (1 - False Alarm)"],
-    exemplar: "Reroute decision expected cost margin analysis."
+    description: "Creative orchestration assistant generating story blueprints and narrative arcs using Story Forge principles.",
+    rules: ["Establish clear blueprint structure", "Identify core character driver hinges", "Avoid cliché tropes by default"],
+    exemplar: "Expanding historical inspiration seeds into multi-part character outlines."
   }
 ];
 
@@ -64,7 +40,7 @@ export default function REI() {
   const [inputMessage, setInputMessage] = useState("");
   const [messages, setMessages] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("rei_chat_history");
+      const saved = localStorage.getItem("rei_chat_history_v2");
       if (saved) {
         try {
           return JSON.parse(saved);
@@ -76,7 +52,7 @@ export default function REI() {
     return [
       {
         sender: "rei",
-        text: "System initialized. Welcome to REI.AI, your CARDO REI methodology assistant. How can I help you evaluate context, organize evidence, or locate decision hinges today?",
+        text: "System initialized. Welcome to REI.AI. Select a helper profile from the header, and let's work on something together today!",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ];
@@ -94,7 +70,7 @@ export default function REI() {
   // Sync to local storage
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem("rei_chat_history", JSON.stringify(messages));
+      localStorage.setItem("rei_chat_history_v2", JSON.stringify(messages));
     }
   }, [messages]);
 
@@ -102,13 +78,13 @@ export default function REI() {
     const defaultMsg = [
       {
         sender: "rei",
-        text: "System initialized. Welcome to REI.AI, your CARDO REI methodology assistant. How can I help you evaluate context, organize evidence, or locate decision hinges today?",
+        text: "System initialized. Welcome to REI.AI. Select a helper profile from the header, and let's work on something together today!",
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       }
     ];
     setMessages(defaultMsg);
     if (typeof window !== "undefined") {
-      localStorage.removeItem("rei_chat_history");
+      localStorage.removeItem("rei_chat_history_v2");
     }
   };
 
@@ -132,19 +108,13 @@ export default function REI() {
       let systemContext = "You are a helpful CARDO REI methodology assistant. Help the user clarify reasoning, find hinges, and verify claims.";
       
       if (selectedDomain === "assistant") {
-        systemContext = "You are REI.AI, a general-purpose methodology assistant. Help the user decompose arguments, identify unproven assertions, and find the hinge using CARDO REI.";
-      } else if (selectedDomain === "gpt") {
-        systemContext = "You are REI.AI routing to proprietary model profiles. Focus on structured reasoning, detailed breakdowns, and high-performance evaluations.";
-      } else if (selectedDomain === "oss") {
-        systemContext = "You are REI.AI routing to open-source model configurations (Llama/Mixtral). Apply strict evidentiary criteria and keep your bounds visible.";
+        systemContext = "You are a standard, friendly LLM general assistant. Respond naturally, constructively, and helper-focused to any everyday query.";
+      } else if (selectedDomain === "coding") {
+        systemContext = "You are REI.AI, a senior coding companion. Write code that is clean, obvious, and testable. Follow Phase 0 constraints and verify boundaries.";
       } else if (selectedDomain === "genealogy") {
         systemContext = "You are a genealogical research assistant using CARDO REI methodology. Evaluate evidence with 🟢🔵🟠🟡 tier tags.";
-      } else if (selectedDomain === "llm") {
-        systemContext = "You are an LLM adversarial testing assistant. Apply CARDO REI to evaluate prompt injections and semantic leakage.";
-      } else if (selectedDomain === "debate") {
-        systemContext = "You are a debate analysis assistant. Find the hinge and flag logical gaps.";
-      } else if (selectedDomain === "risk") {
-        systemContext = "You are a decision cost evaluator. Compare expected action waste vs miss loss.";
+      } else if (selectedDomain === "story") {
+        systemContext = "You are a story builder helper using Story Forge principles. Generate rich, structural narrative blueprints and character arcs from raw details.";
       }
 
       // Format previous chat history to send to backend (last 10 messages)
