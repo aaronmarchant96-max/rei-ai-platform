@@ -131,10 +131,16 @@ function selectGroqModel(prompt = "") {
   return "llama-3.3-70b-versatile";
 }
 
-async function callGroqDirectly(prompt) {
+async function callGroqDirectly(prompt, history = []) {
   const isGptMode =
     prompt.toLowerCase().includes("proprietary model profiles") ||
     prompt.toLowerCase().includes("gpt mode");
+
+  // Filter history to conform to OpenAI chat message roles (system, user, assistant)
+  const formattedHistory = history.map(msg => ({
+    role: msg.role === "assistant" || msg.role === "system" ? msg.role : "user",
+    content: msg.content
+  }));
 
   if (isGptMode && process.env.OPENAI_API_KEY) {
     try {
@@ -151,6 +157,7 @@ async function callGroqDirectly(prompt) {
               role: "system",
               content: REI_SYSTEM_PROMPT,
             },
+            ...formattedHistory,
             {
               role: "user",
               content: prompt,
@@ -193,6 +200,7 @@ async function callGroqDirectly(prompt) {
           role: "system",
           content: REI_SYSTEM_PROMPT,
         },
+        ...formattedHistory,
         {
           role: "user",
           content: prompt,
@@ -221,7 +229,7 @@ async function callGroqDirectly(prompt) {
   };
 }
 
-async function handleCfaiRequest(command, args = [], input = "") {
+async function handleCfaiRequest(command, args = [], input = "", history = []) {
   // Check if CLI is available locally
   const localCliExists = fs.existsSync(CFAI_PATH);
 
@@ -229,7 +237,7 @@ async function handleCfaiRequest(command, args = [], input = "") {
     try {
       // Fallback: execute direct Groq API routing
       const payload = input || (args.length > 0 ? args.join(" ") : "help");
-      const response = await callGroqDirectly(payload);
+      const response = await callGroqDirectly(payload, history);
       return {
         success: true,
         result: response.content,
@@ -284,8 +292,8 @@ export default async function handler(req, res) {
     res.setHeader("Content-Type", "application/json");
 
     if (req.method === "POST") {
-      const { command, args = [], input = "" } = req.body || {};
-      const result = await handleCfaiRequest(command, args, input);
+      const { command, args = [], input = "", history = [] } = req.body || {};
+      const result = await handleCfaiRequest(command, args, input, history);
       return res.status(result.success ? 200 : 500).json(result);
     }
 
