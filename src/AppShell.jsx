@@ -3,7 +3,6 @@ import DebateFurnace from "./DebateFurnace.jsx";
 import CreativeEngine from "./CreativeEngine.jsx";
 import StormReplay from "./StormReplay.jsx";
 import CardoGuard from "./CardoGuard.jsx";
-import HingeMeter from "./HingeMeter.jsx";
 import REI from "./REI.jsx";
 import Tracepoint from "./Tracepoint.jsx";
 import ToolsLanding from "./ToolsLanding.jsx";
@@ -12,43 +11,38 @@ const TOP_LEVEL = [
   {
     id: "tools",
     label: "Tools",
-    subtitle: "Pick the slice you need.",
+    subtitle: "Pick the slice you need."
   },
   {
     id: "furnace",
     label: "Debate Furnace",
-    subtitle: "Arguments get pressure-tested here.",
+    subtitle: "Arguments get pressure-tested here."
   },
   {
     id: "story-forge",
     label: "Story Forge",
-    subtitle: "Old sources turn into story blueprints.",
+    subtitle: "Old sources turn into story blueprints."
   },
   {
     id: "storm-replay",
     label: "Storm Replay",
-    subtitle: "Storm imagery gets a careful read.",
+    subtitle: "Storm imagery gets a careful read."
   },
   {
     id: "cardo-guard",
     label: "CARDO GUARD",
-    subtitle: "AI scores get checked against cost.",
-  },
-  {
-    id: "hinge-meter",
-    label: "Hinge Meter",
-    subtitle: "Visualize balance & decision flips.",
+    subtitle: "AI scores get checked against cost."
   },
   {
     id: "rei",
     label: "REI",
-    subtitle: "Methodology engine overview.",
+    subtitle: "Methodology engine overview."
   },
   {
     id: "tracepoint",
     label: "Tracepoint",
-    subtitle: "Industrial signals stay evidence-first.",
-  },
+    subtitle: "Industrial signals stay evidence-first."
+  }
 ];
 
 function getInitialTool() {
@@ -58,9 +52,9 @@ function getInitialTool() {
   if (window.location.hash === "#story-forge") return "story-forge";
   if (window.location.hash === "#storm-replay") return "storm-replay";
   if (window.location.hash === "#cardo-guard") return "cardo-guard";
-  if (window.location.hash === "#hinge-meter") return "hinge-meter";
   if (window.location.hash === "#rei" || window.location.hash === "#cfai") return "rei";
   if (window.location.hash === "#tracepoint") return "tracepoint";
+  if (window.location.hash === "#hinge-meter") return "tools"; // redirect unauthorized hash to tools landing
   return "furnace";
 }
 
@@ -69,7 +63,6 @@ function getToolPath(tool) {
   if (tool === "story-forge") return "/#story-forge";
   if (tool === "storm-replay") return "/#storm-replay";
   if (tool === "cardo-guard") return "/#cardo-guard";
-  if (tool === "hinge-meter") return "/#hinge-meter";
   if (tool === "rei") return "/#rei";
   if (tool === "tracepoint") return "/#tracepoint";
   return "/";
@@ -88,25 +81,22 @@ export default function AppShell() {
       tool === "tools"
         ? "PromptHound Labs | Tools"
         : tool === "story-forge"
-          ? "PromptHound Labs | Story Forge"
-          : tool === "storm-replay"
-            ? "PromptHound Labs | Storm Replay"
-            : tool === "cardo-guard"
-              ? "PromptHound Labs | CARDO GUARD"
-              : tool === "hinge-meter"
-                ? "PromptHound Labs | Hinge Meter"
-                : tool === "rei"
-                  ? "PromptHound Labs | REI"
-                  : tool === "tracepoint"
-                    ? "PromptHound Labs | Tracepoint"
-                    : "PromptHound Labs | Debate Furnace";
+        ? "PromptHound Labs | Story Forge"
+        : tool === "storm-replay"
+          ? "PromptHound Labs | Storm Replay"
+        : tool === "cardo-guard"
+            ? "PromptHound Labs | CARDO GUARD"
+            : tool === "rei"
+              ? "PromptHound Labs | REI"
+              : tool === "tracepoint"
+                ? "PromptHound Labs | Tracepoint"
+                : "PromptHound Labs | Debate Furnace";
   }, [tool]);
 
   return (
     <div className="app-shell">
       <header className="shell-header">
         <div className="shell-brand">
-          <div className="shell-brand__eyebrow">AI tools lab</div>
           <div className="shell-brand__title">PromptHound Labs</div>
           <div className="shell-brand__sub">Structured outputs for messy input.</div>
           <div className="shell-brand__method">Bring the hard question. We’ll find the hinge.</div>
@@ -139,8 +129,6 @@ export default function AppShell() {
           <StormReplay />
         ) : tool === "cardo-guard" ? (
           <CardoGuard />
-        ) : tool === "hinge-meter" ? (
-          <HingeMeter />
         ) : tool === "rei" ? (
           <REI />
         ) : tool === "tracepoint" ? (
