@@ -7,10 +7,6 @@
     {
       "source": "/tools/",
       "destination": "/index.html"
-    },
-    {
-      "source": "/api/cfai",
-      "destination": "/api/cfai/route.js"
     }
   ],
   "cleanUrls": true
