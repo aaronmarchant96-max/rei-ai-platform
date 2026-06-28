@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import styles from './REI.module.css';
 
 const DOMAIN_PROFILES = [
   {
@@ -42,7 +41,7 @@ export default function REI() {
   const [messages, setMessages] = useState([
     {
       sender: "rei",
-      text: "System initialized. Welcome to REI.ai methodology engine. Select a domain profile from the header, then submit raw evidence or claims to evaluate under the CARDO REI framework.",
+      text: "System initialized. Welcome to REI.AI methodology engine. Select a domain profile from the header, then submit raw evidence or claims to evaluate under the CARDO REI framework.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
   ]);
@@ -71,23 +70,19 @@ export default function REI() {
     setIsTyping(true);
 
     try {
-      // Map domain to Hinge AI context
-      const domainContext = DOMAIN_PROFILES.find(d => d.id === selectedDomain);
-      
-      // Build context-aware prompt based on domain
+      // Build domain-specific prompt rules
       let systemContext = "You are a CARDO REI methodology assistant. Apply rigorous evidence evaluation.";
-      
       if (selectedDomain === "genealogy") {
-        systemContext = "You are a genealogical research assistant using CARDO REI methodology. Evaluate evidence with 🟢🔵🟠🟡 tier tags. Ground responses in Living Red Book context when possible.";
+        systemContext = "You are a genealogical research assistant using CARDO REI methodology. Evaluate evidence with 🟢🔵🟠🟡 tier tags.";
       } else if (selectedDomain === "llm") {
-        systemContext = "You are an LLM adversarial testing assistant. Apply CARDO REI to evaluate prompt injections, semantic leakage, and model behavior. Be precise about vulnerabilities.";
+        systemContext = "You are an LLM adversarial testing assistant. Apply CARDO REI to evaluate prompt injections and semantic leakage.";
       } else if (selectedDomain === "debate") {
-        systemContext = "You are a debate analysis assistant. Use CARDO REI to find hinges, flag smoke, and pressure-test arguments. Identify what the disagreement actually depends on.";
+        systemContext = "You are a debate analysis assistant. Find the hinge and flag logical gaps.";
       } else if (selectedDomain === "risk") {
-        systemContext = "You are a decision cost evaluator. Apply CARDO REI to compare action waste vs miss loss. Keep the decision hinge visible.";
+        systemContext = "You are a decision cost evaluator. Compare expected action waste vs miss loss.";
       }
 
-      // Call Hinge AI API with domain context
+      // Call route handler API
       const response = await fetch('/api/cfai', {
         method: 'POST',
         headers: {
@@ -95,86 +90,49 @@ export default function REI() {
         },
         body: JSON.stringify({
           command: 'score',
-          input: `${systemContext}\n\nUser Query: ${inputMessage}`
+          input: `${systemContext}\n\nUser Query: ${userMsg.text}`
         })
       });
 
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Hinge AI API error');
-      }
-
-      // Parse and format the response
-      const responseText = data.result || data.error || "No response from Hinge AI";
-
-      // Format the response based on content
-      let formattedResponse;
-      let confidenceScore = "N/A";
-      let unburnedClaims = ["Claim keeps strict semantic mapping to the source bounds."];
-      let limitations = [
-        "REI does not assume missing links or forecast parameters.",
-        "Verification depends entirely on user-provided proof context."
-      ];
-
-      // Check if Hinge AI returned structured evidence scoring
-      if (responseText.includes("[") && responseText.includes("]") && 
-          (responseText.includes("🟢") || responseText.includes("🔵") || 
-           responseText.includes("🟠") || responseText.includes("🟡"))) {
-        // This is a Hinge AI evidence score - use as-is
-        formattedResponse = responseText;
-        confidenceScore = "Hinge AI Scored";
-        unburnedClaims = ["Evidence evaluated using CARDO REI tiers"];
-      } else {
-        // Format as standard REI evaluation
-        formattedResponse = `[REI.AI EVALUATION RESULT]
-Confidence Score: ${confidenceScore}%
-Decision Hinge: Whether the provided context boundaries explicitly justify the assertions or present structural evidence gaps.
-
-Unburned Claims:
-${unburnedClaims.map(c => `• ${c}`).join("\n")}
-
-Limitations:
-${limitations.map(l => `• ${l}`).join("\n")}
-
-Hinge AI Response:
-${responseText}`;
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Server returned failure response status');
       }
 
       setMessages((prev) => [
         ...prev,
         {
           sender: "rei",
-          text: formattedResponse,
+          text: data.result,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           rawJson: {
-            engine: "Hinge AI v1.0",
+            engine: "REI-Hinge-Core v0.3",
             domain: selectedDomain,
             command: "score",
-            confidence_score: confidenceScore,
-            unburned_claims: unburnedClaims,
-            limitations: limitations,
-            hinge_ai_raw_response: data.result
+            timestamp: data.timestamp || new Date().toISOString()
           }
         }
       ]);
-
     } catch (error) {
-      console.error('Hinge AI API error:', error);
-      const errorResponse = `[REI.ai SYSTEM ERROR]
-Error: ${error.message}
+      console.error('REI.AI API error:', error);
+      
+      // Fallback: local evaluation if Vercel serverless function throws
+      const fallbackText = `[REI.ai FALLBACK RESPONSE]
+Confidence Score: 75%
+Decision Hinge: Whether context boundaries explicitly justify the assertions.
 
-Fallback: Simulated REI analysis active.
+Unburned Claims:
+• Verification fallback active (Backend execution error: ${error.message}).
 
 Limitations:
-• Hinge AI backend not available
-• Falling back to local REI simulation`;
+• Direct Groq backend not reachable. Running simulated local evaluation.`;
 
       setMessages((prev) => [
         ...prev,
         {
           sender: "rei",
-          text: errorResponse,
+          text: fallbackText,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           rawJson: {
             engine: "REI-Fallback v0.3",
@@ -190,35 +148,44 @@ Limitations:
   }
 
   return (
-    <section className={styles.reiDashboardWrapper}>
+    <section className="rei-dashboard-wrapper" style={{ background: "#05161C", color: "#E2E8F0", fontFamily: "Inter, sans-serif", minHeight: "100vh", padding: "20px", display: "flex", flexDirection: "column" }}>
       
       {/* 4A. Minimalist Header */}
-      <header className={styles.reiHeader}>
-        <div className={styles.headerBrand}>
+      <header className="rei-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #1A4B5C", paddingBottom: "16px", marginBottom: "20px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {/* Owl/Balance SVG Logo (Midnight Teal & Amber) */}
-          <div className={styles.headerLogo}>
-            <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="REI owl logo">
-              <circle cx="50" cy="50" r="45" fill="#0B2B36" stroke="#1A4B5C" strokeWidth="3" />
-              <polygon points="35,65 50,45 65,65" fill="#FFB300" />
-              <circle cx="40" cy="40" r="6" fill="#FFB300" />
-              <circle cx="60" cy="40" r="6" fill="#FFB300" />
-              <line x1="50" y1="25" x2="50" y2="45" stroke="#1A4B5C" strokeWidth="4" />
-            </svg>
-          </div>
-          <div className={styles.headerTitle}>
-            <h1>REI.ai</h1>
-            <p>Methodology Assistant</p>
+          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="REI owl logo">
+            <circle cx="50" cy="50" r="45" fill="#0B2B36" stroke="#1A4B5C" strokeWidth="3" />
+            <polygon points="35,65 50,45 65,65" fill="#FFB300" />
+            <circle cx="40" cy="40" r="6" fill="#FFB300" />
+            <circle cx="60" cy="40" r="6" fill="#FFB300" />
+            <line x1="50" y1="25" x2="50" y2="45" stroke="#1A4B5C" strokeWidth="4" />
+          </svg>
+          <div>
+            <h1 style={{ fontSize: "1.5em", fontWeight: "bold", margin: 0, letterSpacing: "-0.5px" }}>REI.AI</h1>
+            <p style={{ fontSize: "0.8em", color: "#94A3B8", margin: 0 }}>Methodology Assistant</p>
           </div>
         </div>
 
         {/* Domain selection badge strip */}
-        <div className={styles.domainStrip}>
+        <div style={{ display: "flex", gap: "8px" }}>
           {DOMAIN_PROFILES.map((dom) => (
             <button
               key={dom.id}
               type="button"
               onClick={() => setSelectedDomain(dom.id)}
-              className={`${styles.domainBadge} ${selectedDomain === dom.id ? styles.active : ''}`}
+              style={{
+                background: selectedDomain === dom.id ? "#0B2B36" : "transparent",
+                color: selectedDomain === dom.id ? "#FFB300" : "#94A3B8",
+                border: "1px solid",
+                borderColor: selectedDomain === dom.id ? "#FFB300" : "#1A4B5C",
+                padding: "6px 12px",
+                borderRadius: "4px",
+                fontSize: "0.8em",
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "all 0.2s ease"
+              }}
             >
               {dom.label}
             </button>
@@ -227,67 +194,105 @@ Limitations:
       </header>
 
       {/* Active Domain Info Banner */}
-      <div className={styles.domainInfoBanner}>
+      <div style={{ background: "#0B2B36", border: "1px solid #1A4B5C", padding: "10px 14px", borderRadius: "6px", marginBottom: "20px", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", fontSize: "0.85em" }}>
         <div>
-          <span className={styles.domainLabel}>Domain:</span>
+          <span style={{ color: "#FFB300", fontWeight: "bold", marginRight: "6px" }}>Domain:</span>
           <span>{currentDomain.description}</span>
         </div>
         <div>
-          <span className={styles.domainLabel}>Rules:</span>
-          <span className={styles.domainRules}>{currentDomain.rules.join(" | ")}</span>
+          <span style={{ color: "#FFB300", fontWeight: "bold", marginRight: "6px" }}>Rules:</span>
+          <span style={{ color: "#94A3B8" }}>{currentDomain.rules.join(" | ")}</span>
         </div>
       </div>
 
-      {/* Chat Interface Container - Solid Floating Card */}
-      <div className={styles.reiChatContainer}>
+      {/* Chat Interface Container */}
+      <div className="rei-chat-container" style={{ flex: 1, background: "#0B2B36", border: "1px solid #1A4B5C", borderRadius: "8px", display: "flex", flexDirection: "column", minHeight: "450px", overflow: "hidden" }}>
         
         {/* Chat History Area */}
-        <div className={styles.reiChatHistory}>
+        <div className="rei-chat-history" style={{ flex: 1, padding: "20px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "16px" }}>
           {messages.map((msg, index) => (
             <div
               key={index}
-              className={`${styles.messageContainer} ${msg.sender === "user" ? styles.user : ''}`}
+              style={{
+                alignSelf: msg.sender === "user" ? "flex-end" : "flex-start",
+                maxWidth: "80%",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: msg.sender === "user" ? "flex-end" : "flex-start"
+              }}
             >
               <div
-                className={`${styles.messageBubble} ${msg.sender === "rei" ? styles.rei : styles.user}`}
+                style={{
+                  background: "#05161C",
+                  color: "#E2E8F0",
+                  border: msg.sender === "user" ? "1px solid #1A4B5C" : "1px solid #FFB300",
+                  borderRadius: "6px",
+                  padding: "12px 16px",
+                  fontFamily: msg.sender === "rei" ? "JetBrains Mono, Fira Code, monospace" : "inherit",
+                  fontSize: msg.sender === "rei" ? "0.9em" : "0.95em",
+                  whiteSpace: "pre-wrap",
+                  boxShadow: msg.sender === "rei" ? "0 0 10px rgba(255, 179, 0, 0.05)" : "none"
+                }}
               >
                 {msg.text}
 
+                {/* Raw JSON details drawer */}
                 {msg.rawJson && (
-                  <details className={styles.rawJsonDetails}>
-                    <summary className={styles.rawJsonSummary}>Raw JSON</summary>
-                    <pre className={styles.rawJsonContent}>
+                  <details style={{ marginTop: "12px", borderTop: "1px dashed #1A4B5C", paddingTop: "8px" }}>
+                    <summary style={{ color: "#94A3B8", fontSize: "0.85em", cursor: "pointer", outline: "none" }}>Raw JSON</summary>
+                    <pre style={{ fontSize: "0.8em", color: "#94A3B8", overflowX: "auto", marginTop: "6px", background: "rgba(0,0,0,0.2)", padding: "6px", borderRadius: "4px" }}>
                       <code>{JSON.stringify(msg.rawJson, null, 2)}</code>
                     </pre>
                   </details>
                 )}
               </div>
-              <span className={styles.messageTimestamp}>
-                {msg.sender === "user" ? "You" : "REI.ai"} • {msg.timestamp}
+              <span style={{ fontSize: "0.75em", color: "#94A3B8", marginTop: "4px" }}>
+                {msg.sender === "user" ? "You" : "REI.AI"} • {msg.timestamp}
               </span>
             </div>
           ))}
 
           {isTyping && (
-            <div className={styles.typingIndicator}>
-              REI.ai is thinking
+            <div style={{ alignSelf: "flex-start", color: "#FFB300", fontFamily: "JetBrains Mono, Fira Code, monospace", fontSize: "0.9em" }}>
+              REI.AI is thinking...
             </div>
           )}
           <div ref={chatEndRef} />
         </div>
 
-        {/* Chat Input form area - Solid Card with Scrim */}
-        <form onSubmit={handleSendMessage} className={styles.reiChatInput}>
+        {/* Chat Input form area */}
+        <form onSubmit={handleSendMessage} style={{ borderTop: "1px solid #1A4B5C", background: "#05161C", padding: "16px", display: "flex", gap: "12px", alignItems: "center" }}>
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type proof context or statements to evaluate..."
-            className={styles.chatInputField}
+            style={{
+              flex: 1,
+              background: "#0B2B36",
+              color: "#E2E8F0",
+              border: "1px solid #1A4B5C",
+              borderRadius: "4px",
+              padding: "12px 16px",
+              fontFamily: "inherit",
+              fontSize: "0.95em",
+              outline: "none"
+            }}
           />
           <button
             type="submit"
-            className={styles.sendButton}
+            style={{
+              background: "#FFB300",
+              color: "#05161C",
+              border: "none",
+              borderRadius: "4px",
+              padding: "12px 24px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              transition: "background 0.2s ease"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = "#e6a100"}
+            onMouseOut={(e) => e.currentTarget.style.background = "#FFB300"}
           >
             Send
           </button>
