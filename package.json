@@ -11,8 +11,12 @@
     "app:validate": "node scripts/validate-app-shell.mjs",
     "test": "jest --runInBand",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "lint": "eslint . --ext .js,.jsx",
+    "lint:fix": "eslint . --ext .js,.jsx --fix"
   },
   "dependencies": {
     "@azure/functions": "^4.7.0",

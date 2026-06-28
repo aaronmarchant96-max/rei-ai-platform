@@ -262,7 +262,7 @@ Limitations:
                     borderRadius: "8px",
                     padding: "14px 18px",
                     fontFamily: msg.sender === "rei" ? "JetBrains Mono, Fira Code, monospace" : "inherit",
-                    fontSize: msg.sender === "rei" ? "0.88em" : "0.95em",
+                    fontSize: msg.sender === "rei" ? "1.02em" : "1.08em",
                     whiteSpace: "pre-wrap",
                     lineHeight: "1.5",
                     boxShadow: msg.sender === "rei" ? "0 0 10px rgba(255, 179, 0, 0.05)" : "none"
@@ -273,21 +273,21 @@ Limitations:
                   {/* Raw JSON details drawer */}
                   {msg.rawJson && (
                     <details style={{ marginTop: "12px", borderTop: "1px dashed #1A4B5C", paddingTop: "8px" }}>
-                      <summary style={{ color: "#94A3B8", fontSize: "0.8em", cursor: "pointer", outline: "none" }}>Raw JSON</summary>
-                      <pre style={{ fontSize: "0.8em", color: "#94A3B8", overflowX: "auto", marginTop: "6px", background: "rgba(0,0,0,0.3)", padding: "8px", borderRadius: "4px" }}>
+                      <summary style={{ color: "#94A3B8", fontSize: "0.85em", cursor: "pointer", outline: "none" }}>Raw JSON</summary>
+                      <pre style={{ fontSize: "0.85em", color: "#94A3B8", overflowX: "auto", marginTop: "6px", background: "rgba(0,0,0,0.3)", padding: "8px", borderRadius: "4px" }}>
                         <code>{JSON.stringify(msg.rawJson, null, 2)}</code>
                       </pre>
                     </details>
                   )}
                 </div>
-                <span style={{ fontSize: "0.72em", color: "#94A3B8", marginTop: "4px" }}>
+                <span style={{ fontSize: "0.78em", color: "#94A3B8", marginTop: "4px" }}>
                   {msg.sender === "user" ? "You" : "REI.AI"} • {msg.timestamp}
                 </span>
               </div>
             ))}
 
             {isTyping && (
-              <div style={{ alignSelf: "flex-start", color: "#FFB300", fontFamily: "JetBrains Mono, Fira Code, monospace", fontSize: "0.88em" }}>
+              <div style={{ alignSelf: "flex-start", color: "#FFB300", fontFamily: "JetBrains Mono, Fira Code, monospace", fontSize: "1.02em" }}>
                 REI.AI is thinking...
               </div>
             )}
@@ -309,7 +309,7 @@ Limitations:
                 borderRadius: "4px",
                 padding: "12px 16px",
                 fontFamily: "inherit",
-                fontSize: "0.95em",
+                fontSize: "1.05em",
                 outline: "none"
               }}
             />
