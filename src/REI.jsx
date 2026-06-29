@@ -409,6 +409,87 @@ export default function REI() {
         position: relative;
         z-index: 1;
       }
+      
+      /* Philosophy Modal Styles */
+      .rei-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        backdrop-filter: blur(4px);
+      }
+      .rei-glass-modal {
+        background: rgba(20, 20, 20, 0.75);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(251, 146, 60, 0.25);
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 580px;
+        width: 90%;
+        color: #e2e8f0;
+        font-family: 'JetBrains Mono', 'Fira Code', Courier, monospace;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      }
+      .rei-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(251, 146, 60, 0.18);
+        padding-bottom: 12px;
+        margin-bottom: 18px;
+      }
+      .rei-modal-header h2 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.05em;
+        color: #fb923c;
+        font-weight: bold;
+      }
+      .rei-close-btn {
+        background: transparent;
+        border: none;
+        color: #94a3b8;
+        font-size: 24px;
+        cursor: pointer;
+        transition: color 0.2s ease;
+        line-height: 1;
+      }
+      .rei-close-btn:hover {
+        color: #ffffff;
+      }
+      .rei-concept-layer {
+        margin-bottom: 18px;
+      }
+      .rei-concept-layer h3 {
+        font-size: 14px;
+        color: #fed7aa;
+        margin: 0 0 6px 0;
+        border-left: 3px solid #fb923c;
+        padding-left: 8px;
+        font-weight: bold;
+      }
+      .rei-concept-layer p {
+        font-size: 12.5px;
+        line-height: 1.5;
+        margin: 4px 0;
+        padding-left: 11px;
+        color: #cbd5e1;
+      }
+      .rei-tagline {
+        font-style: italic;
+        color: #fbd5c6;
+        opacity: 0.85;
+        font-size: 11.5px;
+        margin-top: 4px;
+        padding-left: 11px;
+      }
     `;
     document.head.appendChild(style);
     return () => {
@@ -420,6 +501,7 @@ export default function REI() {
   const [rawRecordText, setRawRecordText] = useState("");
   const [showIngest, setShowIngest] = useState(false);
   const [recordSourceType, setRecordSourceType] = useState("other");
+  const [isPhilosophyOpen, setIsPhilosophyOpen] = useState(false);
 
   // Clear legacy chat history key on first load (pre‑v2 storage)
   useEffect(() => {
@@ -724,6 +806,26 @@ Limitations:
             >
               Clear Chat
             </button>
+            <button
+              type="button"
+              onClick={() => setIsPhilosophyOpen(true)}
+              style={{
+                background: "rgba(251,146,60,0.1)",
+                color: "#fb923c",
+                border: "1px solid rgba(251,146,60,0.3)",
+                padding: "9px 14px",
+                borderRadius: "9px",
+                fontSize: "12.5px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                marginLeft: "8px"
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = "rgba(251, 146, 60, 0.2)"}
+              onMouseOut={(e) => e.currentTarget.style.background = "rgba(251,146,60,0.1)"}
+            >
+              (?) Philosophy
+            </button>
           </div>
         </header>
 
@@ -961,6 +1063,41 @@ Limitations:
           </form>
         </div>
       </div>
+      
+      {/* Philosophy Modal Overlay */}
+      {isPhilosophyOpen && (
+        <div className="rei-modal-overlay" onClick={() => setIsPhilosophyOpen(false)}>
+          <div className="rei-glass-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="rei-modal-header">
+              <h2>SYSTEM PHILOSOPHY: R.E.I.</h2>
+              <button className="rei-close-btn" onClick={() => setIsPhilosophyOpen(false)} aria-label="Close Modal">
+                &times;
+              </button>
+            </div>
+
+            <div className="rei-concept-layer">
+              <h3>1. Latin: Rei (The Matter / Reality / Hinge)</h3>
+              <p><strong>The Concept:</strong> Genitive form of <em>Res</em>, meaning "thing," "fact," or "reality."</p>
+              <p><strong>The Connection:</strong> In <em>CARDO REI</em>, it represents "The Hinge of the Matter." Dissecting the core pivot where the reality of a problem turns.</p>
+              <p className="rei-tagline">"Investigating the matter, not the person."</p>
+            </div>
+
+            <div className="rei-concept-layer">
+              <h3>2. Operational: R-E-I (Record • Evaluate • Iterate)</h3>
+              <p><strong>The Concept:</strong> The engineering process loop that keeps development structured and safe.</p>
+              <p><strong>The Connection:</strong> <strong>Record</strong> the facts (TDD/Citations), <strong>Evaluate</strong> the boundaries (Scoring/Tiers), and <strong>Iterate</strong> in modular steps.</p>
+              <p className="rei-tagline">"Building tiny houses until you get a neighborhood."</p>
+            </div>
+
+            <div className="rei-concept-layer">
+              <h3>3. Physics: Refractive Index (R.I.)</h3>
+              <p><strong>The Concept:</strong> Optical measure of how much light bends when entering a new medium.</p>
+              <p><strong>The Connection:</strong> REI acts as a refractive lens for thoughts. Bending raw arguments to filter out the glare (smoke, bias) and find clear direction.</p>
+              <p className="rei-tagline">"Shaping raw light into structured clarity."</p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
