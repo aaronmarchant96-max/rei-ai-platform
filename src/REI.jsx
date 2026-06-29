@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useMobile, useKeyboardVisible } from "./useMobile";
 
 const MAX_RECORD_CHARS = 12000;
 
@@ -278,6 +279,23 @@ function HingeMark({ size = 36, animated = false }) {
 }
 
 export default function REI() {
+  // Mobile detection
+  const mobile = useMobile();
+  const keyboardVisible = useKeyboardVisible();
+  const inputRef = useRef(null);
+
+  // Scroll input into view when keyboard opens
+  useEffect(() => {
+    if (keyboardVisible && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }, 100);
+    }
+  }, [keyboardVisible]);
+
   // Copy text to clipboard function
   const copyText = async (text) => {
     try {
@@ -761,7 +779,14 @@ Limitations:
 
   return (
     <section className="rei-dashboard-wrapper" style={{ color: "#E2E8F0", fontFamily: "Inter, sans-serif", minHeight: "100vh", padding: "30px", display: "flex", justifyContent: "center" }}>
-      <div className="rei-custom-container" style={{ width: "100%", maxWidth: "960px", padding: "28px", display: "flex", flexDirection: "column", gap: "18px" }}>
+      <div className="rei-custom-container" style={{ 
+        width: "100%", 
+        maxWidth: mobile ? "100%" : "min(960px, 100vw - 32px)", 
+        padding: mobile ? "16px" : "28px", 
+        display: "flex", 
+        flexDirection: "column", 
+        gap: "18px"
+      }}>
         
         {/* Header */}
         <header className="rei-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(251,146,60,0.15)", paddingBottom: "16px", marginBottom: "20px" }}>
@@ -985,6 +1010,8 @@ Limitations:
                   )}
                   <button
                     onClick={() => copyText(msg.text)}
+                    className="rei-copy-btn touch-target"
+                    aria-label="Copy message"
                     style={{
                       position: "absolute",
                       top: "8px",
@@ -994,10 +1021,12 @@ Limitations:
                       borderRadius: "4px",
                       color: "#fb923c",
                       cursor: "pointer",
-                      fontSize: "0.75em",
-                      padding: "2px 6px",
+                      fontSize: mobile ? "0.85em" : "0.75em",
+                      padding: mobile ? "6px 10px" : "2px 6px",
                       opacity: 0.7,
-                      transition: "opacity 0.2s"
+                      transition: "opacity 0.2s",
+                      minWidth: "44px",
+                      minHeight: "44px"
                     }}
                     onMouseOver={(e) => e.currentTarget.style.opacity = 1}
                     onMouseOut={(e) => e.currentTarget.style.opacity = 0.7}
@@ -1059,33 +1088,40 @@ Limitations:
             )}
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
               <input
+                ref={inputRef}
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder={selectedDomain === "assistant" ? assistantQuickPrompt : "Type proof context or statements to evaluate..."}
+                className="rei-input-area"
                 style={{
                   flex: 1,
                   background: "rgba(0,0,0,0.2)",
                   color: "#E2E8F0",
                   border: "1px solid rgba(251,146,60,0.15)",
                   borderRadius: "6px",
-                  padding: "12px 16px",
+                  padding: mobile ? "14px 16px" : "12px 16px",
                   fontFamily: "inherit",
-                  fontSize: "1.05em",
-                  outline: "none"
+                  fontSize: "16px",
+                  outline: "none",
+                  minHeight: "48px"
                 }}
               />
               <button
                 type="submit"
+                className="rei-touch-button touch-target"
                 style={{
                   background: "#f97316",
                   color: "#FFFFFF",
                   border: "none",
                   borderRadius: "6px",
-                  padding: "12px 24px",
+                  padding: mobile ? "14px 28px" : "12px 24px",
                   fontWeight: "bold",
                   cursor: "pointer",
-                  transition: "background 0.2s ease"
+                  transition: "background 0.2s ease",
+                  minWidth: "48px",
+                  minHeight: "48px",
+                  fontSize: "16px"
                 }}
                 onMouseOver={(e) => e.currentTarget.style.background = "#fb923c"}
                 onMouseOut={(e) => e.currentTarget.style.background = "#f97316"}

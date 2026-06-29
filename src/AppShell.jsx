@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMobile, useSwipe } from "./useMobile";
 import DebateFurnace from "./DebateFurnace.jsx";
 import CreativeEngine from "./CreativeEngine.jsx";
 import StormReplay from "./StormReplay.jsx";
@@ -70,6 +71,20 @@ function getToolPath(tool) {
 
 export default function AppShell() {
   const [tool, setTool] = useState(getInitialTool);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const mobile = useMobile(45); // 45em = 720px
+
+  // Swipe handlers for mobile drawer
+  const { onTouchStart, onTouchMove, onTouchEnd } = useSwipe(
+    () => setDrawerOpen(false), // Swipe left: close drawer
+    () => setDrawerOpen(true),   // Swipe right: open drawer
+    50
+  );
+
+  // Close drawer on tool change
+  useEffect(() => {
+    if (drawerOpen) setDrawerOpen(false);
+  }, [tool]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -94,33 +109,107 @@ export default function AppShell() {
   }, [tool]);
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+      {mobile && (
+        <>
+          {/* Mobile drawer overlay */}
+          {drawerOpen && (
+            <div className="rei-mobile-drawer" onClick={() => setDrawerOpen(false)}>
+              <button 
+                className="rei-mobile-drawer-close hide-desktop"
+                onClick={(e) => { e.stopPropagation(); setDrawerOpen(false); }}
+                aria-label="Close menu"
+              >
+                ✕
+              </button>
+              <nav className="rei-mobile-drawer-nav" onClick={(e) => e.stopPropagation()}>
+                {TOP_LEVEL.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="rei-mobile-nav-item touch-target"
+                    onClick={() => setTool(item.id)}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      padding: "16px",
+                      minWidth: "48px",
+                      minHeight: "48px",
+                      background: "none",
+                      border: "none",
+                      color: "#E2E8F0",
+                      cursor: "pointer",
+                      fontSize: "16px"
+                    }}
+                  >
+                    <span style={{ fontWeight: "bold" }}>{item.label}</span>
+                    <span style={{ fontSize: "0.85em", opacity: 0.7 }}>{item.subtitle}</span>
+                  </button>
+                ))}
+              </nav>
+            </div>
+          )}
+          
+          {/* Hamburger menu */}
+          <button 
+            className="rei-hamburger touch-target hide-desktop"
+            onClick={() => setDrawerOpen(!drawerOpen)}
+            aria-label="Open menu"
+            aria-expanded={drawerOpen}
+            style={{
+              position: "fixed",
+              top: "16px",
+              left: "16px",
+              zIndex: 1001,
+              minWidth: "48px",
+              minHeight: "48px",
+              background: "rgba(0,0,0,0.8)",
+              border: "none",
+              borderRadius: "8px",
+              color: "#E2E8F0",
+              fontSize: "24px",
+              cursor: "pointer"
+            }}
+          >
+            ☰
+          </button>
+        </>
+      )}
+      
       <header className="shell-header">
         <div className="shell-brand">
           <div className="shell-brand__title">PromptHound Labs</div>
           <div className="shell-brand__sub">Structured outputs for messy input.</div>
-          <div className="shell-brand__method">REI.ai is the platform layer. PromptHound Labs ships the tools.</div>
-          <div className="shell-brand__method shell-brand__method--sub">
-            CARDO REI loop: build the slice, test what holds, keep the limits visible.
-          </div>
+          {mobile ? null : (
+            <>
+              <div className="shell-brand__method">REI.ai is the platform layer. PromptHound Labs ships the tools.</div>
+              <div className="shell-brand__method shell-brand__method--sub">
+                CARDO REI loop: build the slice, test what holds, keep the limits visible.
+              </div>
+            </>
+          )}
         </div>
 
-        <nav className="top-tabs" aria-label="Top-level tools">
-          {TOP_LEVEL.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={tool === item.id ? "top-tab is-active" : "top-tab"}
-              onClick={() => setTool(item.id)}
-              aria-pressed={tool === item.id}
-            >
-              <span className="top-tab__label">{item.label}</span>
-              <span className="top-tab__sub">{item.subtitle}</span>
-            </button>
-          ))}
-        </nav>
+        {!mobile && (
+          <nav className="top-tabs hide-mobile" aria-label="Top-level tools">
+            {TOP_LEVEL.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className={tool === item.id ? "top-tab is-active" : "top-tab touch-target"}
+                onClick={() => setTool(item.id)}
+                aria-pressed={tool === item.id}
+                style={{ minWidth: "48px", minHeight: "48px" }}
+              >
+                <span className="top-tab__label">{item.label}</span>
+                <span className="top-tab__sub">{item.subtitle}</span>
+              </button>
+            ))}
+          </nav>
+        )}
       </header>
-      <main className="shell-main">
+      <main className="shell-main" style={mobile && drawerOpen ? { opacity: 0.3 } : {}}>
         {tool === "tools" ? (
           <ToolsLanding onOpenTool={setTool} />
         ) : tool === "story-forge" ? (
