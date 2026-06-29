@@ -46,9 +46,9 @@ const DOMAIN_PROFILES = [
 
 function getAssistantWelcomeCopy() {
   return [
-    "The Generalist is live.",
-    "Bring me the thing you're trying to think through.",
-    "I'll cut to the hinge and keep the rest honest."
+    "REI is live.",
+    "Dual-engine active: Latin [Rei: The Matter / Reality / Hinge] and Operational [Record, Evaluate, Iterate].",
+    "Bring me the thing you're trying to think through, and we'll pull it apart."
   ].join(" ");
 }
 
@@ -680,7 +680,9 @@ Limitations:
             </div>
             <div>
               <h1 className="rei-logo-title" style={{ margin: 0, lineHeight: 1.1 }}>REI.AI</h1>
-              <p className="rei-logo-sub" style={{ margin: 0 }}>The Generalist, Hinge Finder, Archivist, Storyteller</p>
+              <p className="rei-logo-sub" style={{ margin: 0, fontSize: "11px", color: "#94a3b8" }}>
+                Latin: <em>Rei</em> (The Matter / Hinge) &nbsp;|&nbsp; Loop: <strong>Record • Evaluate • Iterate</strong>
+              </p>
             </div>
           </div>
 
