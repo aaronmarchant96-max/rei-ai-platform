@@ -96,6 +96,128 @@
 
 ---
 
+## 📱 MOBILE-FIRST REDESIGN *(Priority: High)*
+
+### Core Philosophy
+- **Design for 360-428px width** (most phones)
+- **Mobile-first:** Design mobile, then scale up
+- **Vertical flow:** Stack elements, avoid side-by-side
+- **Breathing room:** Generous padding on mobile
+
+### Global Styles (CSS)
+```css
+/* globals.css or equivalent */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  .mobile-container {
+    max-width: 428px;
+    margin-left: auto;
+    margin-right: auto;
+    min-height: 100dvh; /* dynamic viewport height */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Safe Area Support */
+  .safe-area {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .safe-top { padding-top: env(safe-area-inset-top); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+  
+  /* Dynamic Viewport Height */
+  .h-dvh { height: 100dvh; }
+}
+```
+
+### Layout Structure
+```tsx
+// Recommended structure for REI.jsx
+<div className="mobile-container bg-[#1a120b] text-white">
+  {/* Sticky Header - Safe Top */}
+  <header className="safe-top sticky top-0 z-50 bg-[#2c1f14] border-b border-amber-950 px-4 py-3 flex items-center justify-between">
+    <button className="p-2 -ml-2">☰</button>
+    <div className="text-lg font-medium">PromptHound Labs</div>
+    <div></div>
+  </header>
+
+  {/* Scrollable Main Content */}
+  <main className="flex-1 overflow-y-auto pb-32 px-4 space-y-6">
+    {/* Persona Selection */}
+    <div className="pt-4">
+      <div className="grid grid-cols-1 gap-3">
+        {/* Persona cards - full-width on mobile */}
+      </div>
+    </div>
+
+    {/* Active Voice Section */}
+    <div className="bg-[#2c1f14] rounded-3xl p-5 border border-amber-900">
+      {/* Mode + Voice cues */}
+    </div>
+
+    {/* Process Loop Buttons */}
+    <div className="grid grid-cols-3 gap-2.5">
+      {["Collect", "Analyze", "Record", "Distinguish", "Organize", "Review", "Evaluate", "Iterate"].map(b => (
+        <button key={b} className="bg-[#3a2a1f] hover:bg-[#4a3a2f] active:bg-amber-900 py-4 rounded-2xl text-xs font-medium tracking-wider transition-all">
+          {b}
+        </button>
+      ))}
+    </div>
+
+    {/* Chat Messages */}
+    <div className="space-y-4">
+      {/* Messages */}
+    </div>
+  </main>
+
+  {/* Fixed Input Area - Safe Bottom */}
+  <div className="fixed bottom-0 left-0 right-0 bg-[#1a120b] border-t border-amber-900 safe-bottom">
+    <div className="max-w-md mx-auto px-4 py-4">
+      <div className="flex gap-2">
+        {/* Input + Send */}
+      </div>
+    </div>
+  </div>
+</div>
+```
+
+### Specific Improvements
+| Element | Current | Mobile-First |
+|---------|---------|---------------|
+| Typography | px units | `text-sm` or `text-[15px]` + `leading-relaxed` |
+| Buttons | Various sizes | Minimum 48px tap height (`py-4`) |
+| Cards | Varied radius | `rounded-3xl` + soft shadows |
+| Colors | Good contrast | Maintain warm brown/orange palette |
+
+### Keyboard Handling
+- Use `pb-32` on main content + fixed input
+- Prevents messages hiding behind keyboard
+- Input auto-focus scrolling implemented
+
+### Quick Wins Implemented
+- [x] `.mobile-container` wrapper
+- [x] Sticky header with safe area
+- [x] Scrollable main with bottom padding
+- [x] Fixed input area
+- [x] Grid layouts for personas and buttons
+- [x] Safe area insets
+- [x] Dynamic viewport height (`100dvh`)
+
+### Status
+- **Design:** Complete
+- **Implementation:** Phase 0-1 complete (foundation + critical)
+- **Testing:** Pending mobile device verification
+- **Next:** Phase 2 (High Priority) - Polish
+
+---
+
 ## 🤖 NIGHT SHIFT / REI FINGERPRINT ROUTER *(Cost-Efficient Routing)*
 
 ### Architecture
