@@ -61,19 +61,45 @@ button {
 }
 
 .shell-header {
-  display: grid;
-  grid-template-columns: minmax(0, 0.98fr) minmax(0, 1.02fr);
-  align-items: end;
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 18px;
-  padding: 16px 24px 14px;
+  padding: 12px 24px;
   border-bottom: 1px solid var(--border);
   background: rgba(9, 13, 18, 0.96);
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
+.shell-header--tool {
+  padding: 8px 16px;
+  min-height: 48px;
+}
+
+.shell-header--tool .top-tabs {
+  width: 100%;
+  justify-content: flex-end;
+}
+
 .shell-brand {
   min-width: 0;
+}
+
+.shell-brand--mini {
+  flex: 0 0 auto;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.shell-brand--mini:hover {
+  background: rgba(251, 146, 60, 0.1);
 }
 
 .shell-brand__eyebrow,
@@ -172,33 +198,41 @@ button {
 }
 
 .top-tabs {
-  align-items: stretch;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 12px;
-  width: 100%;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.top-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.top-tabs::-webkit-scrollbar-thumb {
+  background: rgba(251, 146, 60, 0.25);
+  border-radius: 2px;
 }
 
 .top-tab {
-  min-width: 0;
-  min-height: 80px;
-  padding: 11px 13px;
-  justify-content: space-between;
-  border-radius: 16px;
-  background: linear-gradient(180deg, rgba(17, 24, 39, 0.96), rgba(11, 15, 21, 0.98));
-  box-shadow: var(--shadow-card);
+  min-width: max-content;
+  min-height: auto;
+  padding: 8px 14px;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.7);
+  box-shadow: none;
 }
 
 .top-tab__label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 .top-tab__sub {
-  font-size: 12px;
-  color: var(--text-muted);
-  line-height: 1.35;
+  display: none;
 }
 
 .top-tab__sub,

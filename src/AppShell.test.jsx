@@ -10,7 +10,7 @@ describe("AppShell", () => {
   it("defaults to REI.ai and updates the hash and title when switching tools", async () => {
     render(<AppShell />);
 
-    expect(screen.getByText("PromptHound Labs")).toBeInTheDocument();
+    expect(screen.getByText(/PromptHound/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /rei\.ai/i })).toHaveAttribute(
       "aria-pressed",
       "true"

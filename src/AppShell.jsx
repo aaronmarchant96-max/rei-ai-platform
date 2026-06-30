@@ -183,19 +183,22 @@ export default function AppShell() {
         </>
       )}
       
-      <header className="shell-header">
-        <div className="shell-brand">
-          <div className="shell-brand__title">PromptHound Labs</div>
-          <div className="shell-brand__sub">Structured outputs for messy input.</div>
-          {mobile ? null : (
-            <>
-              <div className="shell-brand__method">REI.ai is the platform layer. PromptHound Labs ships the tools.</div>
-              <div className="shell-brand__method shell-brand__method--sub">
-                CARDO REI loop: build the slice, test what holds, keep the limits visible.
-              </div>
-            </>
-          )}
-        </div>
+      <header className={`shell-header ${tool === "tools" ? "shell-header--landing" : "shell-header--tool"}`}>
+        {tool === "tools" ? (
+          <div className="shell-brand">
+            <div className="shell-brand__title">PromptHound Labs</div>
+            <div className="shell-brand__sub">Structured outputs for messy input.</div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="shell-brand--mini"
+            onClick={() => setTool("tools")}
+            aria-label="Open tools menu"
+          >
+            PromptHound
+          </button>
+        )}
 
         {!mobile && (
           <nav className="top-tabs hide-mobile" aria-label="Top-level tools">
@@ -204,37 +207,11 @@ export default function AppShell() {
                 key={item.id}
                 type="button"
                 className={tool === item.id ? "top-tab is-active" : "top-tab touch-target"}
-                style={{
-                  minWidth: "120px", 
-                  minHeight: "60px",
-                  padding: "12px 16px",
-                  borderRadius: "10px",
-                  transition: "all 0.2s ease",
-                  cursor: "pointer",
-                  margin: "0 4px",
-                  position: "relative",
-                  overflow: "hidden",
-                  ...(tool === item.id && {
-                    background: "linear-gradient(135deg, rgba(249,115,22,0.15), rgba(251,191,36,0.1))",
-                    border: "1px solid rgba(249,115,22,0.3)",
-                    boxShadow: "0 0 12px rgba(249,115,22,0.2)"
-                  })
-                }}
                 onClick={() => setTool(item.id)}
                 aria-pressed={tool === item.id}
-                onMouseEnter={tool !== item.id ? (e) => {
-                  e.currentTarget.style.background = "rgba(251,146,60,0.08)";
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(251,146,60,0.15)";
-                } : undefined}
-                onMouseLeave={tool !== item.id ? (e) => {
-                  e.currentTarget.style.background = "";
-                  e.currentTarget.style.transform = "";
-                  e.currentTarget.style.boxShadow = "";
-                } : undefined}
               >
-                <span className="top-tab__label" style={{ fontSize: "14px", fontWeight: "600" }}>{item.label}</span>
-                <span className="top-tab__sub" style={{ fontSize: "11px", opacity: "0.8" }}>{item.subtitle}</span>
+                <span className="top-tab__label">{item.label}</span>
+                <span className="top-tab__sub">{item.subtitle}</span>
               </button>
             ))}
           </nav>
