@@ -3,11 +3,11 @@ CARDO REI methodology applied to this document.
 Reference: [CARDO REI Methodology](PROMPTHOUND-DOCS/CARDO-REI.md)
 -->
 
-# PromptHound Labs — REI.ai Platform
+# REI.ai Platform by PromptHound Labs
 
 > Structured outputs for messy input. Find the hinge. Keep the limits visible.
 
-**REI.ai is the platform. PromptHound Labs is the lab. This repo ships the current live slice of both.**
+**This repository is the REI.ai platform surface for PromptHound Labs. It ships the current live slice of the REI experience and its companion tools.**
 
 **Current tools in this repo:**
 
@@ -43,9 +43,9 @@ The broader suite in this repo also includes Story Forge (source-faithful story 
 
 ## Live Demo
 
-[Try the full PromptHound Labs suite](https://debate-furnace-prompthound.vercel.app/)
+[Try the live REI.ai platform](https://debate-furnace.vercel.app/)
 
-[Open the Tools page](https://debate-furnace-prompthound.vercel.app/tools)
+[Open the Tools page](https://debate-furnace.vercel.app/tools)
 
 The same app contains:
 
