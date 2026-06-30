@@ -1,4 +1,4 @@
-import fingerprintCatalog from "../../data/fingerprints.json";
+import fingerprintCatalog from "../../data/fingerprints.json" with { type: "json" };
 
 const ROUTER_CATALOG = Array.isArray(fingerprintCatalog) ? fingerprintCatalog : [];
 
