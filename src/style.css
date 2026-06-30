@@ -4012,21 +4012,21 @@ input:focus:not(:focus-visible) {
 /* Default = mobile styles (0 - 29.99em) */
 
 /* Small devices (tablets, 30em - 44.99em) */
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 30em) {
   body {
     padding: var(--spacing-sm);
   }
 }
 
 /* Medium devices (small desktops, 45em - 56.24em) */
-@media (min-width: var(--breakpoint-md)) {
+@media (min-width: 45em) {
   body {
     padding: var(--spacing-md);
   }
 }
 
 /* Large devices (desktops, 56.25em+) */
-@media (min-width: var(--breakpoint-lg)) {
+@media (min-width: 56.25em) {
   body {
     padding: var(--spacing-lg);
   }
@@ -4122,7 +4122,7 @@ input:focus:not(:focus-visible) {
 }
 
 /* Philosophy modal - full screen on mobile */
-@media (max-width: var(--breakpoint-sm)) {
+@media (max-width: 30em) {
   .rei-philosophy-modal {
     width: 100vw;
     height: 100vh;
@@ -4190,7 +4190,7 @@ input:focus:not(:focus-visible) {
   display: none;
 }
 
-@media (max-width: var(--breakpoint-md)) {
+@media (max-width: 45em) {
   .rei-hamburger {
     display: block;
     min-width: 48px;
@@ -4212,7 +4212,7 @@ input:focus:not(:focus-visible) {
   display: none;
 }
 
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 30em) {
   .hide-mobile {
     display: revert;
   }
@@ -4223,7 +4223,7 @@ input:focus:not(:focus-visible) {
   display: revert;
 }
 
-@media (min-width: var(--breakpoint-sm)) {
+@media (min-width: 30em) {
   .hide-desktop {
     display: none;
   }
