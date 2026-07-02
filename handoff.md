@@ -1,6 +1,8 @@
 Goal:
 Fully migrate Hinge AI to REI.AI with custom chatbot layout, optimize model routing, and set up GPT/OSS hybrid profiles.
 
+> **For next session:** Start with `CLI_ENTRY.md` instead of this file. It's optimized for token efficiency.
+
 Confirmed:
 
 - REI.AI is deployed with the new chatbot UI at https://debate-furnace.vercel.app/#rei.

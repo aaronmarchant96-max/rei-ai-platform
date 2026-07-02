@@ -1,5 +1,7 @@
 # Token-Saving Workflow for debate-furnace
 
+> **For next session:** Start with `CLI_ENTRY.md` instead (optimized for speed). Use this file for deeper workflow guidance.
+
 ## Why this document matters
 
 This document exists to keep future CLI sessions productive without wasting context or money. The goal is to make the first useful steps cheap and repeatable, so the work can move forward with less backtracking and less repeated explanation.
