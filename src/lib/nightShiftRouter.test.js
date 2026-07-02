@@ -1,6 +1,13 @@
 import { buildRouterDecision, getFingerprintCatalog, resolveRoutingModel } from "./nightShiftRouter.js";
 
 describe("nightShiftRouter", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
+  afterEach(() => {
+    window.localStorage.clear();
+  });
   it("loads the fingerprint catalog", () => {
     const catalog = getFingerprintCatalog();
     expect(catalog.length).toBeGreaterThan(0);
@@ -43,6 +50,22 @@ describe("nightShiftRouter", () => {
     expect(decision.id).toBe("adversarial-validation");
     expect(decision.model).toBe("gpt-4o");
     expect(resolveRoutingModel(decision)).toBe("gpt-4o");
+  });
+
+  it("routes high-structure uncertainty prompts through a stricter reasoning gate", () => {
+    const decision = buildRouterDecision({ input: "What am I missing? What would change my mind?", domain: "assistant" });
+
+    expect(decision.id).toBe("structured-reasoning");
+    expect(decision.qualityGate).toContain("challenge test");
+    expect(decision.temperature).toBe(0.2);
+  });
+
+  it("uses a stored route preference when a prior pattern matches a generic request", () => {
+    window.localStorage.setItem("night-shift-user-fingerprint", JSON.stringify(["genealogy-deep-dive", "genealogy-deep-dive", "genealogy-deep-dive"]));
+
+    const decision = buildRouterDecision({ input: "Can you help me review this family record?", domain: "assistant" });
+
+    expect(decision.id).toBe("genealogy-deep-dive");
   });
 
   it("falls back to the balanced reasoning profile for unclassified prompts", () => {
