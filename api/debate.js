@@ -81,6 +81,29 @@ function isGenericDebate(debate) {
  * 3. Conservation - Right-sized prompt
  * 4. Recoil - Explicit challenge points
  */
+/**
+ * Debate Prompt Builder - Fortis et Liber Principles:
+ * 
+ * 1. Leverage - Focuses debate on:
+ *    - Core tension identification
+ *    - Explicit hinge points
+ *    - Concrete tradeoffs
+ * 
+ * 2. Parity - Balanced structure with:
+ *    - Equal argument weighting
+ *    - Symmetrical analysis
+ *    - Fair challenge points
+ * 
+ * 3. Recoil - Built-in pushback via:
+ *    - Generic phrasing detection
+ *    - Automatic retry mechanism
+ *    - Concrete example requirements
+ * 
+ * 4. Conservation - Efficient prompting:
+ *    - Minimal template overhead
+ *    - Right-sized responses
+ *    - Token budgeting
+ */
 function buildPrompt(question, sideA, sideB, intensity, retry = false) {
   const base = `You generate structured debate reports for Debate Furnace.
 

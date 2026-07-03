@@ -341,6 +341,45 @@ function HingeMark({ size = 36, animated = false }) {
   );
 }
 
+/**
+ * REI Core Component - Fortis et Liber Implementation:
+ * 
+ * 1. Leverage - Domain-specific reasoning:
+ *    - Assistant: CARDO REI structured reasoning
+ *    - Coding: Verification-first development
+ *    - Genealogy: Evidence-tiered analysis
+ *    - Story: Narrative architecture
+ * 
+ * 2. Surface Area - Minimal interfaces:
+ *    - Focused domain selection
+ *    - Clear input boundaries
+ *    - Explicit state management
+ * 
+ * 3. Recoil - Managed challenges:
+ *    - Input validation
+ *    - Error fallbacks
+ *    - Clear user feedback
+ * 
+ * 4. Enumeration - Tracked decisions:
+ *    - Routing metadata
+ *    - Model selection
+ *    - Performance characteristics
+ * 
+ * 5. Parity - Balanced interactions:
+ *    - Equal treatment of domains
+ *    - Consistent UX patterns
+ *    - Fair resource allocation
+ * 
+ * 6. Solvency - Guaranteed completion:
+ *    - Local fallback generation
+ *    - Clean error states
+ *    - Persistent history
+ * 
+ * 7. Conservation - Efficient operation:
+ *    - Optimized renders
+ *    - Right-sized responses
+ *    - Minimal re-renders
+ */
 export default function REI() {
   // Mobile detection
   const mobile = useMobile();

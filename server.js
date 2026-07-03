@@ -13,6 +13,29 @@ app.use(express.json());
  * 2. Solvency - Clean error handling
  * 3. Enumeration - Logs all decision paths 
  */
+/**
+ * REI Core API Endpoint - Fortis et Liber Implementation:
+ * 
+ * 1. Surface Area - Single unified interface for:
+ *    - Routing decisions
+ *    - Model execution
+ *    - Error handling
+ * 
+ * 2. Solvency - Guaranteed completion via:
+ *    - Structured error responses
+ *    - Fallback content generation
+ *    - Clean state maintenance
+ * 
+ * 3. Enumeration - Explicit tracking of:
+ *    - All decision paths
+ *    - Model metadata
+ *    - Performance characteristics
+ * 
+ * 4. Conservation - Minimal overhead:
+ *    - Lean middleware
+ *    - Direct error propagation
+ *    - No redundant processing
+ */
 app.post('/api/cfai', async (req, res) => {
   try {
     const mockRes = {

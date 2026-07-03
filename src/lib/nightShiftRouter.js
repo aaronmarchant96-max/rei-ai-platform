@@ -189,12 +189,50 @@ export function getFingerprintCatalog() {
  * 6. Solvency - Clear fallback paths
  * 7. Conservation - Right-sized responses
  */
+/**
+ * Core routing decision following Fortis et Liber principles:
+ * 
+ * 1. Leverage - Identifies exact hinge points in input using:
+ *    - Domain-specific lexical fingerprints
+ *    - Structural complexity analysis
+ *    - Historical preference signals
+ * 
+ * 2. Surface Area - Minimal interface with:
+ *    - Strict input validation
+ *    - Clear boundary conditions
+ *    - No implicit state
+ * 
+ * 3. Recoil - Managed pushback via:
+ *    - Adversarial routing
+ *    - Quality gates
+ *    - Fallback paths
+ * 
+ * 4. Enumeration - Explicit accounting of:
+ *    - All decision signals
+ *    - Routing rationale
+ *    - Model selection criteria
+ * 
+ * 5. Parity - Balanced model selection using:
+ *    - Cost/performance tradeoffs  
+ *    - Domain-specific optimizations
+ *    - Stored preference weighting
+ * 
+ * 6. Solvency - Clear exit strategies:
+ *    - Fallback model hierarchy
+ *    - Input validation gates
+ *    - Error recovery paths
+ * 
+ * 7. Conservation - Right-sized responses:
+ *    - Token budgeting
+ *    - Complexity-tiered responses
+ *    - Minimal necessary force
+ */
 export function buildRouterDecision({
   input = "",
   domain = "assistant",
   history = [],
   attachedRecord = "",
-  requiresAdversarial = false, 
+  requiresAdversarial = false,
 } = {}) {
   const combinedInput = [input, attachedRecord, history?.map((message) => message?.content || "").join(" ")]
     .filter(Boolean)
