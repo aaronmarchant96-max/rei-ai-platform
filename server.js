@@ -7,7 +7,12 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// API endpoint
+/**
+ * Main REI API endpoint following Fortis et Liber:
+ * 1. Surface Area - Single well-defined interface
+ * 2. Solvency - Clean error handling
+ * 3. Enumeration - Logs all decision paths 
+ */
 app.post('/api/cfai', async (req, res) => {
   try {
     const mockRes = {

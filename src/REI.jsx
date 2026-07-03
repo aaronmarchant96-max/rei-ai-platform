@@ -999,9 +999,25 @@ export default function REI() {
     }
   };
 
+  /**
+   * Handles message sending with Fortis et Liber exit strategies:
+   * 1. Early rejection of empty input
+   * 2. Record length validation
+   * 3. Fallback response on API failure
+   * 4. Clean state maintenance
+   */
   async function handleSendMessage(e) {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
+    // Principle of Surface Area: Minimal input validation
+    if (!inputMessage.trim()) {
+      setMessages(prev => [...prev, {
+        sender: "rei",
+        text: "Empty input rejected per minimum effective contact principle",
+        timestamp: new Date().toLocaleTimeString(),
+        isSystemNotice: true
+      }]);
+      return;
+    }
 
     const ingestedRecord = rawRecordText.trim();
 

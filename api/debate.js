@@ -74,6 +74,13 @@ function isGenericDebate(debate) {
   return fields.some(containsGenericPhrasing);
 }
 
+/**
+ * Builds debate prompt following Fortis et Liber:
+ * 1. Leverage - Focuses on core tension
+ * 2. Parity - Balanced argument structure
+ * 3. Conservation - Right-sized prompt
+ * 4. Recoil - Explicit challenge points
+ */
 function buildPrompt(question, sideA, sideB, intensity, retry = false) {
   const base = `You generate structured debate reports for Debate Furnace.
 
