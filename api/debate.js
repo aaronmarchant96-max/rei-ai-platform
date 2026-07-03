@@ -104,76 +104,56 @@ function isGenericDebate(debate) {
  *    - Right-sized responses
  *    - Token budgeting
  */
+const DEBATE_TEMPLATE = {
+  system: "Generate structured debate reports in JSON format",
+  rules: [
+    "Focus on core tension",
+    "Use concrete examples", 
+    "Avoid meta-commentary"
+  ],
+  defaults: {
+    hinge: {
+      questionType: "Value Collision",
+      sideAProtects: "",
+      sideAFears: "", 
+      sideBProtects: "",
+      sideBFears: "",
+      coreTension: "whether [specific condition] justifies [specific action]",
+      hingeClarityLevel: "Medium",
+      hingeClarityReason: "Depends on definitions",
+      bridgePoint: "Both sides agree [common ground]"
+    },
+    rounds: [
+      { aArg: "", bArg: "" },
+      { aArg: "", bArg: "" },
+      { aArg: "", bArg: "" }
+    ]
+  }
+};
+
 function buildPrompt(question, sideA, sideB, intensity, retry = false) {
-  const base = `You generate structured debate reports for Debate Furnace.
+  const base = {
+    ...DEBATE_TEMPLATE,
+    question: question.trim().slice(0, 200),
+    sideA: sideA?.trim().slice(0, 150) || "Infer from question",
+    sideB: sideB?.trim().slice(0, 150) || "Infer opposing view",
+    intensity,
+    retry,
+    constraints: {
+      maxTokensPerArg: 75,
+      maxExamples: 1,
+      maxCriteria: 5
+    }
+  };
 
-Return valid JSON only. Do not use markdown. Do not include commentary outside JSON.
+  if (retry) {
+    return {
+      ...base,
+      system: `${base.system}\n\nPrevious response was too generic. Rewrite with:\n- Specific tradeoffs\n- Concrete examples\n- Zero meta-commentary`
+    };
+  }
 
-Debate Furnace does not decide objective truth. It pressure-tests both sides, finds the real tradeoff, and gives the decision back to the user.
-Most people think they are in a facts fight when they are actually in a values fight. Debate Furnace shows which one they are in.
-
-Question: ${question.trim()}
-Side A: ${sideA?.trim() || "Infer a clear Side A position from the question"}
-Side B: ${sideB?.trim() || "Infer a clear opposing Side B position from the question"}
-Intensity: ${intensity}
-
-Write tight, vivid, specific arguments. Keep each field short and punchy.
-Use concrete examples, tradeoffs, and consequences. Avoid generic debate filler, hedging, and repeated phrasing.
-Identify what each side is protecting and what each side fears losing.
-Classify the deeper disagreement as one of: Value Collision, Factual Dispute, Definition Dispute, Risk Tradeoff, Trust Dispute, Identity Dispute, Policy Mechanism Dispute.
-Name the exact hinge that would make a reasonable person switch sides.
-Do not restate the question in every section. Do not use full-sentence compass values.
-For the compass, use short noun phrases only.
-Keep round arguments to 2-4 sentences each.
-Make each takeaway a complete sentence starting with "Most people assume..." or "This debate revealed...".
-The unresolved question must be a complete sentence that starts with "The real question neither side resolved is...".
-Do not use labels, fragments, or one-word summaries for takeaways or the unresolved question.
-Use this exact shape as a guide:
-- "take": [["Most people assume X, but this debate revealed Y.", "Most people assume X, but this debate revealed Y."], ["This debate revealed X about the tradeoff.", "This debate revealed Y about the tradeoff."], ["Most people assume X, but this debate revealed Y.", "Most people assume X, but this debate revealed Y."]]
-- "hinge": { "questionType": "Value Collision", "sideAProtects": "specific value or stake", "sideAFears": "specific loss or harm", "sideBProtects": "specific value or stake", "sideBFears": "specific loss or harm", "coreTension": "whether X justifies Y", "hingeClarityLevel": "High", "hingeClarityReason": "One sentence explaining why.", "bridgePoint": "One sentence both sides could accept." }
-- "core": "The real question neither side resolved is whether ..."
-- "comp": ["value A noun phrase", "value B noun phrase", "The real question neither side resolved is whether ..."]
-
-Return exactly this JSON shape:
-{
-  "qType": "one of: product, policy, moral, practical, factual, extraordinary, open",
-  "sideA": "",
-  "sideB": "",
-  "label": "",
-  "icon": "",
-  "criteria": ["", "", "", "", ""],
-  "desc": "",
-  "rounds": [
-    { "aArg": "", "bArg": "" },
-    { "aArg": "", "bArg": "" },
-    { "aArg": "", "bArg": "" }
-  ],
-  "take": [
-    ["Most people assume X", "Most people assume X, but this debate revealed Y."],
-    ["This debate revealed X", "This debate revealed X about the tradeoff."],
-    ["Most people assume X", "Most people assume X, but this debate revealed Y."]
-  ],
-  "strongA": "",
-  "strongB": "",
-  "crackA": "",
-  "crackB": "",
-  "verify": ["", "", "", ""],
-  "changeA": ["", "", ""],
-  "changeB": ["", "", ""],
-  "hinge": {
-    "questionType": "one of: Value Collision, Factual Dispute, Definition Dispute, Risk Tradeoff, Trust Dispute, Identity Dispute, Policy Mechanism Dispute",
-    "sideAProtects": "",
-    "sideAFears": "",
-    "sideBProtects": "",
-    "sideBFears": "",
-    "coreTension": "",
-    "hingeClarityLevel": "one of: High, Medium, Low",
-    "hingeClarityReason": "",
-    "bridgePoint": ""
-  },
-  "core": "The real question neither side resolved is whether ...",
-  "comp": ["value A noun phrase", "value B noun phrase", "The real question neither side resolved is whether ..."]
-}`;
+  return base;
 
   if (!retry) return base;
   return `${base}
