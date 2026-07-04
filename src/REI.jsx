@@ -5,6 +5,7 @@ import { useSessionTracker } from "./hooks/useSessionTracker.js";
 import { useThriftyMode } from "./hooks/useThriftyMode.js";
 import { useDomainHint } from "./hooks/useDomainHint.js";
 import { buildRouterDecision, estimateTokens, detectDomain, getRouterCosts } from "./lib/nightShiftRouter.js";
+import { computeMsgCost, formatCostDisplay, estimateInputTokens, nextMessageId } from "./lib/contracts.js";
 import PhilosophyModal from "./components/PhilosophyModal.jsx";
 import SessionSummary from "./components/SessionSummary.jsx";
 
@@ -120,14 +121,7 @@ function buildDomainSystemMessage(domainId, currentDomain) {
 
 function formatCost(totalTokens, model) {
   const rate = MODEL_COST_PER_1K[model] || MODEL_COST_PER_1K[DEFAULT_COST_MODEL];
-  const cost = (totalTokens / 1000) * rate;
-  if (cost <= 0) return "~$0.0000";
-  if (cost < 0.0001) return "< $0.0001";
-  return `~$${cost.toFixed(4)}`;
-}
-
-function estimateInputTokens(text) {
-  return Math.ceil((text || "").length / 4);
+  return formatCostDisplay(computeMsgCost(totalTokens, rate));
 }
 
 function getCostBadgeLabel(model, tokens) {
@@ -1046,6 +1040,7 @@ export default function REI() {
     }
 
     const userMsg = {
+      id: nextMessageId(),
       sender: "user",
       text: inputMessage,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -1116,7 +1111,7 @@ export default function REI() {
       const responseModel = data.model || "Local cfai CLI Executable";
       const totalTokens = usage?.total_tokens || 0;
       const modelRate = MODEL_COST_PER_1K[responseModel] || MODEL_COST_PER_1K[DEFAULT_COST_MODEL];
-      const msgCost = (totalTokens / 1000) * modelRate;
+      const msgCost = computeMsgCost(totalTokens, modelRate);
 
       trackMessage(totalTokens, responseModel, msgCost);
 
@@ -1124,20 +1119,14 @@ export default function REI() {
         ...prev,
         userMsg,
         {
+          id: nextMessageId(),
           sender: "rei",
           text: data.result,
           timestamp: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
           usage,
-          rawJson: {
-            engine: "REI-Hinge-Core v0.3",
-            domain: selectedDomain,
-            command: "score",
-            model: responseModel,
-            timestamp: data.timestamp || new Date().toISOString(),
-            hadIngestedRecord: Boolean(ingestedRecord),
-            recordSourceType: ingestedRecord ? recordSourceType : null,
-            routerDecision: data.routerDecision || routerDecision,
-          }
+          model: responseModel,
+          cost: msgCost,
+          routerDecision: data.routerDecision || routerDecision,
         }
       ]);
     } catch (error) {
@@ -1152,16 +1141,13 @@ ${error.message}
 ${isNetworkError ? 'Check your connection and try again.' : 'The server encountered an issue. Please try again.'}`;
 
       const fallbackMsg = {
+        id: nextMessageId(),
         sender: "rei",
         text: fallbackText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        rawJson: {
-          engine: "REI-Fallback v0.3",
-          domain: selectedDomain,
-          error: error.message,
-          errorType,
-          fallback: true,
-        }
+        fallback: true,
+        error: error.message,
+        errorType,
       };
 
       setMessages((prev) => [...prev, userMsg, fallbackMsg]);
@@ -1381,12 +1367,12 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                     📋 Record attached — {msg.attachedRecord.sourceType} ({msg.attachedRecord.charCount.toLocaleString()} chars)
                   </div>
                 )}
-                {msg.sender === "rei" && msg.rawJson?.routerDecision && (
+                {msg.sender === "rei" && msg.routerDecision && (
                   <div className="rei-router-badge">
                     <span style={{ fontSize: "11px" }}>🌙</span>
-                    <span>{msg.rawJson.routerDecision.label}</span>
+                    <span>{msg.routerDecision.label}</span>
                     <span style={{ color: "#fbbf24", fontWeight: 600 }}>
-                      {msg.rawJson.routerDecision.model}
+                      {msg.routerDecision.model}
                     </span>
                     <span className="rei-cost-badge" style={{
                       fontSize: "10px",
@@ -1397,8 +1383,8 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                       background: "rgba(148,163,184,0.1)",
                     }}>
                       {getCostBadgeLabel(
-                        msg.rawJson.routerDecision.model,
-                        msg.usage?.total_tokens || msg.rawJson.routerDecision.estimatedInputTokens || 0
+                        msg.routerDecision.model,
+                        msg.usage?.total_tokens || msg.routerDecision.estimatedInputTokens || 0
                       )}
                     </span>
                   </div>
@@ -1409,7 +1395,7 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                     padding: "10px 60px 10px 14px"
                   }}
                 >
-                  {selectedDomain === "assistant" && msg.sender === "rei" && !msg.rawJson?.fallback ? (
+                  {selectedDomain === "assistant" && msg.sender === "rei" && !msg.fallback ? (
                     (() => {
                       const sections = parseAssistantStyleReply(msg.text);
                       const sectionOrder = [
@@ -1440,24 +1426,24 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                   )}
 
                   {/* Router summary */}
-                  {msg.rawJson && (
+                  {msg.routerDecision && (
                     <div className="rei-router-panel">
                       <div className="rei-router-panel__title">Night Shift routing</div>
                       <div className="rei-router-panel__grid">
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Route:</span> {msg.rawJson.routerDecision?.label || "n/a"}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Model:</span> {msg.rawJson.routerDecision?.model || msg.rawJson.model || "n/a"}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Max tokens:</span> {msg.rawJson.routerDecision?.maxTokens || "n/a"}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Quality gate:</span> {msg.rawJson.routerDecision?.qualityGate || "n/a"}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Enforcement:</span> {msg.rawJson.routerDecision?.enforce || "none"}</div>
-                        {msg.rawJson.routerDecision?.rationale && (
+                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Route:</span> {msg.routerDecision.label}</div>
+                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Model:</span> {msg.model || msg.routerDecision.model}</div>
+                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Max tokens:</span> {msg.routerDecision.maxTokens}</div>
+                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Quality gate:</span> {msg.routerDecision.qualityGate}</div>
+                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Enforcement:</span> {msg.routerDecision.enforce || "none"}</div>
+                        {msg.routerDecision.rationale && (
                           <div className="rei-router-panel__item" style={{ gridColumn: "1 / -1", fontStyle: "italic", color: "#94a3b8", fontSize: "11px" }}>
-                            <span className="rei-router-panel__label">Why:</span> {msg.rawJson.routerDecision.rationale}
+                            <span className="rei-router-panel__label">Why:</span> {msg.routerDecision.rationale}
                           </div>
                         )}
-                        {msg.rawJson.routerDecision?.alternativeRoutes && msg.rawJson.routerDecision.alternativeRoutes.length > 0 && (
+                        {msg.routerDecision.alternativeRoutes && msg.routerDecision.alternativeRoutes.length > 0 && (
                           <div className="rei-router-panel__item" style={{ gridColumn: "1 / -1", fontSize: "11px", color: "#64748b" }}>
                             <span className="rei-router-panel__label">Also available:</span>{' '}
-                            {msg.rawJson.routerDecision.alternativeRoutes.map((alt, i) => (
+                            {msg.routerDecision.alternativeRoutes.map((alt, i) => (
                               <span key={alt.model}>
                                 {i > 0 && ' · '}
                                 {alt.label} ({(alt.costPer1kTotal * 1000).toFixed(2)}¢/1K tok)
@@ -1482,7 +1468,7 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                   >
                     Copy
                   </button>
-                  {msg.rawJson?.fallback && (
+                  {msg.fallback && (
                     <button
                       onClick={() => retryMessage(index)}
                       className="rei-copy-btn touch-target"

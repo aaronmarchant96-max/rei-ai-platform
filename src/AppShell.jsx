@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { useMobile, useSwipe } from "./useMobile.js";
+import { getFlag, setFlag } from "./lib/featureFlags.js";
 
 const ToolsLanding = lazy(() => import("./ToolsLanding.jsx"));
 const DebateFurnace = lazy(() => import("./DebateFurnace.jsx"));
@@ -124,6 +125,11 @@ export default function AppShell() {
   }, [tool]);
 
   const currentToolLabel = getToolLabel(tool);
+  const [experimentalLayout, setExperimentalLayout] = useState(() => getFlag("navigation-rail"));
+
+  useEffect(() => {
+    setFlag("navigation-rail", experimentalLayout);
+  }, [experimentalLayout]);
 
   return (
     <div className="app-shell" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
@@ -231,6 +237,25 @@ export default function AppShell() {
           </button>
           <span className="shell-tool-bar__sep" aria-hidden="true">/</span>
           <span className="shell-tool-bar__current">{currentToolLabel}</span>
+          <span style={{ flex: 1 }} />
+          <button
+            type="button"
+            onClick={() => setExperimentalLayout((v) => !v)}
+            style={{
+              background: experimentalLayout ? "rgba(214,176,76,0.15)" : "transparent",
+              border: experimentalLayout ? "1px solid rgba(214,176,76,0.35)" : "1px solid transparent",
+              borderRadius: "4px",
+              color: experimentalLayout ? "#d6b04c" : "#697266",
+              cursor: "pointer",
+              fontSize: "10px",
+              padding: "2px 6px",
+              letterSpacing: "0.06em",
+              textTransform: "uppercase",
+            }}
+            title={experimentalLayout ? "Experimental layout active" : "Enable experimental layout"}
+          >
+            {experimentalLayout ? "🧪 Layout" : "🧪"}
+          </button>
         </div>
       ) : null}
 
