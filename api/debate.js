@@ -154,11 +154,6 @@ function buildPrompt(question, sideA, sideB, intensity, retry = false) {
   }
 
   return base;
-
-  if (!retry) return base;
-  return `${base}
-
-Your previous answer was too generic. Rewrite it with topic-specific stakes, concrete examples, actual tradeoffs, and no meta-debate filler.`;
 }
 
 async function requestGemini(apiKey, prompt, temperature) {

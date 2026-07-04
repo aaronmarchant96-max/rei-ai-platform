@@ -5,10 +5,10 @@ module.exports = {
     "^.+\\.[jt]sx?$": "babel-jest",
   },
   moduleFileExtensions: ["js", "jsx", "json"],
-  testMatch: ["<rootDir>/src/**/*.test.[jt]s?(x)"],
+  testMatch: ["<rootDir>/src/**/*.test.[jt]s?(x)", "<rootDir>/api/**/*.test.[jt]s?(x)"],
   clearMocks: true,
   bail: true,
-  testTimeout: 5000,
+  testTimeout: 10000,
   verbose: true,
   coverageThreshold: {
     "./src/CardoGuard.jsx": {

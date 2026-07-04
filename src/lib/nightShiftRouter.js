@@ -2,6 +2,57 @@ import fingerprintCatalog from "../../data/fingerprints.json" with { type: "json
 
 const ROUTER_CATALOG = Array.isArray(fingerprintCatalog) ? fingerprintCatalog : [];
 const STORAGE_KEY = "night-shift-user-fingerprint";
+
+const FALLBACK_COST_INPUT = 0.00059;
+const FALLBACK_COST_OUTPUT = 0.00079;
+const FALLBACK_MODEL = "llama-3.3-70b-versatile";
+const FALLBACK_LABEL = "Fast (70B)";
+const FALLBACK_MAX_TOKENS = 400;
+
+function getModelCost(model) {
+  const entry = ROUTER_CATALOG.find((e) => e.model === model);
+  if (entry) {
+    return {
+      costPer1kInput: entry.costPer1kInput ?? FALLBACK_COST_INPUT,
+      costPer1kOutput: entry.costPer1kOutput ?? FALLBACK_COST_OUTPUT,
+      label: entry.label || model,
+    };
+  }
+  return { costPer1kInput: FALLBACK_COST_INPUT, costPer1kOutput: FALLBACK_COST_OUTPUT, label: FALLBACK_LABEL };
+}
+
+function getRouterCosts() {
+  const models = {};
+  for (const entry of ROUTER_CATALOG) {
+    if (entry.model && !models[entry.model]) {
+      models[entry.model] = {
+        costPer1kInput: entry.costPer1kInput ?? FALLBACK_COST_INPUT,
+        costPer1kOutput: entry.costPer1kOutput ?? FALLBACK_COST_OUTPUT,
+        label: entry.label || entry.model,
+      };
+    }
+  }
+  return models;
+}
+
+function buildAlternativeRoutes(text) {
+  const t = normalizeText(text || "");
+  const options = [];
+
+  for (const entry of ROUTER_CATALOG) {
+    if (entry.model === "mock" || entry.model === "rate-limited") continue;
+    const costTotal = (entry.costPer1kInput ?? FALLBACK_COST_INPUT) + (entry.costPer1kOutput ?? FALLBACK_COST_OUTPUT);
+    options.push({
+      model: entry.model,
+      label: entry.label,
+      costPer1kTotal: costTotal,
+      route: entry.id,
+      rationale: entry.description,
+    });
+  }
+
+  return options.sort((a, b) => a.costPer1kTotal - b.costPer1kTotal).slice(0, 4);
+}
 const HIGH_STRUCTURE_TERMS = [
   "what am i missing",
   "what would change my mind",
@@ -20,10 +71,18 @@ function normalizeText(value = "") {
   return String(value ?? "").toLowerCase().trim();
 }
 
+/**
+ * @param {string} id
+ * @returns {object|null}
+ */
 function getCatalogEntry(id) {
-  return ROUTER_CATALOG.find((entry) => entry.id === id) || ROUTER_CATALOG[1] || ROUTER_CATALOG[0];
+  return ROUTER_CATALOG.find((entry) => entry.id === id) || null;
 }
 
+/**
+ * @param {string} term
+ * @returns {string}
+ */
 function escapeKeyword(term = "") {
   return String(term ?? "")
     .trim()
@@ -31,6 +90,11 @@ function escapeKeyword(term = "") {
     .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * @param {string} text
+ * @param {string} term
+ * @returns {boolean}
+ */
 function keywordMatches(text, term = "") {
   const escaped = escapeKeyword(term);
   if (!escaped) {
@@ -41,15 +105,43 @@ function keywordMatches(text, term = "") {
   return pattern.test(text);
 }
 
+function getTermScore(term, text) {
+  if (typeof term === "string") {
+    return keywordMatches(text, term) ? 1.0 : 0;
+  }
+  if (term && typeof term === "object" && term.term) {
+    return keywordMatches(text, term.term) ? (term.weight ?? 1.0) : 0;
+  }
+  return 0;
+}
+
 function getCatalogRouteMatch(text) {
+  let bestEntry = null;
+  let bestScore = 0;
+
   for (const entry of ROUTER_CATALOG) {
     const terms = Array.isArray(entry?.matchTerms) ? entry.matchTerms : [];
-    if (terms.some((term) => keywordMatches(text, term))) {
-      return entry;
+    const negativeTerms = Array.isArray(entry?.negativeMatchTerms) ? entry.negativeMatchTerms : [];
+    const threshold = entry.matchThreshold ?? 0.5;
+
+    let score = 0;
+    for (const term of terms) {
+      score += getTermScore(term, text);
+    }
+
+    for (const negTerm of negativeTerms) {
+      if (keywordMatches(text, negTerm)) {
+        score -= 0.8;
+      }
+    }
+
+    if (score > bestScore && score >= threshold) {
+      bestScore = score;
+      bestEntry = entry;
     }
   }
 
-  return null;
+  return bestEntry;
 }
 
 function getStoredRouteHistory() {
@@ -99,19 +191,23 @@ function getStoredRoutePreference() {
 }
 
 function buildDecision(id, overrides = {}) {
-  const baseEntry = getCatalogEntry(id) || {};
+  const baseEntry = getCatalogEntry(id);
   return {
-    id: baseEntry.id || id,
-    jobType: baseEntry.jobType || id,
-    label: baseEntry.label || id,
-    model: baseEntry.model || "llama-3.3-70b-versatile",
-    maxTokens: baseEntry.maxTokens || 400,
-    costPer1k: baseEntry.costPer1k ?? 1.0,
-    qualityGate: baseEntry.qualityGate || "Default reasoning gate",
-    enforce: baseEntry.enforce || null,
-    description: baseEntry.description || "Default routing decision",
-    temperature: baseEntry.temperature ?? 0.7,
-    fallbackPriority: baseEntry.fallbackPriority || null,
+    id: baseEntry?.id || id,
+    jobType: baseEntry?.jobType || id,
+    label: baseEntry?.label || id,
+    model: baseEntry?.model || FALLBACK_MODEL,
+    maxTokens: baseEntry?.maxTokens || FALLBACK_MAX_TOKENS,
+    costPer1k: baseEntry?.costPer1k ?? 1.0,
+    costPer1kInput: baseEntry?.costPer1kInput ?? FALLBACK_COST_INPUT,
+    costPer1kOutput: baseEntry?.costPer1kOutput ?? FALLBACK_COST_OUTPUT,
+    qualityGate: baseEntry?.qualityGate || "Default reasoning gate",
+    enforce: baseEntry?.enforce || null,
+    description: baseEntry?.description || "Default routing decision",
+    temperature: baseEntry?.temperature ?? 0.7,
+    fallbackPriority: baseEntry?.fallbackPriority || null,
+    fallbackChain: baseEntry?.fallbackChain || null,
+    contextWindow: baseEntry?.contextWindow || 8192,
     routingSignals: {},
     ...overrides,
   };
@@ -126,7 +222,7 @@ function isLikelyCodingRequest(text) {
 }
 
 function isLikelyGenealogyRequest(text) {
-  return /\b(ancestor|descendant|birth|death|marriage|census|familysearch|find a grave|record|pedigree|genealogy|lineage|same-name|disambiguat|archive|parish|will|baptism|burial)\b/i.test(text);
+  return /\b(ancestor|descendant|birth|death|marriage|census|familysearch|find a grave|pedigree|genealogy|lineage|same-name|disambiguat|archive|parish|baptism|burial)\b/i.test(text);
 }
 
 function isLikelyStoryRequest(text) {
@@ -149,7 +245,7 @@ function getComplexityTier(text) {
 }
 
 function getHighStructureSignals(text) {
-  return HIGH_STRUCTURE_TERMS.filter((term) => text.includes(term));
+  return HIGH_STRUCTURE_TERMS.filter((term) => keywordMatches(text, term));
 }
 
 function getStoredPreferenceForContext(text, domainName) {
@@ -172,6 +268,18 @@ function getStoredPreferenceForContext(text, domainName) {
     return storedPreference;
   }
 
+  return null;
+}
+
+export function estimateTokens(text) {
+  return Math.ceil((text || "").length / 4);
+}
+
+export function detectDomain(text) {
+  const t = normalizeText(text || "");
+  if (isLikelyCodingRequest(t)) return "coding";
+  if (isLikelyGenealogyRequest(t)) return "genealogy";
+  if (isLikelyStoryRequest(t)) return "story";
   return null;
 }
 
@@ -233,6 +341,7 @@ export function buildRouterDecision({
   history = [],
   attachedRecord = "",
   requiresAdversarial = false,
+  thrifty = false,
 } = {}) {
   const combinedInput = [input, attachedRecord, history?.map((message) => message?.content || "").join(" ")]
     .filter(Boolean)
@@ -243,13 +352,15 @@ export function buildRouterDecision({
   const complexityTier = getComplexityTier(text);
   const highStructureSignals = getHighStructureSignals(text);
   const storedPreference = getStoredPreferenceForContext(text, domainName);
+  const estimatedInputTokens = estimateTokens(combinedInput);
+  const alternativeRoutes = buildAlternativeRoutes(text);
+
+  let decision;
 
   if (!text) {
-    return buildDecision("structured-reasoning");
-  }
-
-  if (isSimpleGreeting(text)) {
-    const decision = buildDecision("simple-greeting", {
+    decision = buildDecision("structured-reasoning");
+  } else if (isSimpleGreeting(text)) {
+    decision = buildDecision("simple-greeting", {
       rationale: "Greeting detected; use the cheapest fast path.",
       routingSignals: {
         complexityTier,
@@ -258,12 +369,8 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
-  }
-
-  if (requiresAdversarial || isAdversarialRequest(text)) {
-    const decision = buildDecision("adversarial-validation", {
+  } else if (requiresAdversarial || isAdversarialRequest(text)) {
+    decision = buildDecision("adversarial-validation", {
       rationale: "Adversarial or red-team request detected; use the premium validation path.",
       routingSignals: {
         complexityTier,
@@ -272,12 +379,21 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
-  }
-
-  if (domainName === "genealogy" || catalogRoute?.id === "genealogy-deep-dive" || isLikelyGenealogyRequest(text)) {
-    const decision = buildDecision("genealogy-deep-dive", {
+  } else if (thrifty) {
+    decision = buildDecision("simple-greeting", {
+      rationale: "Thrifty mode active; using the cheapest adequate model.",
+      model: "llama-3.1-8b-instant",
+      maxTokens: 200,
+      costPer1k: 0.05,
+      routingSignals: {
+        complexityTier,
+        matchedTerms: [],
+        highStructureSignals,
+        storedPreference,
+      },
+    });
+  } else if (domainName === "genealogy" || catalogRoute?.id === "genealogy-deep-dive" || isLikelyGenealogyRequest(text)) {
+    decision = buildDecision("genealogy-deep-dive", {
       rationale: "Genealogy or archival evidence language detected; enforce evidence-tiered reasoning.",
       routingSignals: {
         complexityTier,
@@ -286,12 +402,8 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
-  }
-
-  if (domainName === "coding" || catalogRoute?.id === "coding-hinge" || isLikelyCodingRequest(text)) {
-    const decision = buildDecision("coding-hinge", {
+  } else if (domainName === "coding" || catalogRoute?.id === "coding-hinge" || isLikelyCodingRequest(text)) {
+    decision = buildDecision("coding-hinge", {
       rationale: "Coding language detected; route through the verification-first coding path.",
       routingSignals: {
         complexityTier,
@@ -300,12 +412,8 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
-  }
-
-  if (domainName === "story" || catalogRoute?.id === "story-architect" || isLikelyStoryRequest(text)) {
-    const decision = buildDecision("story-architect", {
+  } else if (domainName === "story" || catalogRoute?.id === "story-architect" || isLikelyStoryRequest(text)) {
+    decision = buildDecision("story-architect", {
       rationale: "Story or narrative language detected; route through the storytelling blueprint path.",
       routingSignals: {
         complexityTier,
@@ -314,12 +422,8 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
-  }
-
-  if (highStructureSignals.length > 0 || complexityTier === "high") {
-    const decision = buildDecision("structured-reasoning", {
+  } else if (highStructureSignals.length > 0 || complexityTier === "high") {
+    decision = buildDecision("structured-reasoning", {
       rationale: "High-structure or uncertain reasoning request detected; use a stricter evaluation gate.",
       qualityGate: "Hinge + Facts + Move + challenge test",
       maxTokens: 600,
@@ -332,12 +436,8 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
-  }
-
-  if (storedPreference) {
-    const decision = buildDecision(storedPreference, {
+  } else if (storedPreference) {
+    decision = buildDecision(storedPreference, {
       rationale: "Recent interaction history suggests this route should be preferred for the current request.",
       routingSignals: {
         complexityTier,
@@ -346,26 +446,27 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-    persistRouteHistory(decision.id);
-    return decision;
+  } else {
+    decision = buildDecision("structured-reasoning", {
+      rationale: "No special-case fingerprint matched; use the balanced reasoning profile.",
+      routingSignals: {
+        complexityTier,
+        matchedTerms: catalogRoute?.matchTerms || [],
+        highStructureSignals,
+        storedPreference,
+      },
+    });
   }
 
-  const decision = buildDecision("structured-reasoning", {
-    rationale: "No special-case fingerprint matched; use the balanced reasoning profile.",
-    routingSignals: {
-      complexityTier,
-      matchedTerms: catalogRoute?.matchTerms || [],
-      highStructureSignals,
-      storedPreference,
-    },
-  });
+  decision.estimatedInputTokens = estimatedInputTokens;
+  decision.alternativeRoutes = alternativeRoutes;
   persistRouteHistory(decision.id);
   return decision;
 }
 
 export function resolveRoutingModel(routerDecision) {
   if (!routerDecision?.model) {
-    return "llama-3.3-70b-versatile";
+    return FALLBACK_MODEL;
   }
 
   return routerDecision.model;
@@ -381,9 +482,15 @@ export function getRouterSummary(routerDecision) {
     label: routerDecision.label,
     model: routerDecision.model,
     maxTokens: routerDecision.maxTokens,
+    costPer1kInput: routerDecision.costPer1kInput,
+    costPer1kOutput: routerDecision.costPer1kOutput,
     qualityGate: routerDecision.qualityGate,
     enforce: routerDecision.enforce,
     temperature: routerDecision.temperature,
     fallbackPriority: routerDecision.fallbackPriority,
+    fallbackChain: routerDecision.fallbackChain,
+    contextWindow: routerDecision.contextWindow,
   };
 }
+
+export { getModelCost, getRouterCosts };

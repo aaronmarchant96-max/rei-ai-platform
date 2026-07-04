@@ -1,6 +1,25 @@
 import { useState, useRef, useEffect } from "react";
 import { useMobile, useKeyboardVisible } from "./useMobile.js";
-import { buildRouterDecision } from "./lib/nightShiftRouter.js";
+import { useChatHistory } from "./hooks/useChatHistory.js";
+import { useSessionTracker } from "./hooks/useSessionTracker.js";
+import { useThriftyMode } from "./hooks/useThriftyMode.js";
+import { useDomainHint } from "./hooks/useDomainHint.js";
+import { buildRouterDecision, estimateTokens, detectDomain, getRouterCosts } from "./lib/nightShiftRouter.js";
+import PhilosophyModal from "./components/PhilosophyModal.jsx";
+import SessionSummary from "./components/SessionSummary.jsx";
+
+const FINGERPRINT_COSTS = getRouterCosts();
+const DEFAULT_COST_MODEL = "llama-3.3-70b-versatile";
+const MODEL_COST_PER_1K = {
+  ...Object.fromEntries(
+    Object.entries(FINGERPRINT_COSTS).map(([model, costs]) => [
+      model,
+      (costs.costPer1kInput + costs.costPer1kOutput) / 2,
+    ])
+  ),
+  mock: 0,
+  "rate-limited": 0,
+};
 
 const MAX_RECORD_CHARS = 12000;
 
@@ -99,33 +118,21 @@ function buildDomainSystemMessage(domainId, currentDomain) {
   return `System initialized. Welcome to REI.ai ${domainLabel}. ${domainDescription} Let's begin our ${domainId === 'coding' ? 'coding session' : domainId === 'genealogy' ? 'research analysis' : 'story building'}!`;
 }
 
-function readStoredMessages(selectedDomain) {
-  if (typeof window === "undefined") {
-    return null;
-  }
+function formatCost(totalTokens, model) {
+  const rate = MODEL_COST_PER_1K[model] || MODEL_COST_PER_1K[DEFAULT_COST_MODEL];
+  const cost = (totalTokens / 1000) * rate;
+  if (cost <= 0) return "~$0.0000";
+  if (cost < 0.0001) return "< $0.0001";
+  return `~$${cost.toFixed(4)}`;
+}
 
-  const storageKey = `rei_chat_history_${selectedDomain}`;
-  const saved = window.localStorage.getItem(storageKey);
+function estimateInputTokens(text) {
+  return Math.ceil((text || "").length / 4);
+}
 
-  if (!saved) {
-    return null;
-  }
-
-  try {
-    const parsed = JSON.parse(saved);
-    if (!Array.isArray(parsed)) {
-      throw new Error("Stored chat history is not an array");
-    }
-    return parsed;
-  } catch (error) {
-    console.error("Failed to parse saved chat history:", error);
-    try {
-      window.localStorage.removeItem(storageKey);
-    } catch (cleanupError) {
-      console.warn("Unable to clear corrupted chat history storage:", cleanupError);
-    }
-    return null;
-  }
+function getCostBadgeLabel(model, tokens) {
+  const cost = formatCost(tokens, model);
+  return `⚡ ${tokens} tok · ${cost}`;
 }
 
 const GENERALIST_PROMPTS = [
@@ -144,7 +151,8 @@ const REASONING_LOOP_STEPS = [
   { id: "move", label: "Next move", detail: "Smallest useful step" },
 ];
 
-function parseAssistantStyleReply(text = "") {
+function parseAssistantStyleReply(text) {
+  if (text == null) text = "";
   const sections = { Hinge: "", Facts: "", Assumptions: "", Evaluation: "", ChangeMind: "", Move: "", intro: "" };
   const cleaned = text.replace(/\*\*/g, "").replace(/^\s*[-*]\s+/gm, "• ");
   const lines = cleaned.split("\n").map((line) => line.trim()).filter(Boolean);
@@ -167,9 +175,11 @@ function parseAssistantStyleReply(text = "") {
       };
       const key = keyMap[normalized] || null;
       const rest = inlineMatch[2].trim();
-      if (key && rest) {
-        sections[key] = sections[key] ? `${sections[key]} ${rest}` : rest;
+      if (key) {
         current = key;
+        if (rest) {
+          sections[key] = sections[key] ? `${sections[key]} ${rest}` : rest;
+        }
         continue;
       }
     }
@@ -380,12 +390,15 @@ function HingeMark({ size = 36, animated = false }) {
  *    - Right-sized responses
  *    - Minimal re-renders
  */
+// Named exports for testing
+export { parseAssistantStyleReply, buildDomainSystemMessage, getAssistantWelcomeCopy };
+
 export default function REI() {
   // Mobile detection
-  const { isMobile, keyboardVisible } = useMobile();
-  const inputRows = isMobile ? 3 : 5;
-  const MAX_MOBILE_TOKENS = keyboardVisible ? 75 : 150;
+  const mobile = useMobile();
   const keyboardVisible = useKeyboardVisible();
+  const inputRows = mobile ? 3 : 5;
+
   const inputRef = useRef(null);
 
   // Scroll input into view when keyboard opens
@@ -404,10 +417,19 @@ export default function REI() {
   const copyText = async (text) => {
     try {
       await navigator.clipboard.writeText(text);
-      // Could add a toast notification here if needed
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
+  };
+
+  const retryMessage = (msgIndex) => {
+    const userMsg = messages[msgIndex - 1];
+    if (userMsg?.sender !== "user") return;
+    setInputMessage(userMsg.text);
+    setTimeout(() => {
+      inputRef.current?.focus();
+      inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }, 100);
   };
 
   // Add fade-in animation style
@@ -955,90 +977,37 @@ export default function REI() {
   const [recordSourceType, setRecordSourceType] = useState("other");
   const [isPhilosophyOpen, setIsPhilosophyOpen] = useState(false);
 
-  // Clear legacy chat history key on first load (pre‑v2 storage)
-  useEffect(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("rei_chat_history_v2")) {
-      console.info("Removing legacy chat history key 'rei_chat_history_v2' to reset chat");
-      localStorage.removeItem("rei_chat_history_v2");
-    }
-  }, []);
-
-  // Clear any existing domain‑specific chat history entries on first load to ensure a fresh start
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith("rei_chat_history_")) {
-          console.info(`Removing stale chat history key '${key}'`);
-          localStorage.removeItem(key);
-        }
-      });
-    }
-  }, []);
-
   const [inputMessage, setInputMessage] = useState("");
-  const [messages, setMessages] = useState(() => {
-    const storedMessages = readStoredMessages(selectedDomain);
-    if (storedMessages) {
-      return storedMessages;
-    }
 
-    return [
-      {
-        sender: "rei",
-        text: buildDomainSystemMessage(selectedDomain, DOMAIN_PROFILES.find((domain) => domain.id === selectedDomain) || DOMAIN_PROFILES[0]),
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      }
-    ];
-  });
-  const [isTyping, setIsTyping] = useState(false);
-  const chatEndRef = useRef(null);
-  const [assistantPromptIndex, setAssistantPromptIndex] = useState(0);
+  const {
+    messages, setMessages, isTyping, setIsTyping,
+    chatEndRef, assistantPromptIndex, setAssistantPromptIndex,
+    handleClearHistory,
+  } = useChatHistory(selectedDomain, buildDomainSystemMessage, DOMAIN_PROFILES);
+
+  const { thriftyMode, toggleThriftyMode } = useThriftyMode();
+
+  const {
+    sessionTokens, sessionMessages, sessionCost, modelBreakdown,
+    showSessionSummary, setShowSessionSummary,
+    trackMessage, resetSession,
+  } = useSessionTracker();
+
+  const { domainHint, updateDomainHint, dismissDomainHint, switchDomain } = useDomainHint(selectedDomain);
 
   const currentDomain = DOMAIN_PROFILES.find((d) => d.id === selectedDomain) || DOMAIN_PROFILES[0];
-  const assistantQuickPrompt = GENERALIST_PROMPTS[assistantPromptIndex % GENERALIST_PROMPTS.length];
 
-  // Clear chat and initialize domain-specific context when domain changes
+  // Prevent a pasted record from leaking into a different domain
   useEffect(() => {
-    const domainSpecificMessage = {
-      sender: "rei",
-      text: buildDomainSystemMessage(selectedDomain, currentDomain),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-    };
-    
-    setMessages([domainSpecificMessage]);
-    if (typeof window !== "undefined") {
-      localStorage.setItem(`rei_chat_history_${selectedDomain}`, JSON.stringify([domainSpecificMessage]));
-    }
-
-    // Prevent a pasted record from leaking into a different domain
     setRawRecordText("");
     setShowIngest(false);
     setRecordSourceType("other");
   }, [selectedDomain]);
 
-  // Auto scroll to bottom of chat only when messages length changes
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView?.({ behavior: "smooth" });
-  }, [messages.length]);
-
-  // Sync to local storage (domain-specific)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(`rei_chat_history_${selectedDomain}`, JSON.stringify(messages));
-    }
-  }, [messages, selectedDomain]);
-
-  const handleClearHistory = () => {
-    const domainSpecificMessage = {
-      sender: "rei",
-      text: buildDomainSystemMessage(selectedDomain, currentDomain),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    setMessages([domainSpecificMessage]);
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(`rei_chat_history_${selectedDomain}`);
-    }
-  };
+  function handleInputChange(value) {
+    setInputMessage(value);
+    updateDomainHint(value);
+  }
 
   /**
    * Handles message sending with Fortis et Liber exit strategies:
@@ -1093,32 +1062,11 @@ export default function REI() {
     setRecordSourceType("other");
 
     try {
-      // Build domain-specific prompt
-      let systemContext =
-        "You are REI, a careful reasoning assistant. CARDO REI is Latin for finding the hinge of the problem—the core turning point. Dissect the problem to find this point of leverage and build the solution on it. Default to plain language over jargon.";
-
-      if (selectedDomain === "assistant") {
-        systemContext =
-          "You are REI, The Generalist: a distinct everyday reasoning model for ordinary conversation, judgment, and decision support. CARDO REI is the practice of finding the hinge of the problem—the exact turning point that changes the answer. For every non-greeting response, make the reasoning visible in a structured loop: first name the Hinge, then separate Facts from Assumptions, then add an Evaluation of how strong the case is, then explain what would change your mind, and finish with a concrete Move. Keep the tone warm but not bland, sharp but not hostile, and concrete rather than corporate. For LITERAL greetings ONLY (hello, hi, hey, hey there): respond with one warm sentence inviting a real topic. FOR ALL OTHER INPUTS: default to full CARDO REI structure. Never use casual one-word or one-line responses for actual queries. Quality Check: Before sending, verify your response contains at least one named Hinge plus either a Facts/Assumptions separation or a concrete Move. If not, re-structure using the reasoning loop.";
-      } else if (selectedDomain === "coding") {
-        systemContext =
-          "You are REI.ai, a senior software engineer executing the CARDO REI methodology. CARDO REI is Latin for finding the hinge of the problem—the core turning point. Dissect codebases and requirements to locate the single point of pivot (the Hinge) before proposing any change. Default stance: write code that is obvious, testable, and boring; prefer clarity over cleverness; fix root causes, not symptoms. Keep functions single-responsibility, name things by intent, comment the why not the what.\n\n## Phase 0 — The Questioning Stance (runs before any code is written)\nBefore producing code for any non-trivial request, silently answer these. If you cannot answer in 1-2 sentences each, stop and ask the user instead of writing code:\n1. What is the real problem (not the symptom being described)?\n2. Who uses this, and in what context?\n3. What are the failure modes — bad input, network failure, race conditions?\n4. What existing code does this touch? What's the dependency surface?\n5. Is there a simpler existing solution — reuse over rewrite?\n6. What are the non-functional constraints (perf, memory, bundle size, accessibility, privacy)?\n7. How will this be verified before it's considered done?\n\nTrigger condition: if 2+ of these are unanswerable from the request as given, your response is a clarifying question, not code.\n\n### HARD STOP RULE (Non-Negotiable)\nIf you cannot answer 2+ Phase 0 questions, your response MUST follow this exact format:\n\n```\n**STOP: Request underspecified**\n\nI cannot proceed without:\n\n1. [First unanswerable question]\n2. [Second unanswerable question]\n3. [Third unanswerable question] (if applicable)\n\nPlease provide these details before I can generate any code.\n```\n\n**FORBIDDEN:** No code snippets, no partial solutions, no hedging, no \"simple version anyway\".\n**ALLOWED:** Only the questions, only the STOP declaration, only the required details list.";
-      } else if (selectedDomain === "genealogy") {
-        systemContext =
-          "You are REI.ai, a genealogical research assistant executing the CARDO REI evidence-evaluation methodology. CARDO REI is Latin for finding the hinge of the problem—the core turning point (such as a disputed parentage, a same-name disambiguation, or a key birth record). Dissect records to isolate this pivot. Tier every claim explicitly: 🟢 Primary Source, 🔵 Strong Evidence, 🟠 Needs Review, 🟡 Family Memory. State your tier and reasoning inline with each claim.\n\n" +
-          "Your reasoning is grounded in the Marchant Family Archive canonical profiles:\n" +
-          "1. **Charles Dyer**: Confirmed direct patriot ancestor. Honorably discharged September 25, 1778 after serving as a soldier in Captain William McKee's company of the 12th Virginia Regiment at Fort Randolph. Father of Jonathan Dyer (b. 1802). Disambiguation note: Not the William Dyer of the 15th Virginia (sick in Eastern Virginia).\n" +
-          "2. **William Moore**: Painter of Springwell Street, Ballymena, County Antrim. Married Isabella Law on March 29, 1846. Emigrated to Canada (Hull, Quebec) shortly after, then later to New York City by 1865. Father of James Moore (b. 1860) and Robert Harvey Moore.\n" +
-          "3. **Josiah Ramsey Sr.**: Born 1728 in Delaware Colony, died 1811 in Davidson, Tennessee. Confirmed North Carolina Militia Revolutionary War veteran with verified 1782 pay voucher. Married Alice Bower (1744, Delaware). Father of Josiah Ramsey Jr. (1769-1835).\n" +
-          "Dissect all queries regarding these lines against these verified facts. Do not allow oral family traditions or same-name duplicates to override these primary sources.";
-      } else if (selectedDomain === "story") {
-        systemContext =
-          "You are REI.ai, a creative story architect using the CARDO REI narrative methodology. CARDO REI is Latin for finding the hinge of the story—the core turning point or character driver hinge (what each character actually wants and fears that pivots the arc). Dissect the narrative blueprint to isolate this hinge before expanding any outline. Speak with direct narrative clarity, avoid cliché tropes, and structure clear structural timelines.";
-      }
+      const systemContext = selectedDomain;
 
       // Format previous chat history to send to backend (last 10 messages, filtering out system init messages)
       const historyPayload = messages
-        .filter(msg => !msg.text.startsWith("System initialized. Welcome to REI.ai"))
+        .filter(msg => !msg.text.startsWith("System initialized"))
         .slice(-10)
         .map(msg => ({
           role: msg.sender === "user" ? "user" : "assistant",
@@ -1128,7 +1076,7 @@ export default function REI() {
       const sourceLabel = SOURCE_TYPES.find((s) => s.id === recordSourceType)?.label || "Other / unspecified";
 
       const recordBlock = ingestedRecord
-        ? `\n\nIngested Source Record (pasted by user, source: ${sourceLabel} — treat as raw, unverified material to evaluate and tier, not as established fact):\n\"\"\"\n${ingestedRecord}\n\"\"\"\n`
+        ? `\n\nIngested Source Record (pasted by user, source: ${sourceLabel} — treat as raw, unverified material to evaluate and tier, not as established fact):\n"""\n${ingestedRecord}\n"""\n`
         : "";
 
       const routerDecision = buildRouterDecision({
@@ -1136,6 +1084,7 @@ export default function REI() {
         domain: selectedDomain,
         history: historyPayload,
         attachedRecord: ingestedRecord,
+        thrifty: thriftyMode,
       });
 
       // Call route handler API with domain-specific context
@@ -1146,8 +1095,12 @@ export default function REI() {
         },
         body: JSON.stringify({
           command: 'score',
-          input: `${systemContext}\n\nDomain: ${currentDomain.label}\nRules: ${currentDomain.rules.join(", ")}${recordBlock}\n\nUser Query: ${userMsg.text}`,
+          input: userMsg.text,
           systemPrompt: systemContext,
+          domain: selectedDomain,
+          domainLabel: currentDomain.label,
+          domainRules: currentDomain.rules,
+          recordBlock,
           history: historyPayload,
           routerDecision,
         })
@@ -1159,6 +1112,14 @@ export default function REI() {
         throw new Error(data.error || 'Server returned failure response status');
       }
 
+      const usage = data.usage || null;
+      const responseModel = data.model || "Local cfai CLI Executable";
+      const totalTokens = usage?.total_tokens || 0;
+      const modelRate = MODEL_COST_PER_1K[responseModel] || MODEL_COST_PER_1K[DEFAULT_COST_MODEL];
+      const msgCost = (totalTokens / 1000) * modelRate;
+
+      trackMessage(totalTokens, responseModel, msgCost);
+
       setMessages((prev) => [
         ...prev,
         userMsg,
@@ -1166,11 +1127,12 @@ export default function REI() {
           sender: "rei",
           text: data.result,
           timestamp: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+          usage,
           rawJson: {
             engine: "REI-Hinge-Core v0.3",
             domain: selectedDomain,
             command: "score",
-            model: data.model || "Local cfai CLI Executable",
+            model: responseModel,
             timestamp: data.timestamp || new Date().toISOString(),
             hadIngestedRecord: Boolean(ingestedRecord),
             recordSourceType: ingestedRecord ? recordSourceType : null,
@@ -1180,33 +1142,29 @@ export default function REI() {
       ]);
     } catch (error) {
       console.error('REI.ai API error:', error);
-      
-      // Fallback: local evaluation if Vercel serverless function throws
-      const fallbackText = `[REI.ai FALLBACK RESPONSE]
-Confidence Score: 75%
-Decision Hinge: Whether context boundaries explicitly justify the assertions.
 
-Unverified Claims:
-• Verification fallback active (Backend execution error: ${error.message}).
+      const isNetworkError = error.message.includes('fetch') || error.message.includes('NetworkError') || error.message.includes('Failed to fetch');
+      const errorType = isNetworkError ? 'Network error' : 'Server error';
 
-Limitations:
-• Direct Groq backend not reachable. Running simulated local evaluation.`;
+      const fallbackText = `[Backend unavailable — ${errorType}]
+${error.message}
 
-      setMessages((prev) => [
-        ...prev,
-        userMsg,
-        {
-          sender: "rei",
-          text: fallbackText,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          rawJson: {
-            engine: "REI-Fallback v0.3",
-            domain: selectedDomain,
-            error: error.message,
-            fallback: true
-          }
+${isNetworkError ? 'Check your connection and try again.' : 'The server encountered an issue. Please try again.'}`;
+
+      const fallbackMsg = {
+        sender: "rei",
+        text: fallbackText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        rawJson: {
+          engine: "REI-Fallback v0.3",
+          domain: selectedDomain,
+          error: error.message,
+          errorType,
+          fallback: true,
         }
-      ]);
+      };
+
+      setMessages((prev) => [...prev, userMsg, fallbackMsg]);
     } finally {
       setIsTyping(false);
       setInputMessage("");
@@ -1260,6 +1218,19 @@ Limitations:
                 </span>
               </button>
             ))}
+            <button
+              type="button"
+              onClick={toggleThriftyMode}
+              className="rei-action-btn"
+              style={{
+                background: thriftyMode ? "rgba(74,222,128,0.15)" : "transparent",
+                borderColor: thriftyMode ? "rgba(74,222,128,0.3)" : "rgba(255,255,255,0.1)",
+                color: thriftyMode ? "#4ade80" : "#94a3b8",
+              }}
+              title={thriftyMode ? "Thrifty mode on — using cheapest model" : "Thrifty mode off — using default routing"}
+            >
+              {thriftyMode ? "💰 Thrifty" : "💰 Full"}
+            </button>
             <button
               type="button"
               onClick={handleClearHistory}
@@ -1324,11 +1295,68 @@ Limitations:
           setRecordSourceType={setRecordSourceType}
         />
 
+        {/* Domain Hint Banner — detects input mismatch */}
+        {domainHint && (
+          <div className="rei-domain-hint" style={{
+            margin: "8px 12px",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            background: "rgba(251,191,36,0.12)",
+            border: "1px solid rgba(251,191,36,0.25)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "8px",
+            fontSize: "13px",
+            color: "#fbbf24",
+          }}>
+            <span>
+              This looks like a <strong>{domainHint}</strong> question.
+              Switch to{' '}
+              <strong>{DOMAIN_PROFILES.find(d => d.id === domainHint)?.label || domainHint}</strong>?
+            </span>
+            <div style={{ display: "flex", gap: "6px", flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedDomain(switchDomain(domainHint));
+                }}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "4px",
+                  border: "none",
+                  background: "rgba(251,191,36,0.3)",
+                  color: "#fbbf24",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                }}
+              >
+                Switch
+              </button>
+              <button
+                type="button"
+                onClick={dismissDomainHint}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: "4px",
+                  border: "none",
+                  background: "transparent",
+                  color: "#94a3b8",
+                  cursor: "pointer",
+                  fontSize: "12px",
+                }}
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Chat Interface Container */}
         <div className="rei-chat-container">
           
           {/* Chat History Area */}
-          <div className="rei-chat-history">
+          <div className="rei-chat-history" role="log" aria-live="polite" aria-label="Chat messages">
             {messages.map((msg, index) => (
               <div
                 key={index}
@@ -1359,6 +1387,19 @@ Limitations:
                     <span>{msg.rawJson.routerDecision.label}</span>
                     <span style={{ color: "#fbbf24", fontWeight: 600 }}>
                       {msg.rawJson.routerDecision.model}
+                    </span>
+                    <span className="rei-cost-badge" style={{
+                      fontSize: "10px",
+                      color: "#94a3b8",
+                      marginLeft: "6px",
+                      padding: "1px 6px",
+                      borderRadius: "4px",
+                      background: "rgba(148,163,184,0.1)",
+                    }}>
+                      {getCostBadgeLabel(
+                        msg.rawJson.routerDecision.model,
+                        msg.usage?.total_tokens || msg.rawJson.routerDecision.estimatedInputTokens || 0
+                      )}
                     </span>
                   </div>
                 )}
@@ -1408,6 +1449,22 @@ Limitations:
                         <div className="rei-router-panel__item"><span className="rei-router-panel__label">Max tokens:</span> {msg.rawJson.routerDecision?.maxTokens || "n/a"}</div>
                         <div className="rei-router-panel__item"><span className="rei-router-panel__label">Quality gate:</span> {msg.rawJson.routerDecision?.qualityGate || "n/a"}</div>
                         <div className="rei-router-panel__item"><span className="rei-router-panel__label">Enforcement:</span> {msg.rawJson.routerDecision?.enforce || "none"}</div>
+                        {msg.rawJson.routerDecision?.rationale && (
+                          <div className="rei-router-panel__item" style={{ gridColumn: "1 / -1", fontStyle: "italic", color: "#94a3b8", fontSize: "11px" }}>
+                            <span className="rei-router-panel__label">Why:</span> {msg.rawJson.routerDecision.rationale}
+                          </div>
+                        )}
+                        {msg.rawJson.routerDecision?.alternativeRoutes && msg.rawJson.routerDecision.alternativeRoutes.length > 0 && (
+                          <div className="rei-router-panel__item" style={{ gridColumn: "1 / -1", fontSize: "11px", color: "#64748b" }}>
+                            <span className="rei-router-panel__label">Also available:</span>{' '}
+                            {msg.rawJson.routerDecision.alternativeRoutes.map((alt, i) => (
+                              <span key={alt.model}>
+                                {i > 0 && ' · '}
+                                {alt.label} ({(alt.costPer1kTotal * 1000).toFixed(2)}¢/1K tok)
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -1425,6 +1482,25 @@ Limitations:
                   >
                     Copy
                   </button>
+                  {msg.rawJson?.fallback && (
+                    <button
+                      onClick={() => retryMessage(index)}
+                      className="rei-copy-btn touch-target"
+                      aria-label="Retry request"
+                      style={{
+                        fontSize: mobile ? "0.85em" : "0.75em",
+                        padding: mobile ? "6px 10px" : "2px 6px",
+                        background: "rgba(251,191,36,0.15)",
+                        borderColor: "rgba(251,191,36,0.3)",
+                        color: "#fbbf24"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.style.opacity = 1}
+                      onMouseOut={(e) => e.currentTarget.style.opacity = 0.7}
+                      title="Retry request"
+                    >
+                      Retry
+                    </button>
+                  )}
                 </div>
                 <span className="rei-chat-meta">
                   {msg.sender === "user" ? "You" : "REI.ai"} • {msg.timestamp}
@@ -1433,7 +1509,7 @@ Limitations:
             ))}
 
             {isTyping && (
-              <div style={{ 
+              <div aria-live="polite" aria-label="REI is replying" style={{ 
                 alignSelf: "flex-start", 
                 color: "#FFB300", 
                 fontFamily: "inherit",
@@ -1451,6 +1527,20 @@ Limitations:
           </div>
         </div>
         </main>
+
+        <SessionSummary
+          sessionTokens={sessionTokens}
+          sessionMessages={sessionMessages}
+          sessionCost={sessionCost}
+          modelBreakdown={modelBreakdown}
+          showSessionSummary={showSessionSummary}
+          setShowSessionSummary={setShowSessionSummary}
+          formatCost={formatCost}
+          selectedDomain={selectedDomain}
+          currentDomain={currentDomain}
+          thriftyMode={thriftyMode}
+          resetSession={resetSession}
+        />
 
         {/* Fixed Input Area at Bottom with safe area */}
         <div className="rei-input-shell fixed bottom-0 safe-bottom" style={{
@@ -1471,6 +1561,7 @@ Limitations:
                       setAssistantPromptIndex(index);
                     }}
                     className="rei-quick-prompt"
+                    aria-pressed={assistantPromptIndex === index}
                     style={{
                       flex: mobile ? "1 1 30%" : "1 1 auto",
                       minWidth: mobile ? "100px" : "180px"
@@ -1486,7 +1577,7 @@ Limitations:
                 ref={inputRef}
                 type="text"
                 value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
+                onChange={(e) => handleInputChange(e.target.value)}
                 placeholder={selectedDomain === "assistant" ? "What are you thinking through?" : "Type proof context or statements to evaluate..."}
                 className="rei-input-area"
                 style={{
@@ -1509,43 +1600,48 @@ Limitations:
                 Send
               </button>
             </div>
+            {/* Pre-send estimate & token budget gauge */}
+            {inputMessage.trim() && (
+              <div style={{
+                padding: "4px 12px 2px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "8px",
+                fontSize: "10px",
+                color: "#64748b",
+              }}>
+                <span>
+                  ~{estimateInputTokens(inputMessage)} tok →{' '}
+                  {buildRouterDecision({ input: inputMessage, domain: selectedDomain, thrifty: thriftyMode }).label}
+                  {' · '}
+                  {formatCost(estimateInputTokens(inputMessage), "llama-3.3-70b-versatile")}
+                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span>Budget:</span>
+                  <div style={{
+                    width: "60px",
+                    height: "4px",
+                    borderRadius: "2px",
+                    background: "rgba(255,255,255,0.06)",
+                    overflow: "hidden",
+                  }}>
+                    <div style={{
+                      width: `${Math.min(100, (sessionTokens / 5000) * 100)}%`,
+                      height: "100%",
+                      borderRadius: "2px",
+                      background: sessionTokens > 4000 ? "#ef4444" : sessionTokens > 2500 ? "#fbbf24" : "#4ade80",
+                      transition: "width 0.3s ease",
+                    }} />
+                  </div>
+                  <span>{sessionTokens.toLocaleString()}/5K</span>
+                </div>
+              </div>
+            )}
           </form>
         </div>
       
-      {/* Philosophy Modal Overlay */}
-      {isPhilosophyOpen && (
-        <div className="rei-modal-overlay" onClick={() => setIsPhilosophyOpen(false)}>
-          <div className="rei-glass-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="rei-modal-header">
-              <h2>SYSTEM PHILOSOPHY: R.E.I.</h2>
-              <button className="rei-close-btn" onClick={() => setIsPhilosophyOpen(false)} aria-label="Close Modal">
-                &times;
-              </button>
-            </div>
-
-            <div className="rei-concept-layer">
-              <h3>1. Latin: Rei (The Matter / Reality / Hinge)</h3>
-              <p><strong>The Concept:</strong> Genitive form of <em>Res</em>, meaning "thing," "fact," or "reality."</p>
-              <p><strong>The Connection:</strong> In <em>CARDO REI</em>, it represents "The Hinge of the Matter." Dissecting the core pivot where the reality of a problem turns.</p>
-              <p className="rei-tagline">"Investigating the matter, not the person."</p>
-            </div>
-
-            <div className="rei-concept-layer">
-              <h3>2. Operational: R-E-I (Record • Evaluate • Iterate)</h3>
-              <p><strong>The Concept:</strong> The engineering process loop that keeps development structured and safe.</p>
-              <p><strong>The Connection:</strong> <strong>Record</strong> the facts (TDD/Citations), <strong>Evaluate</strong> the boundaries (Scoring/Tiers), and <strong>Iterate</strong> in modular steps.</p>
-              <p className="rei-tagline">"Building tiny houses until you get a neighborhood."</p>
-            </div>
-
-            <div className="rei-concept-layer">
-              <h3>3. Physics: Refractive Index (R.I.)</h3>
-              <p><strong>The Concept:</strong> Optical measure of how much light bends when entering a new medium.</p>
-              <p><strong>The Connection:</strong> REI acts as a refractive lens for thoughts. Bending raw arguments to filter out the glare (smoke, bias) and find clear direction.</p>
-              <p className="rei-tagline">"Shaping raw light into structured clarity."</p>
-            </div>
-          </div>
-        </div>
-      )}
+      {isPhilosophyOpen && <PhilosophyModal onClose={() => setIsPhilosophyOpen(false)} />}
     </div>
   );
 }
