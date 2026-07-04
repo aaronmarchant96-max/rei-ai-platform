@@ -10,6 +10,9 @@ module.exports = {
   bail: true,
   testTimeout: 10000,
   verbose: true,
+  moduleNameMapper: {
+    "\\.css$": "identity-obj-proxy",
+  },
   coverageThreshold: {
     "./src/CardoGuard.jsx": {
       branches: 90,

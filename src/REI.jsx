@@ -8,6 +8,10 @@ import { buildRouterDecision, estimateTokens, detectDomain, getRouterCosts } fro
 import { computeMsgCost, formatCostDisplay, estimateInputTokens, nextMessageId } from "./lib/contracts.js";
 import PhilosophyModal from "./components/PhilosophyModal.jsx";
 import SessionSummary from "./components/SessionSummary.jsx";
+import RouterBadge from "./components/RouterBadge.jsx";
+import RouterPanel from "./components/RouterPanel.jsx";
+import { parseEvidenceTiers } from "./components/EvidenceCard.jsx";
+import "./rei.css";
 
 const FINGERPRINT_COSTS = getRouterCosts();
 const DEFAULT_COST_MODEL = "llama-3.3-70b-versatile";
@@ -426,550 +430,12 @@ export default function REI() {
     }, 100);
   };
 
-  // Add fade-in animation style
-  const fadeInStyle = {
-    animation: "fadeIn 0.3s ease-in-out forwards",
-    opacity: 0
-  };
-
-  // Inject CSS animation definition
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.6; }
-      }
-      @keyframes pulse-ring {
-        0%, 100% { opacity: 0.4; transform: scale(1); }
-        50% { opacity: 0.9; transform: scale(1.04); }
-      }
-      @keyframes swing {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(-18deg); }
-      }
-      
-      /* Theme styles override */
-      .rei-dashboard-wrapper {
-        background: #0a0505 !important;
-      }
-      .rei-custom-container {
-        background: radial-gradient(circle at 30% 15%, #4a1d0f 0%, #1a0d08 45%, #08050a 100%) !important;
-        position: relative;
-        overflow: hidden;
-        border: 1px solid rgba(251,146,60,0.15) !important;
-        border-radius: 16px !important;
-      }
-      .rei-custom-container::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(135deg, rgba(251,146,60,0.1), transparent 55%);
-        pointer-events: none;
-      }
-      .rei-custom-container::after {
-        content: '';
-        position: absolute;
-        top: -40%;
-        right: -20%;
-        width: 60%;
-        height: 60%;
-        background: radial-gradient(circle, rgba(249,115,22,0.18), transparent 70%);
-        pointer-events: none;
-      }
-      .rei-logo-mark {
-        width: 52px;
-        height: 52px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, #f97316, #fbbf24);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 24px rgba(249,115,22,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
-        flex-shrink: 0;
-        position: relative;
-      }
-      .rei-logo-mark::after {
-        content: '';
-        position: absolute;
-        inset: -2px;
-        border-radius: 16px;
-        border: 1px solid rgba(251,191,36,0.5);
-        animation: pulse-ring 2.4s ease-in-out infinite;
-      }
-      .rei-logo-title {
-        font-weight: 800;
-        font-size: 22px;
-        letter-spacing: -0.01em;
-        background: linear-gradient(90deg, #fb923c, #fde047);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-      .rei-logo-sub {
-        font-size: 12.5px;
-        color: #d6a98a;
-        letter-spacing: 0.03em;
-        margin-top: 2px;
-      }
-      .rei-custom-tab {
-        padding: 9px 14px;
-        border-radius: 9px;
-        font-size: 12.5px;
-        font-weight: 600;
-        border: 1px solid rgba(255,255,255,0.08);
-        color: #94a3b8;
-        background: rgba(255,255,255,0.02);
-        cursor: pointer;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        gap: 1px;
-        line-height: 1.3;
-      }
-      .rei-custom-tab:hover {
-        border-color: rgba(251,146,60,0.4);
-        color: #fdba74;
-        transform: translateY(-1px);
-      }
-      .rei-custom-tab-active {
-        background: linear-gradient(135deg, rgba(249,115,22,0.22), rgba(251,191,36,0.14)) !important;
-        border-color: #f97316 !important;
-        color: #fed7aa !important;
-        box-shadow: 0 0 18px rgba(249,115,22,0.15);
-      }
-      .rei-custom-card {
-        width: 100%;
-        border-radius: 12px;
-        padding: 16px 18px;
-        background: rgba(0,0,0,0.2);
-        border: 1px solid rgba(251,146,60,0.15);
-        position: relative;
-        z-index: 1;
-      }
-      .rei-header {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 16px 16px 12px;
-        background: rgba(10, 5, 5, 0.9);
-        border-bottom: 1px solid rgba(251, 146, 60, 0.16);
-        backdrop-filter: blur(10px);
-      }
-      .rei-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        min-width: 0;
-      }
-      .rei-domain-tabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-        justify-content: flex-end;
-        flex: 1 1 320px;
-      }
-      .rei-domain-tab {
-        padding: 8px 12px;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.08);
-        background: rgba(255,255,255,0.02);
-        color: #94a3b8;
-        font-size: 12px;
-        font-weight: 600;
-        line-height: 1.25;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 2px;
-        text-align: left;
-        min-height: 46px;
-      }
-      .rei-domain-tab.is-active {
-        background: linear-gradient(135deg, rgba(249,115,22,0.22), rgba(251,191,36,0.14));
-        border-color: #f97316;
-        color: #fed7aa;
-        box-shadow: 0 0 18px rgba(249,115,22,0.15);
-      }
-      .rei-action-btn {
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 10px;
-        padding: 9px 12px;
-        font-size: 12px;
-        font-weight: 700;
-        color: #e2e8f0;
-        background: rgba(255,255,255,0.04);
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .rei-action-btn:hover {
-        border-color: rgba(251,146,60,0.35);
-        transform: translateY(-1px);
-      }
-      .rei-action-btn--danger {
-        color: #fda4af;
-        border-color: rgba(251,113,133,0.25);
-      }
-      .rei-action-btn--accent {
-        color: #fde68a;
-        border-color: rgba(251,191,36,0.25);
-      }
-      .rei-domain-banner {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(251,146,60,0.16);
-        border-radius: 14px;
-        padding: 12px 14px;
-        margin-bottom: 12px;
-      }
-      .rei-domain-banner__eyebrow {
-        font-size: 11px;
-        letter-spacing: 0.16em;
-        text-transform: uppercase;
-        color: #fb923c;
-        margin-bottom: 8px;
-        font-weight: 700;
-      }
-      .rei-domain-banner__row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        margin-bottom: 8px;
-      }
-      .rei-domain-banner__meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-        color: #f5d7c4;
-        font-size: 13px;
-      }
-      .rei-domain-banner__meta--secondary {
-        color: #d6a98a;
-      }
-      .rei-domain-banner__label {
-        color: #fb923c;
-        font-weight: 700;
-      }
-      .rei-domain-banner__steps {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-      .rei-domain-banner__step {
-        padding: 5px 8px;
-        border-radius: 999px;
-        background: rgba(251,146,60,0.11);
-        border: 1px solid rgba(251,146,60,0.18);
-        color: #fed7aa;
-        font-size: 11px;
-        font-weight: 600;
-      }
-      .rei-reasoning-loop {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 8px;
-        margin-top: 10px;
-      }
-      .rei-reasoning-loop__step {
-        border: 1px solid rgba(251,146,60,0.16);
-        border-radius: 10px;
-        background: rgba(255,255,255,0.03);
-        padding: 8px 10px;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-      .rei-reasoning-loop__label {
-        color: #fb923c;
-        font-weight: 700;
-        font-size: 11px;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-      }
-      .rei-reasoning-loop__detail {
-        color: #f5d7c4;
-        font-size: 12px;
-        line-height: 1.35;
-      }
-      .rei-chat-container {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .rei-chat-history {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        padding-bottom: 8px;
-      }
-      .rei-chat-message {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        animation: fadeIn 0.3s ease-in-out forwards;
-        opacity: 0;
-      }
-      .rei-chat-message--user {
-        align-items: flex-end;
-      }
-      .rei-chat-message--rei {
-        align-items: flex-start;
-      }
-      .rei-chat-bubble {
-        border-radius: 12px;
-        padding: 12px 14px 12px 14px;
-        font-family: inherit;
-        font-size: 14.5px;
-        white-space: pre-wrap;
-        line-height: 1.5;
-        position: relative;
-        width: 100%;
-        box-sizing: border-box;
-      }
-      .rei-chat-bubble--user {
-        background: rgba(255,255,255,0.06);
-        color: #E2E8F0;
-        border: 1px solid rgba(255,255,255,0.1);
-      }
-      .rei-chat-bubble--rei {
-        background: rgba(251,146,60,0.08);
-        color: #E2E8F0;
-        border: 1px solid rgba(251,146,60,0.18);
-      }
-      .rei-chat-meta {
-        font-size: 0.78em;
-        color: #94A3B8;
-        margin-top: 4px;
-      }
-      .rei-router-badge {
-        margin-bottom: 8px;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        border: 1px solid rgba(251,146,60,0.24);
-        background: rgba(251,146,60,0.1);
-        color: #fed7aa;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-      }
-      .rei-router-panel {
-        margin-top: 12px;
-        border-top: 1px dashed rgba(251,146,60,0.18);
-        padding-top: 8px;
-      }
-      .rei-router-panel__title {
-        color: #94A3B8;
-        font-size: 0.85em;
-        margin-bottom: 6px;
-        font-weight: 600;
-      }
-      .rei-router-panel__grid {
-        display: grid;
-        gap: 4px;
-        font-size: 0.82em;
-        color: #cbd5e1;
-      }
-      .rei-router-panel__item {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-      .rei-router-panel__label {
-        color: #fb923c;
-        font-weight: 700;
-      }
-      .rei-copy-btn {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        background: rgba(251,146,60,0.15);
-        border: 1px solid rgba(251,146,60,0.3);
-        border-radius: 4px;
-        color: #fb923c;
-        cursor: pointer;
-        font-size: 0.75em;
-        padding: 2px 6px;
-        opacity: 0.7;
-        transition: opacity 0.2s;
-        min-width: 44px;
-        min-height: 44px;
-      }
-      .rei-copy-btn:hover {
-        opacity: 1;
-      }
-      .rei-input-shell {
-        width: 100%;
-        max-width: 1400px;
-        left: 0;
-        right: 0;
-        margin-left: auto;
-        margin-right: auto;
-        background: var(--surface);
-        border-top: 1px solid rgba(251,146,60,0.15);
-        padding: 16px;
-        box-sizing: border-box;
-      }
-      .rei-input-form {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
-      .rei-input-row {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-      }
-      .rei-input-area {
-        flex: 1;
-        background: rgba(0,0,0,0.2);
-        color: #E2E8F0;
-        border: 1px solid rgba(251,146,60,0.15);
-        border-radius: 6px;
-        font-family: inherit;
-        font-size: 16px;
-        outline: none;
-      }
-      .rei-input-area:focus {
-        border-color: rgba(251,146,60,0.45);
-        box-shadow: 0 0 0 2px rgba(249,115,22,0.18);
-      }
-      .rei-touch-button {
-        background: #f97316;
-        color: #FFFFFF;
-        border: none;
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background 0.2s ease;
-        min-width: 48px;
-        align-self: center;
-        font-size: 16px;
-      }
-      .rei-quick-prompt {
-        flex: 1 1 auto;
-        min-width: 100px;
-        padding: 14px 18px;
-        white-space: normal;
-        line-height: 1.3;
-        border-radius: 16px;
-        background: #3a2a1f;
-        color: #f5e5d7;
-        border: 1px solid rgba(255,255,255,0.06);
-        cursor: pointer;
-      }
-      .rei-quick-prompt:hover {
-        border-color: rgba(251,146,60,0.35);
-        transform: translateY(-1px);
-      }
-      
-      /* Philosophy Modal Styles */
-      .rei-modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        backdrop-filter: blur(4px);
-      }
-      .rei-glass-modal {
-        background: rgba(20, 20, 20, 0.75);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(251, 146, 60, 0.25);
-        border-radius: 12px;
-        padding: 24px;
-        max-width: 580px;
-        width: 90%;
-        color: #e2e8f0;
-        font-family: inherit;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      }
-      .rei-modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(251, 146, 60, 0.18);
-        padding-bottom: 12px;
-        margin-bottom: 18px;
-      }
-      .rei-modal-header h2 {
-        margin: 0;
-        font-size: 18px;
-        letter-spacing: 0.05em;
-        color: #fb923c;
-        font-weight: bold;
-      }
-      .rei-close-btn {
-        background: transparent;
-        border: none;
-        color: #94a3b8;
-        font-size: 24px;
-        cursor: pointer;
-        transition: color 0.2s ease;
-        line-height: 1;
-      }
-      .rei-close-btn:hover {
-        color: #ffffff;
-      }
-      .rei-concept-layer {
-        margin-bottom: 18px;
-      }
-      .rei-concept-layer h3 {
-        font-size: 14px;
-        color: #fed7aa;
-        margin: 0 0 6px 0;
-        border-left: 3px solid #fb923c;
-        padding-left: 8px;
-        font-weight: bold;
-      }
-      .rei-concept-layer p {
-        font-size: 12.5px;
-        line-height: 1.5;
-        margin: 4px 0;
-        padding-left: 11px;
-        color: #cbd5e1;
-      }
-      .rei-tagline {
-        font-style: italic;
-        color: #fbd5c6;
-        opacity: 0.85;
-        font-size: 11.5px;
-        margin-top: 4px;
-        padding-left: 11px;
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
+  const [isPhilosophyOpen, setIsPhilosophyOpen] = useState(false);
 
   const [selectedDomain, setSelectedDomain] = useState("assistant");
   const [rawRecordText, setRawRecordText] = useState("");
   const [showIngest, setShowIngest] = useState(false);
   const [recordSourceType, setRecordSourceType] = useState("other");
-  const [isPhilosophyOpen, setIsPhilosophyOpen] = useState(false);
 
   const [inputMessage, setInputMessage] = useState("");
 
@@ -1115,6 +581,10 @@ export default function REI() {
 
       trackMessage(totalTokens, responseModel, msgCost);
 
+      const evidence = selectedDomain === "genealogy"
+        ? parseEvidenceTiers(data.result)
+        : [];
+
       setMessages((prev) => [
         ...prev,
         userMsg,
@@ -1127,6 +597,7 @@ export default function REI() {
           model: responseModel,
           cost: msgCost,
           routerDecision: data.routerDecision || routerDecision,
+          evidence: evidence.length > 0 ? evidence : undefined,
         }
       ]);
     } catch (error) {
@@ -1367,27 +838,11 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                     📋 Record attached — {msg.attachedRecord.sourceType} ({msg.attachedRecord.charCount.toLocaleString()} chars)
                   </div>
                 )}
-                {msg.sender === "rei" && msg.routerDecision && (
-                  <div className="rei-router-badge">
-                    <span style={{ fontSize: "11px" }}>🌙</span>
-                    <span>{msg.routerDecision.label}</span>
-                    <span style={{ color: "#fbbf24", fontWeight: 600 }}>
-                      {msg.routerDecision.model}
-                    </span>
-                    <span className="rei-cost-badge" style={{
-                      fontSize: "10px",
-                      color: "#94a3b8",
-                      marginLeft: "6px",
-                      padding: "1px 6px",
-                      borderRadius: "4px",
-                      background: "rgba(148,163,184,0.1)",
-                    }}>
-                      {getCostBadgeLabel(
-                        msg.routerDecision.model,
-                        msg.usage?.total_tokens || msg.routerDecision.estimatedInputTokens || 0
-                      )}
-                    </span>
-                  </div>
+                {msg.sender === "rei" && (
+                  <RouterBadge
+                    routerDecision={msg.routerDecision}
+                    usage={msg.usage}
+                  />
                 )}
                 <div
                   className={`rei-chat-bubble ${msg.sender === "user" ? "rei-chat-bubble--user" : "rei-chat-bubble--rei"}`}
@@ -1426,34 +881,10 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                   )}
 
                   {/* Router summary */}
-                  {msg.routerDecision && (
-                    <div className="rei-router-panel">
-                      <div className="rei-router-panel__title">Night Shift routing</div>
-                      <div className="rei-router-panel__grid">
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Route:</span> {msg.routerDecision.label}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Model:</span> {msg.model || msg.routerDecision.model}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Max tokens:</span> {msg.routerDecision.maxTokens}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Quality gate:</span> {msg.routerDecision.qualityGate}</div>
-                        <div className="rei-router-panel__item"><span className="rei-router-panel__label">Enforcement:</span> {msg.routerDecision.enforce || "none"}</div>
-                        {msg.routerDecision.rationale && (
-                          <div className="rei-router-panel__item" style={{ gridColumn: "1 / -1", fontStyle: "italic", color: "#94a3b8", fontSize: "11px" }}>
-                            <span className="rei-router-panel__label">Why:</span> {msg.routerDecision.rationale}
-                          </div>
-                        )}
-                        {msg.routerDecision.alternativeRoutes && msg.routerDecision.alternativeRoutes.length > 0 && (
-                          <div className="rei-router-panel__item" style={{ gridColumn: "1 / -1", fontSize: "11px", color: "#64748b" }}>
-                            <span className="rei-router-panel__label">Also available:</span>{' '}
-                            {msg.routerDecision.alternativeRoutes.map((alt, i) => (
-                              <span key={alt.model}>
-                                {i > 0 && ' · '}
-                                {alt.label} ({(alt.costPer1kTotal * 1000).toFixed(2)}¢/1K tok)
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  <RouterPanel
+                    routerDecision={msg.routerDecision}
+                    model={msg.model}
+                  />
                   <button
                     onClick={() => copyText(msg.text)}
                     className="rei-copy-btn touch-target"
