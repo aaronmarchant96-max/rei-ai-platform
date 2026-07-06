@@ -215,7 +215,7 @@ function buildDecision(id, overrides = {}) {
 }
 
 function isSimpleGreeting(text) {
-  return /^(hi|hello|hey|yo|hiya|sup|howdy|heya|hola|good\s+(morning|afternoon|evening)|how\s+are\s+(you|things|it\s+going)|how('s|s)\s+(it\s+going|everything|life)|what('s|s)\s+up|thanks|thank\s+you|thx|ty|ok|okay|k+|yeah|yep|nope|sure|right|alright|fine|test|ping|appreciate\s+(it|that|you))\b/i.test(text.trim());
+  return /^(hi|hello|hey|yo|hiya|sup|howdy|heya|hola)(\s+there)?[\s!,.]*$|^(good\s+(morning|afternoon|evening)|how\s+are\s+(you|things|it\s+going)|how('s|s)\s+(it\s+going|everything|life)|what('s|s)\s+up|thanks|thank\s+you|thx|ty|ok|okay|k+|yeah|yep|nope|sure|right|alright|fine|test|ping|appreciate\s+(it|that|you))[\s!,.]*$/i.test(text.trim());
 }
 
 function isLikelyCodingRequest(text) {
@@ -358,7 +358,7 @@ export function buildRouterDecision({
 
   let decision;
 
-  const deterministicResult = text ? resolveDeterministic(text) : null;
+  const deterministicResult = input ? resolveDeterministic(input) : null;
 
   if (!text) {
     decision = buildDecision("structured-reasoning");
@@ -378,7 +378,7 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-  } else if (isSimpleGreeting(text)) {
+  } else if (isSimpleGreeting(input)) {
     decision = buildDecision("simple-greeting", {
       rationale: "Greeting detected; use the cheapest fast path.",
       routingSignals: {
@@ -388,7 +388,7 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-  } else if (requiresAdversarial || isAdversarialRequest(text)) {
+  } else if (requiresAdversarial || isAdversarialRequest(input)) {
     decision = buildDecision("adversarial-validation", {
       rationale: "Adversarial or red-team request detected; use the premium validation path.",
       routingSignals: {
