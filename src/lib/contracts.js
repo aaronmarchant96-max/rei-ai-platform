@@ -22,8 +22,11 @@
  * @property {string} model
  * @property {string} label
  * @property {number} costPer1kTotal
+ * @property {number} costDeltaFromSelected
+ * @property {number} savingsPercentage
  * @property {string} route
  * @property {string} rationale
+ * @property {string} pathway
  */
 
 /**
@@ -36,6 +39,12 @@
  * @property {number} costPer1kOutput
  * @property {number} costPer1k
  * @property {number} estimatedInputTokens
+ * @property {number} estimatedCost
+ * @property {number} premiumCost
+ * @property {number} premiumCostPer1k
+ * @property {number|null} routingConfidence
+ * @property {Object} confidence
+ * @property {string} pathway
  * @property {string} qualityGate
  * @property {string|null} enforce
  * @property {string} description

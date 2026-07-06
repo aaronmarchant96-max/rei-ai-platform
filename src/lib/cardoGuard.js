@@ -179,3 +179,62 @@ export function buildCardoGuardWhyThisVerdict(review) {
 
   return lines;
 }
+
+/**
+ * CARDO GUARD as cost-governor. Determines whether expensive inference
+ * is justified for a given routing decision.
+ *
+ * @param {Object} params
+ * @param {number} params.confidence - routing confidence (0-1)
+ * @param {string} params.pathway - current pathway tier
+ * @param {number} params.estimatedCost - cost of current pathway
+ * @param {number} params.premiumCost - cost of premium pathway
+ * @param {string} params.qualityGate - quality requirements
+ * @returns {{ escalate: boolean, reason: string }}
+ */
+export function shouldEscalateToRemote({
+  confidence = 0,
+  pathway = "medium",
+  estimatedCost = 0,
+  premiumCost = 0,
+  qualityGate = "",
+}) {
+  if (pathway === "deterministic") {
+    return {
+      escalate: false,
+      reason: "Deterministic pathway has maximum confidence (1.0). No escalation needed.",
+    };
+  }
+
+  if (pathway === "premium") {
+    return {
+      escalate: false,
+      reason: "Already using premium pathway. No higher tier available.",
+    };
+  }
+
+  if (pathway === "cheap" && confidence < 0.5) {
+    return {
+      escalate: true,
+      reason: `Cheap pathway confidence (${(confidence * 100).toFixed(0)}%) below quality threshold. Escalate to medium or premium.`,
+      expectedQuality: confidence * 100,
+      expectedCost: premiumCost,
+    };
+  }
+
+  if (pathway === "medium" && confidence < 0.3) {
+    return {
+      escalate: true,
+      reason: `Medium pathway confidence (${(confidence * 100).toFixed(0)}%) below threshold. Consider premium pathway.`,
+      expectedQuality: confidence * 100,
+      expectedCost: premiumCost,
+    };
+  }
+
+  return {
+    escalate: false,
+    reason: `Confidence (${(confidence * 100).toFixed(0)}%) meets pathway quality threshold. Remote inference justified.`,
+    expectedQuality: confidence * 100,
+    expectedCost: estimatedCost,
+  };
+}

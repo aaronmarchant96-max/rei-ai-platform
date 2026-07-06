@@ -9,25 +9,31 @@ export default function SessionSummary({
   selectedDomain,
   currentDomain,
   thriftyMode,
+  savingsVsPremium,
+  escalationCount,
   resetSession,
 }) {
   if (sessionMessages === 0) return null;
 
+  const savingsPercent = sessionCost > 0
+    ? Math.round((savingsVsPremium / (sessionCost + savingsVsPremium)) * 100)
+    : 0;
+
   return (
-    <div style={{
-      padding: "8px 16px",
-      borderTop: "1px solid rgba(255,255,255,0.06)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: "8px",
-      fontSize: "11px",
-      color: "#64748b",
-      background: "rgba(0,0,0,0.2)",
-    }}>
-      <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+    <div className="rei-session-footer">
+      <div className="rei-session-footer__summary">
         <span>&#x1F4CA; <strong>{sessionTokens.toLocaleString()}</strong> tokens &middot; <strong>{sessionMessages}</strong> msgs</span>
         <span style={{ color: "#94a3b8" }}>{sessionCost < 0.0001 ? "< $0.0001" : `~$${sessionCost.toFixed(4)}`}</span>
+        {savingsVsPremium > 0 && (
+          <span style={{ color: "#4ade80" }}>
+            Saved ${savingsVsPremium.toFixed(4)} ({savingsPercent}%)
+          </span>
+        )}
+        {escalationCount > 0 && (
+          <span style={{ color: "#fbbf24" }}>
+            &#x26A1; Escalated {escalationCount}x
+          </span>
+        )}
         <button
           type="button"
           onClick={() => setShowSessionSummary((prev) => !prev)}

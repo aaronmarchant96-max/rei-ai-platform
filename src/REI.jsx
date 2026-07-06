@@ -289,7 +289,7 @@ export default function REI() {
   const {
     sessionTokens, sessionMessages, sessionCost, modelBreakdown,
     showSessionSummary, setShowSessionSummary,
-    trackMessage, resetSession,
+    trackMessage, resetSession, savingsVsPremium, escalationCount,
   } = useSessionTracker();
 
   const { domainHint, updateDomainHint, dismissDomainHint, switchDomain } = useDomainHint(selectedDomain);
@@ -388,7 +388,7 @@ export default function REI() {
       });
 
       if (routerDecision.deterministicLayer) {
-        trackMessage(0, "deterministic", 0);
+        trackMessage(0, "deterministic", 0, routerDecision.premiumCost, false);
 
         setMessages((prev) => [
           ...prev,
@@ -441,7 +441,7 @@ export default function REI() {
       const modelRate = getModelCostRate(responseModel);
       const msgCost = computeMsgCost(totalTokens, modelRate);
 
-      trackMessage(totalTokens, responseModel, msgCost);
+      trackMessage(totalTokens, responseModel, msgCost, routerDecision.premiumCost, routerDecision.pathway === "premium");
 
       const evidence = selectedDomain === "genealogy"
         ? parseEvidenceTiers(data.result)
@@ -682,6 +682,8 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
           selectedDomain={selectedDomain}
           currentDomain={currentDomain}
           thriftyMode={thriftyMode}
+          savingsVsPremium={savingsVsPremium}
+          escalationCount={escalationCount}
           resetSession={resetSession}
         />
 

@@ -1,0 +1,15 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+*.md
+!README.md
+.DS_Store
+.env.local
+*.backup.*
+.patches/
+.vercel/
+.aider*
+.continue/
+.qodo/

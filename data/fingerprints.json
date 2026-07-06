@@ -17,7 +17,9 @@
     "fallbackPriority": null,
     "fallbackChain": ["structured-reasoning"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.95, "cheap": 0.70, "premium": 0.30 },
+    "pathway": "cheap"
   },
   {
     "id": "structured-reasoning",
@@ -37,7 +39,9 @@
     "fallbackPriority": "adversarial-validation",
     "fallbackChain": ["adversarial-validation", "simple-greeting"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.30, "cheap": 0.72, "premium": 0.38 },
+    "pathway": "medium"
   },
   {
     "id": "coding-hinge",
@@ -57,7 +61,9 @@
     "fallbackPriority": "structured-reasoning",
     "fallbackChain": ["structured-reasoning", "fact-check"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.10, "cheap": 0.72, "premium": 0.38 },
+    "pathway": "medium"
   },
   {
     "id": "genealogy-deep-dive",
@@ -77,7 +83,9 @@
     "fallbackPriority": "structured-reasoning",
     "fallbackChain": ["structured-reasoning", "fact-check"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.05, "cheap": 0.56, "premium": 0.38 },
+    "pathway": "medium"
   },
   {
     "id": "story-architect",
@@ -97,7 +105,9 @@
     "fallbackPriority": "structured-reasoning",
     "fallbackChain": ["structured-reasoning", "creative-prose"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.05, "cheap": 0.72, "premium": 0.38 },
+    "pathway": "medium"
   },
   {
     "id": "adversarial-validation",
@@ -111,13 +121,15 @@
     "qualityGate": "Red-team validation",
     "enforce": "RED_TEAM",
     "description": "High-stakes critique, adversarial review, or stress-testing.",
-    "matchTerms": ["red team", "red-team", "adversarial", "stress test", "attack", "challenge", "prove wrong", "counterargument", "break it", "stress-test", "red-team", "penetration test", "threat model", "vulnerability"],
+    "matchTerms": ["red team", "red-team", "adversarial", "stress test", "attack", "challenge", "prove wrong", "counterargument", "break it", "stress-test", "penetration test", "threat model", "vulnerability"],
     "negativeMatchTerms": ["hello", "hi", "story", "poem"],
     "temperature": 0.1,
     "fallbackPriority": "structured-reasoning",
     "fallbackChain": ["structured-reasoning", "coding-hinge"],
     "matchThreshold": 0.5,
-    "contextWindow": 16384
+    "contextWindow": 16384,
+    "confidence": { "local": 0.01, "cheap": 0.20, "premium": 0.95 },
+    "pathway": "premium"
   },
   {
     "id": "fact-check",
@@ -137,7 +149,9 @@
     "fallbackPriority": "structured-reasoning",
     "fallbackChain": ["structured-reasoning", "adversarial-validation"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.05, "cheap": 0.72, "premium": 0.38 },
+    "pathway": "medium"
   },
   {
     "id": "creative-prose",
@@ -157,7 +171,9 @@
     "fallbackPriority": "story-architect",
     "fallbackChain": ["story-architect", "structured-reasoning"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.05, "cheap": 0.72, "premium": 0.38 },
+    "pathway": "medium"
   },
   {
     "id": "translation",
@@ -177,6 +193,8 @@
     "fallbackPriority": "structured-reasoning",
     "fallbackChain": ["structured-reasoning", "simple-greeting"],
     "matchThreshold": 0.5,
-    "contextWindow": 8192
+    "contextWindow": 8192,
+    "confidence": { "local": 0.05, "cheap": 0.85, "premium": 0.30 },
+    "pathway": "cheap"
   }
 ]
