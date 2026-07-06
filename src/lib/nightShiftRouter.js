@@ -491,7 +491,7 @@ export function buildRouterDecision({
   const selectedCostPer1k = (decision.costPer1kInput + decision.costPer1kOutput);
   decision.estimatedInputTokens = estimatedInputTokens;
   decision.alternativeRoutes = buildAlternativeRoutes(text, selectedCostPer1k);
-  decision.routingConfidence = decision.deterministicLayer ? 1.0 : routingConfidence;
+  decision.routingConfidence = decision.deterministicLayer ? 1.0 : Math.min(routingConfidence || 0, 1.0);
 
   const premiumEntry = ROUTER_CATALOG.find((e) => e.id === "adversarial-validation");
   const premiumCostPer1k = premiumEntry
