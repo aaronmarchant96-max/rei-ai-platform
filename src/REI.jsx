@@ -492,22 +492,14 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
 
   return (
     <div className="rei-shell">
-      {/* Sticky Header with safe area top */}
-      <header className="safe-top rei-header">
+      <header className="rei-header">
           <div className="rei-header__brand">
-            {/* Logo Mark */}
             <div className="rei-logo-mark">
-              <HingeMark size={28} animated={true} />
+              <HingeMark size={20} animated={true} />
             </div>
-            <div>
-              <h1 className="rei-logo-title">REI.ai</h1>
-              <p className="rei-logo-sub">
-                Latin: <em>Rei</em> (The Matter / Hinge) &nbsp;|&nbsp; Loop: <strong>Record • Evaluate • Iterate</strong>
-              </p>
-            </div>
+            <h1 className="rei-logo-title">REI</h1>
           </div>
- 
-          {/* Domain selection tab strip */}
+
           <div className="rei-domain-tabs">
             {DOMAIN_PROFILES.map((dom) => (
               <button
@@ -516,27 +508,19 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                 onClick={() => setSelectedDomain(dom.id)}
                 className={`rei-domain-tab ${selectedDomain === dom.id ? "is-active" : ""}`}
               >
-                <span>{dom.label}</span>
-                <span className="rei-domain-tab__sub">
-                  {dom.id === "assistant" ? "" :
-                   dom.id === "coding" ? "Coding" :
-                   dom.id === "genealogy" ? "Research" :
-                   "Stories"}
-                </span>
+                {dom.id === "assistant" ? "Generalist" :
+                 dom.id === "coding" ? "Coding" :
+                 dom.id === "genealogy" ? "Research" :
+                 "Stories"}
               </button>
             ))}
             <button
               type="button"
               onClick={toggleThriftyMode}
-              className="rei-action-btn"
-              style={{
-                background: thriftyMode ? "rgba(74,222,128,0.12)" : "transparent",
-                borderColor: thriftyMode ? "rgba(74,222,128,0.25)" : "rgba(255,255,255,0.06)",
-                color: thriftyMode ? "#4ade80" : "#64748b",
-              }}
-              title={thriftyMode ? "Thrifty" : "Full"}
+              className={`rei-action-btn ${thriftyMode ? "rei-action-btn--thrifty" : ""}`}
+              title="Thrifty"
             >
-              {thriftyMode ? "💰" : "💰"}
+              💰
             </button>
             <button
               type="button"
@@ -550,12 +534,7 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
         </header>
 
         {/* Scrollable Main Content with keyboard space */}
-        <main className="flex-1 overflow-y-auto pb-32 rei-main-content">
-          {/* Active Domain Banner — compact */}
-          <div className="rei-domain-banner">
-            <span className="rei-domain-banner__eyebrow">{currentDomain.label}</span>
-            <span>{currentDomain.description}</span>
-          </div>
+        <main className="rei-main-content">
 
         {/* Ingest Panel - only shown for genealogy domain */}
         <IngestPanel
