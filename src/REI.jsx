@@ -491,19 +491,7 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
   }
 
   return (
-    <div
-      className="mobile-container safe-area rei-shell"
-      style={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        maxWidth: mobile ? undefined : "1400px",
-        marginLeft: mobile ? undefined : "auto",
-        marginRight: mobile ? undefined : "auto"
-      }}
-    >
+    <div className="rei-shell">
       {/* Sticky Header with safe area top */}
       <header className="safe-top rei-header">
           <div className="rei-header__brand">
@@ -530,10 +518,10 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
               >
                 <span>{dom.label}</span>
                 <span className="rei-domain-tab__sub">
-                  {dom.id === "assistant" ? "Everyday reasoning" :
-                   dom.id === "coding" ? "Senior coding logic" :
-                   dom.id === "genealogy" ? "Evidence-tiered genealogy" :
-                   "Narrative architecture"}
+                  {dom.id === "assistant" ? "" :
+                   dom.id === "coding" ? "Coding" :
+                   dom.id === "genealogy" ? "Research" :
+                   "Stories"}
                 </span>
               </button>
             ))}
@@ -542,65 +530,31 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
               onClick={toggleThriftyMode}
               className="rei-action-btn"
               style={{
-                background: thriftyMode ? "rgba(74,222,128,0.15)" : "transparent",
-                borderColor: thriftyMode ? "rgba(74,222,128,0.3)" : "rgba(255,255,255,0.1)",
-                color: thriftyMode ? "#4ade80" : "#94a3b8",
+                background: thriftyMode ? "rgba(74,222,128,0.12)" : "transparent",
+                borderColor: thriftyMode ? "rgba(74,222,128,0.25)" : "rgba(255,255,255,0.06)",
+                color: thriftyMode ? "#4ade80" : "#64748b",
               }}
-              title={thriftyMode ? "Thrifty mode on — using cheapest model" : "Thrifty mode off — using default routing"}
+              title={thriftyMode ? "Thrifty" : "Full"}
             >
-              {thriftyMode ? "💰 Thrifty" : "💰 Full"}
+              {thriftyMode ? "💰" : "💰"}
             </button>
             <button
               type="button"
               onClick={handleClearHistory}
               className="rei-action-btn rei-action-btn--danger"
+              title="Clear"
             >
-              Clear Chat
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsPhilosophyOpen(true)}
-              className="rei-action-btn rei-action-btn--accent"
-            >
-              (?) Philosophy
+              ✕
             </button>
           </div>
         </header>
 
         {/* Scrollable Main Content with keyboard space */}
         <main className="flex-1 overflow-y-auto pb-32 rei-main-content">
-          {/* Active Domain Info Banner (Custom Card Style) */}
+          {/* Active Domain Banner — compact */}
           <div className="rei-domain-banner">
-            <div className="rei-domain-banner__eyebrow">Active Voice</div>
-            <div className="rei-domain-banner__row">
-              <div className="rei-domain-banner__meta">
-                <span className="rei-domain-banner__label">Mode:</span>
-                <span>{currentDomain.description}</span>
-              </div>
-              <div className="rei-domain-banner__meta rei-domain-banner__meta--secondary">
-                <span className="rei-domain-banner__label">Voice cues:</span>
-                <span>{currentDomain.rules.join(" | ")}</span>
-              </div>
-            </div>
-            {selectedDomain === "assistant" && (
-               <>
-                 <div className="rei-reasoning-loop">
-                   {REASONING_LOOP_STEPS.map((step) => (
-                     <div key={step.id} className="rei-reasoning-loop__step">
-                       <span className="rei-reasoning-loop__label">{step.label}</span>
-                       <span className="rei-reasoning-loop__detail">{step.detail}</span>
-                     </div>
-                   ))}
-                 </div>
-                 <div className="rei-domain-banner__steps">
-                   {["Collect", "Analyze", "Record", "Distinguish", "Organize", "Review", "Evaluate", "Iterate"].map((step) => (
-                     <span key={step} className="rei-domain-banner__step">
-                       {step}
-                     </span>
-                   ))}
-                 </div>
-               </>
-            )}
+            <span className="rei-domain-banner__eyebrow">{currentDomain.label}</span>
+            <span>{currentDomain.description}</span>
           </div>
 
         {/* Ingest Panel - only shown for genealogy domain */}
@@ -688,9 +642,7 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
         />
 
         {/* Fixed Input Area at Bottom with safe area */}
-        <div className="rei-input-shell fixed bottom-0 safe-bottom" style={{
-          maxWidth: mobile ? undefined : "1400px"
-        }}>
+        <div className="rei-input-shell">
           <form className="rei-input-form" onSubmit={handleSendMessage}>
             {selectedDomain === "assistant" && (
               <div className="rei-input-row" style={{

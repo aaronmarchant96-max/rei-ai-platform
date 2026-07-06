@@ -48,62 +48,43 @@
 
 /* ─── Shell overrides ─── */
 .rei-dashboard-wrapper {
-  background: #0a0505 !important;
+  background: #0a0c10 !important;
 }
 .rei-custom-container {
-  background: radial-gradient(circle at 30% 15%, #4a1d0f 0%, #1a0d08 45%, #08050a 100%) !important;
+  background: #0d1117 !important;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(251,146,60,0.15) !important;
-  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,0.06) !important;
+  border-radius: 0 !important;
 }
-.rei-custom-container::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(251,146,60,0.1), transparent 55%);
-  pointer-events: none;
-}
+.rei-custom-container::before,
 .rei-custom-container::after {
-  content: '';
-  position: absolute;
-  top: -40%;
-  right: -20%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(circle, rgba(249,115,22,0.18), transparent 70%);
-  pointer-events: none;
+  display: none;
 }
 
 /* ─── Header / branding ─── */
 .rei-logo-mark {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #f97316, #fbbf24);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #d6b04c, #f0c75e);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 24px rgba(249,115,22,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 0 16px rgba(214,176,76,0.25);
   flex-shrink: 0;
   position: relative;
 }
-.rei-logo-mark::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 16px;
-  border: 1px solid rgba(251,191,36,0.5);
-  animation: pulse-ring 2.4s ease-in-out infinite;
-}
+
 .rei-logo-title {
-  font-weight: 800;
-  font-size: 22px;
+  font-weight: 700;
+  font-size: 16px;
   letter-spacing: -0.01em;
-  background: linear-gradient(90deg, #fb923c, #fde047);
+  background: linear-gradient(90deg, #d6b04c, #f0c75e);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  margin: 0;
 }
 .rei-logo-sub {
   font-size: 12.5px;
@@ -150,14 +131,15 @@
 }
 .rei-header {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 16px 12px;
-  background: rgba(10, 5, 5, 0.9);
-  border-bottom: 1px solid rgba(251, 146, 60, 0.16);
+  padding: 8px 16px;
+  background: rgba(13, 17, 23, 0.95);
+  border-bottom: 1px solid rgba(214, 176, 76, 0.12);
   backdrop-filter: blur(10px);
+  min-height: 52px;
 }
 .rei-header__brand {
   display: flex;
@@ -167,44 +149,55 @@
 }
 .rei-domain-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 4px;
   align-items: center;
-  justify-content: flex-end;
-  flex: 1 1 320px;
+  overflow-x: auto;
 }
+
 .rei-domain-tab {
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.02);
-  color: #94a3b8;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  color: #64748b;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.25;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  text-align: left;
-  min-height: 46px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 .rei-domain-tab.is-active {
-  background: linear-gradient(135deg, rgba(249,115,22,0.22), rgba(251,191,36,0.14));
-  border-color: #f97316;
-  color: #fed7aa;
-  box-shadow: 0 0 18px rgba(249,115,22,0.15);
+  background: rgba(214,176,76,0.12);
+  border-color: rgba(214,176,76,0.35);
+  color: #f0c75e;
+}
+
+.rei-domain-tab:hover {
+  border-color: rgba(214,176,76,0.25);
+  color: #94a3b8;
+}
+
+.rei-domain-tab.is-active:hover {
+  color: #f0c75e;
+}
+
+.rei-domain-tab__sub {
+  display: none;
 }
 .rei-action-btn {
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  padding: 9px 12px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #e2e8f0;
-  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  background: transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
 }
 .rei-action-btn:hover {
   border-color: rgba(251,146,60,0.35);
@@ -218,22 +211,24 @@
   color: #fde68a;
   border-color: rgba(251,191,36,0.25);
 }
-
 /* ─── Domain banner ─── */
 .rei-domain-banner {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(251,146,60,0.16);
-  border-radius: 14px;
-  padding: 12px 14px;
-  margin-bottom: 12px;
-}
-.rei-domain-banner__eyebrow {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: #fb923c;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 14px;
   margin-bottom: 8px;
-  font-weight: 700;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 12px;
+  color: #64748b;
+}
+
+.rei-domain-banner__eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #d6b04c;
+  font-weight: 600;
 }
 .rei-domain-banner__row {
   display: flex;
@@ -323,25 +318,27 @@
   align-items: flex-start;
 }
 .rei-chat-bubble {
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 12px 14px;
   font-family: inherit;
-  font-size: 14.5px;
+  font-size: 14px;
   white-space: pre-wrap;
   line-height: 1.5;
   position: relative;
   width: 100%;
   box-sizing: border-box;
+  word-break: break-word;
 }
 .rei-chat-bubble--user {
-  background: rgba(255,255,255,0.06);
+  background: rgba(214,176,76,0.06);
   color: #E2E8F0;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(214,176,76,0.1);
+  border-right: 2px solid rgba(214,176,76,0.2);
 }
 .rei-chat-bubble--rei {
-  background: rgba(251,146,60,0.08);
+  background: rgba(255,255,255,0.03);
   color: #E2E8F0;
-  border: 1px solid rgba(251,146,60,0.18);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 .rei-chat-meta {
   font-size: 0.78em;
@@ -351,19 +348,18 @@
 
 /* ─── Router badge / panel ─── */
 .rei-router-badge {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(251,146,60,0.24);
-  background: rgba(251,146,60,0.1);
-  color: #fed7aa;
-  font-size: 11px;
-  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(214,176,76,0.15);
+  background: rgba(214,176,76,0.06);
+  color: #94a3b8;
+  font-size: 10px;
+  font-weight: 500;
   letter-spacing: 0.03em;
-  text-transform: uppercase;
 }
 .rei-router-badge__icon {
   font-size: 11px;
@@ -381,9 +377,38 @@
   background: rgba(148,163,184,0.1);
 }
 .rei-router-panel {
-  margin-top: 12px;
-  border-top: 1px dashed rgba(251,146,60,0.18);
-  padding-top: 8px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 6px;
+}
+
+.rei-router-panel__summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 0;
+  text-align: left;
+}
+
+.rei-router-panel__summary:hover {
+  color: #94a3b8;
+}
+
+.rei-router-panel__savings {
+  color: #4ade80;
+  font-weight: 500;
+}
+
+.rei-router-panel__toggle {
+  margin-left: auto;
+  font-size: 8px;
 }
 .rei-router-panel__title {
   color: #94A3B8;
@@ -450,15 +475,14 @@
 /* ─── Input area ─── */
 .rei-input-shell {
   width: 100%;
-  max-width: 1400px;
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  background: var(--surface);
-  border-top: 1px solid rgba(251,146,60,0.15);
-  padding: 16px;
+  max-width: 100%;
+  background: rgba(13, 17, 23, 0.95);
+  border-top: 1px solid rgba(214,176,76,0.1);
+  padding: 12px 16px;
   box-sizing: border-box;
+  position: fixed;
+  bottom: 0;
+  z-index: 10;
 }
 .rei-input-form {
   display: flex;
@@ -891,4 +915,89 @@
   opacity: 0.7;
   text-transform: none;
   margin-top: 1px;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 720px) {
+  .rei-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .rei-logo-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .rei-logo-title {
+    font-size: 14px;
+  }
+
+  .rei-logo-sub {
+    display: none;
+  }
+
+  .rei-domain-tab {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .rei-action-btn {
+    padding: 3px 6px;
+    font-size: 10px;
+  }
+
+  .rei-chat-bubble {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .rei-input-shell {
+    padding: 8px 10px;
+  }
+
+  .rei-input-area {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .rei-touch-button {
+    min-width: 40px;
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .rei-quick-prompt {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .rei-domain-banner {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .rei-chat-history {
+    gap: 8px;
+  }
+
+  .rei-chat-meta {
+    font-size: 0.7em;
+  }
+
+  .rei-copy-btn {
+    font-size: 0.65em;
+    min-width: 36px;
+    min-height: 36px;
+    top: 4px;
+    right: 4px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .rei-shell {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
 }
