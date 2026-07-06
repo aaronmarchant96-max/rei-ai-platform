@@ -623,10 +623,7 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
         <div className="rei-input-shell">
           <form className="rei-input-form" onSubmit={handleSendMessage}>
             {selectedDomain === "assistant" && (
-              <div className="rei-input-row" style={{
-                flexWrap: "wrap",
-                justifyContent: mobile ? "stretch" : "center"
-              }}>
+              <div className="rei-quick-prompts">
                 {GENERALIST_PROMPTS.map((prompt, index) => (
                   <button
                     key={prompt}
@@ -637,10 +634,6 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                     }}
                     className="rei-quick-prompt"
                     aria-pressed={assistantPromptIndex === index}
-                    style={{
-                      flex: mobile ? "1 1 30%" : "1 1 auto",
-                      minWidth: mobile ? "100px" : "180px"
-                    }}
                   >
                     {prompt}
                   </button>
@@ -653,64 +646,25 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
                 type="text"
                 value={inputMessage}
                 onChange={(e) => handleInputChange(e.target.value)}
-                placeholder={selectedDomain === "assistant" ? "What are you thinking through?" : "Type proof context or statements to evaluate..."}
+                placeholder={selectedDomain === "assistant" ? "What are you thinking through? ~12 tok" : "Type proof context or statements to evaluate..."}
                 className="rei-input-area"
-                style={{
-                  flex: 1,
-                  padding: mobile ? "14px 16px" : "12px 16px",
-                  minHeight: "48px"
-                }}
               />
               <button
                 type="submit"
-                className="rei-touch-button touch-target"
-                style={{
-                  padding: mobile ? "14px 28px" : "12px 24px",
-                  minHeight: "48px",
-                  height: "48px"
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = "#fb923c"}
-                onMouseOut={(e) => e.currentTarget.style.background = "#f97316"}
+                className="rei-touch-button"
               >
                 Send
               </button>
             </div>
-            {/* Pre-send estimate & token budget gauge */}
             {inputMessage.trim() && (
-              <div style={{
-                padding: "4px 12px 2px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: "8px",
-                fontSize: "10px",
-                color: "#64748b",
-              }}>
+              <div className="rei-budget-row">
                 <span>
-                  ~{estimateInputTokens(inputMessage)} tok →{' '}
+                  ~{estimateInputTokens(inputMessage)} tok &rarr;{" "}
                   {buildRouterDecision({ input: inputMessage, domain: selectedDomain, thrifty: thriftyMode }).label}
-                  {' · '}
+                  {" · "}
                   {formatCost(estimateInputTokens(inputMessage), "llama-3.3-70b-versatile")}
                 </span>
-                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                  <span>Budget:</span>
-                  <div style={{
-                    width: "60px",
-                    height: "4px",
-                    borderRadius: "2px",
-                    background: "rgba(255,255,255,0.06)",
-                    overflow: "hidden",
-                  }}>
-                    <div style={{
-                      width: `${Math.min(100, (sessionTokens / 5000) * 100)}%`,
-                      height: "100%",
-                      borderRadius: "2px",
-                      background: sessionTokens > 4000 ? "#ef4444" : sessionTokens > 2500 ? "#fbbf24" : "#4ade80",
-                      transition: "width 0.3s ease",
-                    }} />
-                  </div>
-                  <span>{sessionTokens.toLocaleString()}/5K</span>
-                </div>
+                <span>Budget: {sessionTokens.toLocaleString()}/5K</span>
               </div>
             )}
           </form>
