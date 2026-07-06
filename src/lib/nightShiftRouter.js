@@ -215,7 +215,7 @@ function buildDecision(id, overrides = {}) {
 }
 
 function isSimpleGreeting(text) {
-  return /^(hi|hello|hey|yo|hiya|sup|howdy|heya|hola|good\s+(morning|afternoon|evening)|how\s+are\s+(you|things|it\s+going)|how('s|s)\s+(it\s+going|everything|life)|what('s|s)\s+up|thanks|thank\s+you|thx|ty|ok|okay|k+|yeah|yep|nope|sure|right|alright|fine|test|ping|appreciate\s+(it|that|you))([\s!,.]|$)/i.test(text.trim());
+  return /^(hi|hello|hey|yo|hiya|sup|howdy|heya|hola|good\s+(morning|afternoon|evening)|how\s+are\s+(you|things|it\s+going)|how('s|s)\s+(it\s+going|everything|life)|what('s|s)\s+up|thanks|thank\s+you|thx|ty|ok|okay|k+|yeah|yep|nope|sure|right|alright|fine|test|ping|appreciate\s+(it|that|you))\b/i.test(text.trim());
 }
 
 function isLikelyCodingRequest(text) {

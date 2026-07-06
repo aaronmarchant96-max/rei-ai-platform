@@ -21,7 +21,7 @@ const PATTERNS = [
   },
   // ─── Smalltalk ─────────────────────────────────────────
   {
-    pattern: /^(how\s+are\s+(you|things|it\s+going)|how('s|s)\s+(it\s+going|everything|life)|what('s|s)\s+up|howdy)\b/i,
+    pattern: /^(how\s+are\s+(you|things|it\s+going)|how('s|s)\s+(it\s+going|everything|life)|what('s|s)\s+up)[\s!,.]*$/i,
     response: "Doing what I do best — sorting through what's real. What's on your mind?",
   },
   {
