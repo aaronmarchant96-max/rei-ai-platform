@@ -507,7 +507,7 @@ export function buildRouterDecision({
   decision.pathway = decision.pathway || "medium";
 
   const escalation = shouldEscalateToRemote({
-    confidence: decision.routingConfidence || 0,
+    confidence: decision.routingConfidence || 0.5,
     pathway: decision.pathway,
     estimatedCost: decision.estimatedCost || 0,
     premiumCost: decision.premiumCost || 0,
@@ -519,6 +519,16 @@ export function buildRouterDecision({
     decision.pathway = escalatedPathway;
     decision.escalated = true;
     decision.escalationReason = escalation.reason;
+
+    if (premiumEntry && premiumEntry.model) {
+      decision.model = premiumEntry.model;
+      decision.maxTokens = premiumEntry.maxTokens || decision.maxTokens;
+      decision.costPer1kInput = premiumEntry.costPer1kInput;
+      decision.costPer1kOutput = premiumEntry.costPer1kOutput;
+      const newSelectedCostPer1k = premiumEntry.costPer1kInput + premiumEntry.costPer1kOutput;
+      decision.estimatedCost = (estimatedInputTokens + (decision.maxTokens || 0)) / 1000 * newSelectedCostPer1k;
+      decision.alternativeRoutes = buildAlternativeRoutes(text, newSelectedCostPer1k);
+    }
   }
 
   persistRouteHistory(decision.id);
