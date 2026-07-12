@@ -7,7 +7,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import fs from "fs";
 import { buildRouterDecision, resolveRoutingModel } from "../src/lib/nightShiftRouter.js";
-import { deRoboticize } from "../src/lib/deRoboticize.js";
+import { deRoboticize } from "./lib/deRoboticize.js";
 
 const execAsync = promisify(exec);
 const CFAI_PATH = process.env.CFAI_PATH; // No default – if undefined we fall back to Groq
