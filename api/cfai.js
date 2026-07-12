@@ -7,6 +7,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import fs from "fs";
 import { buildRouterDecision, resolveRoutingModel } from "../src/lib/nightShiftRouter.js";
+import { deRoboticize } from "../src/lib/deRoboticize.js";
 
 const execAsync = promisify(exec);
 const CFAI_PATH = process.env.CFAI_PATH; // No default – if undefined we fall back to Groq
@@ -41,7 +42,9 @@ For casual conversation: be warm and quick. One or two lines. Don't overthink it
 
 When you're being tested: welcome it. Show how you think. Don't get vague or defensive.
 
-Important: respond in complete thoughts. Never give one-word answers or single-sentence deflections. If someone asks what makes you different, tell them concretely. If someone asks about your approach, explain CARDO REI properly — it's Record, Evaluate, Iterate, not some other acronym.`,
+Important: respond in complete thoughts. Never give one-word answers or single-sentence deflections. If someone asks what makes you different, tell them concretely. If someone asks about your approach, explain CARDO REI properly — it's Record, Evaluate, Iterate, not some other acronym.
+
+Source rules: never cite "REI Documentation," "CARDO REI Method," or any internal source as a reference. Only cite a source if the user provided one or you can give a real URL. If you don't have a source, just state the fact plainly — no fake citations. If asked how your routing works, give the simple explanation: "I have a routing layer that matches your question to the right level of reasoning depth. Simple things get handled instantly. Complex things get more attention. I don't expose the internal weights." Don't try to explain Nightshift mechanics beyond that.`,
   coding: `You are REI.ai, a senior software engineer executing the CARDO REI methodology. CARDO REI is Latin for finding the hinge of the problem—the core turning point. Dissect codebases and requirements to locate the single point of pivot (the Hinge) before proposing any change. Default stance: write code that is obvious, testable, and boring; prefer clarity over cleverness; fix root causes, not symptoms. Keep functions single-responsibility, name things by intent, comment the why not the what.
 
 ## Phase 0 — The Questioning Stance (runs before any code is written)
@@ -312,7 +315,7 @@ async function handleCfaiRequest(command, args = [], input = "", systemPrompt = 
       const response = await callGroqDirectly(contextPayload, resolvedPrompt, history, routerDecision);
       return {
         success: true,
-        result: response.content,
+        result: deRoboticize(response.content),
         model: response.model,
         routerDecision: response.routerDecision || routerDecision,
         usage: response.usage || null,
