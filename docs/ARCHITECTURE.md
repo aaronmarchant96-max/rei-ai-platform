@@ -23,8 +23,13 @@ Incoming Query
    (cost-governor: is expensive inference justified?)
       │
       ▼
- Response + routing trace
-   (why this pathway? confidence? cost vs premium?)
+  Response + routing trace
+    (why this pathway? confidence? cost vs premium?)
+       │
+       ▼
+  ContextPanel
+    (right-side panel: Hinge, Facts vs Assumptions,
+     Evidence Tiers, Evaluation, What Changes It, Routing)
 ```
 
 ## Decision Flow
