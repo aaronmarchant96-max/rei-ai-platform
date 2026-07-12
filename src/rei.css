@@ -972,8 +972,8 @@ code, pre, .rei-code {
   justify-content: space-between;
   gap: 8px;
   font-size: 11px;
-  color: #64748b;
-  background: rgba(0,0,0,0.2);
+  color: var(--rei-text-muted);
+  background: var(--rei-surface);
   position: relative;
 }
 .rei-session-footer__summary {
@@ -981,34 +981,74 @@ code, pre, .rei-code {
   gap: 12px;
   align-items: center;
 }
+.rei-session-footer__cost {
+  color: var(--rei-text-secondary);
+}
+.rei-session-footer__savings {
+  color: var(--rei-success);
+}
+.rei-session-footer__escalations {
+  color: #fbbf24;
+}
+.rei-session-footer__toggle {
+  background: none;
+  border: none;
+  color: var(--rei-text-secondary);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: inherit;
+}
+.rei-session-footer__toggle:hover {
+  background: rgba(255,255,255,0.05);
+}
 .rei-session-footer__popup {
   position: absolute;
-  bottom: 100%;
-  right: 16px;
-  background: #1e293b;
-  border: 1px solid rgba(255,255,255,0.1);
+  bottom: calc(100% + 8px);
+  right: 12px;
+  background: var(--rei-surface-raised);
+  border: 1px solid var(--rei-border);
   border-radius: 8px;
   padding: 12px;
   min-width: 280px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-  z-index: 100;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  z-index: 101;
   font-size: 12px;
 }
 .rei-session-footer__popup-title {
   font-weight: 600;
   margin-bottom: 8px;
-  color: #e2e8f0;
+  color: var(--rei-text);
 }
 .rei-session-footer__popup-grid {
   display: grid;
   gap: 6px;
 }
+.rei-session-footer__popup-row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--rei-text-secondary);
+}
 .rei-session-footer__popup-actions {
   margin-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--rei-border);
   padding-top: 8px;
   display: flex;
   gap: 6px;
+}
+.rei-session-footer__popup-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: var(--rei-text);
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+}
+.rei-session-footer__popup-btn:hover {
+  background: rgba(255,255,255,0.05);
 }
 
 /* ─── Content wrapper ─── */

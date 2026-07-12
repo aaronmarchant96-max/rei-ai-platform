@@ -23,61 +23,40 @@ export default function SessionSummary({
     <div className="rei-session-footer">
       <div className="rei-session-footer__summary">
         <span>&#x1F4CA; <strong>{sessionTokens.toLocaleString()}</strong> tokens &middot; <strong>{sessionMessages}</strong> msgs</span>
-        <span style={{ color: "#94a3b8" }}>{sessionCost < 0.0001 ? "< $0.0001" : `~$${sessionCost.toFixed(4)}`}</span>
+        <span className="rei-session-footer__cost">{sessionCost < 0.0001 ? "< $0.0001" : `~$${sessionCost.toFixed(4)}`}</span>
         {savingsVsPremium > 0 && (
-          <span style={{ color: "#4ade80" }}>
+          <span className="rei-session-footer__savings">
             Saved ${savingsVsPremium.toFixed(4)} ({savingsPercent}%)
           </span>
         )}
         {escalationCount > 0 && (
-          <span style={{ color: "#fbbf24" }}>
+          <span className="rei-session-footer__escalations">
             &#x26A1; Escalated {escalationCount}x
           </span>
         )}
         <button
           type="button"
+          className="rei-session-footer__toggle"
           onClick={() => setShowSessionSummary((prev) => !prev)}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#94a3b8",
-            cursor: "pointer",
-            fontSize: "11px",
-            padding: "2px 6px",
-            borderRadius: "4px",
-          }}
-          onMouseOver={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
-          onMouseOut={(e) => { e.currentTarget.style.background = "none"; }}
         >
           {showSessionSummary ? "\u25B2 Hide" : "\u25BC Details"} &middot; Export
         </button>
       </div>
       {showSessionSummary && (
-        <div style={{
-          position: "absolute",
-          bottom: "100%",
-          right: "16px",
-          background: "#1e293b",
-          border: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: "8px",
-          padding: "12px",
-          minWidth: "280px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
-          zIndex: 100,
-          fontSize: "12px",
-        }}>
-          <div style={{ fontWeight: 600, marginBottom: "8px", color: "#e2e8f0" }}>Session breakdown</div>
-          <div style={{ display: "grid", gap: "6px" }}>
+        <div className="rei-session-footer__popup">
+          <div className="rei-session-footer__popup-title">Session breakdown</div>
+          <div className="rei-session-footer__popup-grid">
             {Object.entries(modelBreakdown).map(([model, tokens]) => (
-              <div key={model} style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#94a3b8" }}>{model}</span>
+              <div key={model} className="rei-session-footer__popup-row">
+                <span>{model}</span>
                 <span>{tokens.toLocaleString()} tok &middot; {formatCost(tokens, model)}</span>
               </div>
             ))}
           </div>
-          <div style={{ marginTop: "8px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "8px", display: "flex", gap: "6px" }}>
+          <div className="rei-session-footer__popup-actions">
             <button
               type="button"
+              className="rei-session-footer__popup-btn"
               onClick={() => {
                 const lines = [
                   "# REI.ai Session Summary",
@@ -103,30 +82,13 @@ export default function SessionSummary({
                 a.click();
                 URL.revokeObjectURL(url);
               }}
-              style={{
-                padding: "4px 10px",
-                borderRadius: "4px",
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "transparent",
-                color: "#e2e8f0",
-                cursor: "pointer",
-                fontSize: "11px",
-              }}
             >
               &#x1F4E5; Download .md
             </button>
             <button
               type="button"
+              className="rei-session-footer__popup-btn"
               onClick={resetSession}
-              style={{
-                padding: "4px 10px",
-                borderRadius: "4px",
-                border: "1px solid rgba(255,255,255,0.15)",
-                background: "transparent",
-                color: "#94a3b8",
-                cursor: "pointer",
-                fontSize: "11px",
-              }}
             >
               Reset
             </button>
