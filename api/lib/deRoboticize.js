@@ -19,15 +19,18 @@ const BANNED_OPENERS = [
 export function deRoboticize(text) {
   if (!text) return text;
   let out = text.trim();
+  let stripped = false;
 
   for (const re of BANNED_OPENERS) {
+    const before = out;
     out = out.replace(re, "").trim();
+    if (out !== before) stripped = true;
   }
 
   out = out.replace(/\s*\(Source:\s*[^)]+\)/g, "").trim();
   out = out.replace(/\s*\(source:\s*[^)]+\)/g, "").trim();
 
-  if (out && out.length > 0) {
+  if (stripped && out && out.length > 0) {
     out = out[0].toUpperCase() + out.slice(1);
   }
   return out;

@@ -170,6 +170,11 @@ describe("Routing Eval — adaptive routing benchmark", () => {
             expect(decision.id).toBeTruthy();
           }
 
+          // Regression: trivia/general queries must not route to genealogy
+          if (prompt === "tell me something interesting" || prompt === "what about something else") {
+            expect(decision.id).not.toBe("genealogy-deep-dive");
+          }
+
           results.push({
             prompt,
             category,
