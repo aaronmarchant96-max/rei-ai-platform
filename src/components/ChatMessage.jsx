@@ -64,60 +64,62 @@ export default function ChatMessage({
       className={`rei-chat-msg ${isUser ? "rei-chat-msg--user" : "rei-chat-msg--rei"}`}
       onAnimationEnd={(e) => { e.currentTarget.style.opacity = "1"; }}
     >
-      <div className={`rei-chat-msg__sender ${isUser ? "rei-chat-msg__sender--user" : ""}`}>
-        {isRei && (
-          <>
-            <span className="rei-chat-msg__avatar rei-chat-msg__avatar--rei">R</span>
-            <span>REI &bull; {msg.timestamp}</span>
-          </>
-        )}
-        {isUser && (
-          <>
-            <span>{msg.timestamp} &bull; You</span>
-            <span className="rei-chat-msg__avatar rei-chat-msg__avatar--user">Y</span>
-          </>
-        )}
-      </div>
+      <div className={`rei-chat-card ${isUser ? "rei-chat-card--user" : "rei-chat-card--rei"}`}>
+        <div className={`rei-chat-card__sender ${isUser ? "rei-chat-card__sender--user" : ""}`}>
+          {isRei && (
+            <>
+              <span className="rei-chat-card__avatar rei-chat-card__avatar--rei">R</span>
+              <span>REI &bull; {msg.timestamp}</span>
+            </>
+          )}
+          {isUser && (
+            <>
+              <span>{msg.timestamp} &bull; You</span>
+              <span className="rei-chat-card__avatar rei-chat-card__avatar--user">Y</span>
+            </>
+          )}
+        </div>
 
-      <div className={`rei-chat-msg__bubble ${isUser ? "rei-chat-msg__bubble--user" : "rei-chat-msg__bubble--rei"}`}>
-        {isUser && msg.attachedRecord && (
-          <div className="rei-record-attached">
-            📋 Record attached &mdash; {msg.attachedRecord.sourceType} ({msg.attachedRecord.charCount.toLocaleString()} chars)
-          </div>
-        )}
+        <div className={`rei-chat-card__body ${isUser ? "rei-chat-card__body--user" : "rei-chat-card__body--rei"}`}>
+          {isUser && msg.attachedRecord && (
+            <div className="rei-record-attached">
+              📋 Record attached &mdash; {msg.attachedRecord.sourceType} ({msg.attachedRecord.charCount.toLocaleString()} chars)
+            </div>
+          )}
 
-        {isRei && selectedDomain === "assistant" && !msg.fallback
-          ? <StructuredReply text={msg.text} />
-          : msg.text
-        }
+          {isRei && selectedDomain === "assistant" && !msg.fallback
+            ? <StructuredReply text={msg.text} />
+            : msg.text
+          }
 
-        {msg.evidence && msg.evidence.length > 0 && (
-          <div className="rei-evidence-cards" role="list" aria-label="Evidence tiers">
-            {msg.evidence.map((e, i) => (
-              <EvidenceCard key={i} evidence={e} />
-            ))}
-          </div>
-        )}
+          {msg.evidence && msg.evidence.length > 0 && (
+            <div className="rei-evidence-cards" role="list" aria-label="Evidence tiers">
+              {msg.evidence.map((e, i) => (
+                <EvidenceCard key={i} evidence={e} />
+              ))}
+            </div>
+          )}
 
-        {isRei && <RouterSummary routerDecision={msg.routerDecision} model={msg.model} />}
+          {isRei && <RouterSummary routerDecision={msg.routerDecision} model={msg.model} />}
+        </div>
+
+        <div className="rei-chat-card__actions">
+          <button
+            onClick={() => onCopy(msg.text)}
+            aria-label="Copy"
+            title="Copy"
+          >📋</button>
+          {msg.fallback && (
+            <button
+              onClick={() => onRetry(index)}
+              aria-label="Retry"
+              title="Retry"
+            >↻</button>
+          )}
+        </div>
       </div>
 
       {isRei && <RouterPanel routerDecision={msg.routerDecision} model={msg.model} />}
-
-      <div className="rei-chat-msg__actions">
-        <button
-          onClick={() => onCopy(msg.text)}
-          aria-label="Copy"
-          title="Copy"
-        >📋</button>
-        {msg.fallback && (
-          <button
-            onClick={() => onRetry(index)}
-            aria-label="Retry"
-            title="Retry"
-          >↻</button>
-        )}
-      </div>
     </div>
   );
 }
