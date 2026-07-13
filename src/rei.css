@@ -98,7 +98,7 @@ code, pre, .rei-code {
 @media (min-width: 720px) {
   .rei-shell {
     grid-template-columns: 1fr 280px;
-    grid-template-rows: 48px 1fr auto auto;
+    grid-template-rows: 48px minmax(0, 1fr) auto auto;
   }
 
   .rei-header {
@@ -1065,18 +1065,8 @@ code, pre, .rei-code {
 
 /* ─── Content wrapper ─── */
 .rei-main-content {
-  flex: 1;
   overflow-y: auto;
-  padding-bottom: 128px;
-}
-
-/* ─── REI shell ─── */
-.rei-shell {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  padding: 0 var(--rei-space-16) 128px;
 }
 
 /* ─── Chat message layout ─── */
@@ -1138,7 +1128,7 @@ code, pre, .rei-code {
     max-width: 80%;
   }
 
-  .rei-chat-msg__bubble {
+  .rei-chat-card__body {
     font-size: 13px;
     padding: var(--rei-space-8) var(--rei-space-12);
   }
@@ -1164,7 +1154,7 @@ code, pre, .rei-code {
     font-size: 11px;
   }
 
-  .rei-chat-msg__sender {
+  .rei-chat-card__sender {
     font-size: 10px;
   }
 }
