@@ -284,6 +284,20 @@ export default function REI() {
         // silently ignore localStorage failures
       }
     }
+
+    fetch("/api/feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: msg.text.slice(0, 500),
+        route: msg.routerDecision?.id || "unknown",
+        pathway: msg.routerDecision?.pathway || "unknown",
+        direction,
+        timestamp: new Date().toISOString(),
+      }),
+    }).catch(() => {
+      // fire-and-forget — silently ignore network errors
+    });
   };
 
   const [isPhilosophyOpen, setIsPhilosophyOpen] = useState(false);
