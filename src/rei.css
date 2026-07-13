@@ -89,9 +89,8 @@ code, pre, .rei-code {
 .rei-shell {
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 48px 1fr auto auto;
-  height: 100dvh;
-  overflow: hidden;
+  grid-template-rows: 48px minmax(0, 1fr) auto auto;
+  min-height: 100dvh;
   background: var(--rei-bg);
   max-width: 100%;
 }
@@ -362,23 +361,10 @@ code, pre, .rei-code {
   max-width: 75%;
 }
 
-/* ─── Message card ─── */
+/* ─── Message card (log-entry style defined at end of file) ─── */
 .rei-chat-card {
   border-radius: var(--rei-radius);
   overflow: hidden;
-}
-
-.rei-chat-card--rei {
-  background: var(--rei-surface-raised);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-left: 2px solid var(--rei-accent);
-  border-radius: var(--rei-radius) var(--rei-radius) var(--rei-radius) 4px;
-}
-
-.rei-chat-card--user {
-  background: var(--rei-surface-raised);
-  border: 1px solid rgba(240,199,94,0.14);
-  border-radius: var(--rei-radius) var(--rei-radius) 4px var(--rei-radius);
 }
 
 .rei-chat-card__sender {
@@ -417,22 +403,7 @@ code, pre, .rei-code {
   color: var(--rei-text-secondary);
 }
 
-.rei-chat-card__body {
-  padding: var(--rei-space-12) var(--rei-space-16);
-  font-family: inherit;
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--rei-text);
-  word-break: break-word;
-}
-
-.rei-chat-card__body--rei {
-  background: transparent;
-}
-
-.rei-chat-card__body--user {
-  background: transparent;
-}
+/* ─── Card body (log-entry styling at end of file) ─── */
 
 /* ─── Card actions — hidden until hover ─── */
 .rei-chat-card__actions {
@@ -1494,24 +1465,25 @@ code, pre, .rei-code {
 
 .rei-chat-card--rei {
   background: transparent;
-  border: none;
-  border-left: 1px solid rgba(240,199,94,0.15);
-  border-top: 1px solid var(--rei-border);
-  border-right: 1px solid var(--rei-border);
-  border-bottom: 1px solid var(--rei-border);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-left: 2px solid var(--rei-accent);
   border-radius: 0 2px 2px 0;
+  margin-bottom: 1px;
 }
 
 .rei-chat-card--user {
   background: transparent;
-  border: 1px solid rgba(240,199,94,0.06);
+  border: 1px solid rgba(255,255,255,0.04);
   border-radius: 2px 0 0 2px;
+  margin-bottom: 1px;
 }
 
 .rei-chat-card__body {
+  padding: var(--rei-space-12) var(--rei-space-16);
   font-size: 13px;
   line-height: 1.6;
   color: var(--rei-text-secondary);
+  word-break: break-word;
 }
 
 .rei-chat-card__body--rei {
