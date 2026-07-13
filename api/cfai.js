@@ -7,6 +7,7 @@ import { exec } from "child_process";
 import { promisify } from "util";
 import fs from "fs";
 import { buildRouterDecision, resolveRoutingModel } from "../src/lib/nightShiftRouter.js";
+import { resolveDeterministic } from "../src/lib/deterministicEngine.js";
 import { deRoboticize } from "./lib/deRoboticize.js";
 
 const execAsync = promisify(exec);
@@ -312,6 +313,19 @@ async function callGroqDirectly(prompt, systemPrompt = "", history = [], routerD
 async function handleCfaiRequest(command, args = [], input = "", systemPrompt = "", history = [], routerDecision = null, domain = "", domainLabel = "", domainRules = [], recordBlock = "") {
   const resolvedPrompt = resolveSystemPrompt(systemPrompt, domain, domainLabel, domainRules);
   const payload = input || (args.length > 0 ? args.join(" ") : "help");
+
+  const detResult = resolveDeterministic(payload);
+  if (detResult) {
+    return {
+      success: true,
+      result: detResult.response,
+      model: "deterministic",
+      routerDecision: routerDecision,
+      usage: { total_tokens: 0 },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   const contextPayload = buildPromptWithContext(payload, domainLabel || domain, domainRules, recordBlock);
 
   // Check if CLI is available locally

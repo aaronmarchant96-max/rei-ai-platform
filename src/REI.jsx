@@ -378,7 +378,7 @@ export default function REI() {
       // Format previous chat history to send to backend (last 10 messages, filtering out system init messages)
       const historyPayload = messages
         .filter(msg => !msg.text.startsWith("System initialized"))
-        .slice(-10)
+        .slice(-5)
         .map(msg => ({
           role: msg.sender === "user" ? "user" : "assistant",
           content: msg.text
