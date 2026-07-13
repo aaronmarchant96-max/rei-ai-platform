@@ -8,7 +8,7 @@
 
 | Source | Type | What it proves | Location |
 |--------|------|---------------|----------|
-| **DeepSeek API dashboard** | Production billing | 441M tokens, $3.83 total cost, $0.0087/million | `https://api-docs.deepseek.com/` → Usage tab |
+| **Groq/OpenAI API** | Provider billing | Production token counts and costs | Groq Dashboard → Usage tab |
 | **routingEval benchmark** | Reproducible test | 68% savings vs always-premium, 80% accuracy, 5 deterministic at $0 | `npm test -- --testPathPatterns=routingEval` |
 | **SessionSummary tracker** | Live session telemetry | Per-message cost, cumulative savings, escalation count | `src/hooks/useSessionTracker.js` |
 | **API logger** | Structured JSON logs | Per-call prompt/completion/cached tokens, model, pathway | `api/lib/logger.js` (set `LOG_LEVEL=debug`) |
@@ -63,39 +63,21 @@ Pathway breakdown:
 
 ---
 
-## Claim 3: $3.83 Total Cost for 441M Tokens
+## Claim 3: Production API Cost
 
-**Evidence:** DeepSeek API dashboard — provider billing record
+**Evidence:** Groq API dashboard — provider billing record
 
-```
-API requests: 1,194
-Tokens: 441,861,520
-Cost: $3.83
-Cost per million: $0.0087
-```
+REI's backend uses Groq API (primary, via `api.cfai.js:273`) for llama-3.1-8b-instant and llama-3.3-70b-versatile models. OpenAI API is used for gpt-4o premium routes (adversarial validation). Layer 0 deterministic responses make no API calls.
 
-**What's included:** Only real API tokens that hit the LLM provider. Layer 0 deterministic responses make no API calls and are not counted. The 441M figure is the provider's own accounting.
+**Live cost numbers** can be accessed at the Groq Console (https://console.groq.com) → Usage & Billing. The cost model is:
 
-**Why the per-million cost is low:** DeepSeek's pricing ($0.14/million input, $0.28/million output for v4-flash) combined with prefix caching (the system prompt is a static `const` — cache hits reduce cost 98%). Most traffic routed through the cheaper flash model (276 requests) rather than pro (918 requests).
+| Model | Provider | Input/1M tok | Output/1M tok | Used for |
+|-------|----------|-------------|--------------|----------|
+| llama-3.1-8b-instant | Groq | $0.05 | $0.08 | Simple greeting, translation |
+| llama-3.3-70b-versatile | Groq | $0.59 | $0.79 | Structured reasoning, coding, genealogy |
+| gpt-4o | OpenAI | $2.50 | $10.00 | Adversarial validation (premium) |
 
-**How to verify going forward:** Every API call now logs its full token breakdown. Set `LOG_LEVEL=debug` in Vercel to see:
-
-```json
-{
-  "timestamp": "2026-07-13T00:00:00.000Z",
-  "level": "info",
-  "message": "api_call",
-  "model": "llama-3.3-70b-versatile",
-  "prompt_tokens": 1247,
-  "completion_tokens": 389,
-  "total_tokens": 1636,
-  "prompt_tokens_details": null,
-  "route": "structured-reasoning",
-  "pathway": "medium"
-}
-```
-
-The `prompt_tokens_details.cached_tokens` field (if present) shows how many tokens were served from cache rather than recomputed.
+**Per-query savings vs always-premium** is measured by the benchmark harness, not estimated from provider billing. The benchmark runs 57 prompts through `buildRouterDecision()` which computes `estimatedCost` (actual pathway cost) and `premiumCost` (always-gpt-4o cost) for every decision.
 
 ---
 
