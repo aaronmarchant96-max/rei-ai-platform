@@ -9,6 +9,7 @@ import fs from "fs";
 import { buildRouterDecision, resolveRoutingModel } from "../src/lib/nightShiftRouter.js";
 import { resolveDeterministic } from "../src/lib/deterministicEngine.js";
 import { deRoboticize } from "./lib/deRoboticize.js";
+import { logger } from "./lib/logger.js";
 
 const execAsync = promisify(exec);
 const CFAI_PATH = process.env.CFAI_PATH; // No default – if undefined we fall back to Groq
@@ -337,6 +338,19 @@ async function handleCfaiRequest(command, args = [], input = "", systemPrompt = 
     try {
       // Fallback: execute direct Groq API routing
       const response = await callGroqDirectly(contextPayload, resolvedPrompt, history, routerDecision);
+
+      if (response.usage) {
+        logger.info("api_call", {
+          model: response.model,
+          prompt_tokens: response.usage.prompt_tokens,
+          completion_tokens: response.usage.completion_tokens,
+          total_tokens: response.usage.total_tokens,
+          prompt_tokens_details: response.usage.prompt_tokens_details || null,
+          route: routerDecision?.id || "unknown",
+          pathway: routerDecision?.pathway || "unknown",
+        });
+      }
+
       return {
         success: true,
         result: deRoboticize(response.content),
