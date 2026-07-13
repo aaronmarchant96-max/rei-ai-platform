@@ -1376,7 +1376,7 @@ code, pre, .rei-code {
 
 /* ─── Instrument rail (side panel on wide screens) ─── */
 .rei-instrument-rail {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: var(--rei-space-16);
   padding: var(--rei-space-16);
@@ -1486,7 +1486,7 @@ code, pre, .rei-code {
 
 @media (max-width: 719px) {
   .rei-instrument-rail {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -1508,4 +1508,10 @@ code, pre, .rei-code {
 .rei-input-shell {
   grid-row: 4;
   grid-column: 1;
+}
+
+@media (max-width: 719px) {
+  .rei-instrument-rail {
+    display: none;
+  }
 }
