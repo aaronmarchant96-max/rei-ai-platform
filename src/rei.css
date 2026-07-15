@@ -691,6 +691,7 @@ code, pre, .rei-code {
   left: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
@@ -1237,6 +1238,7 @@ code, pre, .rei-code {
   width: 360px;
   max-width: 90vw;
   height: 100vh;
+  height: 100dvh;
   background: var(--rei-surface);
   border-left: 1px solid var(--rei-border);
   z-index: 99;

@@ -34,10 +34,10 @@ REI solves three problems simultaneously:
 
 | Metric | Value |
 |--------|-------|
-| Total API calls | 1,194 |
-| Total tokens processed | 441,861,520 |
-| Total cost | $3.83 |
-| Cost per million tokens | $0.0087 |
+| Total API calls | 1,371 |
+| Total tokens processed | 570,198,354 |
+| Total cost | $5.51 |
+| Cost per million tokens | $0.0097 |
 | Savings vs always-premium | 68% (lab), 90% (real-world) |
 | Routing accuracy | 80% across 57 prompts, 9 categories |
 | Deterministic (zero-cost) queries | 5 of 57 lab, ~15-20% production |
@@ -45,7 +45,7 @@ REI solves three problems simultaneously:
 | Total tests | 162 |
 | All tests passing | Yes |
 
-Production cost data (DeepSeek API, July 2026): 918 requests via deepseek-v4-pro, 276 via deepseek-v4-flash. Layer 0 deterministic engine captures greetings and smalltalk at $0, further reducing real-world cost below lab benchmark numbers.
+Production cost data (DeepSeek API, July 2026): 1,095 requests via deepseek-v4-pro, 276 via deepseek-v4-flash. Layer 0 deterministic engine captures greetings and smalltalk at $0, further reducing real-world cost below lab benchmark numbers. Note: DeepSeek adopted peak-valley pricing mid-July 2026 (2× during UTC 1:00–4:00 AM and 6:00–10:00 AM); forward-looking budgets should account for this.
 
 ---
 
