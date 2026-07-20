@@ -10,7 +10,7 @@
 
 REI is an AI that respects your budget as much as your time. It makes reasoning auditable by exposing the hinge point, evidence tiers, and what-would-change-the-conclusion in every response. A cost-aware routing layer (Night Shift) selects the cheapest model that meets a confidence threshold, reducing inference costs 68% below always-premium baselines. All routing decisions are deterministic and testable — zero inference dependency in the router itself.
 
-The system has processed 570 million tokens across 1,371 API calls at a total cost of $5.51, demonstrating production-scale efficiency. A 57-prompt benchmark suite across 9 categories confirms 80% routing accuracy with 162 passing tests and zero inference cost in the evaluation harness.
+The system has processed 601 million tokens across 1,497 API calls at a total cost of $6.51, demonstrating production-scale efficiency. A 57-prompt benchmark suite across 9 categories confirms 80% routing accuracy with 162 passing tests and zero inference cost in the evaluation harness.
 
 ---
 
@@ -69,10 +69,10 @@ Query → Layer 0: Deterministic Engine ($0, instant)
 
 | Metric | Value |
 |--------|-------|
-| Total API calls | 1,371 |
-| Total tokens processed | 570,198,354 |
-| Total cost | $5.51 |
-| Cost per million tokens | $0.0097 |
+| Total API calls | 1,497 |
+| Total tokens processed | 601,255,780 |
+| Total cost | $6.51 |
+| Cost per million tokens | $0.0108 |
 | Savings vs always-premium | 68% (lab), 90% (production) |
 | Routing accuracy | 80% across 57 prompts, 9 categories |
 | Deterministic (zero-cost) queries | 5 of 57 lab, ~15-20% production |
@@ -121,7 +121,7 @@ Query → Layer 0: Deterministic Engine ($0, instant)
 | Dissemination (open-source release, grant writeup) | $900 |
 | **Total requested** | **$5,000** |
 
-> **Peak-pricing note (July 2026):** DeepSeek adopted peak-valley pricing mid-July 2026 — 2× base rate during UTC 1:00–4:00 AM and 6:00–10:00 AM. The API compute line accounts for this by budgeting at an effective blended rate. Prior efficiency (570M tokens / $5.51 = $0.0097/M) was achieved before peak pricing took effect; forward-looking estimates apply a 1.3× multiplier to the historical rate.
+> **Peak-pricing note (July 2026):** DeepSeek adopted peak-valley pricing mid-July 2026 — 2× base rate during UTC 1:00–4:00 AM and 6:00–10:00 AM. The API compute line accounts for this by budgeting at an effective blended rate. Prior efficiency (601M tokens / $6.51 = $0.0108/M) was achieved before peak pricing took effect; forward-looking estimates apply a 1.3× multiplier to the historical rate.
 
 ---
 

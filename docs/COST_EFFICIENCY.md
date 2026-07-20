@@ -55,11 +55,11 @@ npm test -- --testPathPatterns=routingEval
 
 | Metric | Value |
 |--------|-------|
-| Total API calls | 1,371 |
-| Total tokens processed | 570,198,354 |
-| Total cost | $5.51 |
-| Cost per million tokens | $0.0097 |
-| Cost per request | $0.0040 |
+| Total API calls | 1,497 |
+| Total tokens processed | 601,255,780 |
+| Total cost | $6.51 |
+| Cost per million tokens | $0.0108 |
+| Cost per request | $0.0043 |
 | Real-world efficiency | ~90% (higher than lab benchmark due to API-layer deterministic check) |
 
 ## 6. Verification
