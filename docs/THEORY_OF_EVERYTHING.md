@@ -333,7 +333,7 @@ A law of physics is only as good as its experimental verification. REI's verific
 | Test coverage | 162 tests, 15 suites | Jest |
 | Build gate | Fails if savings ≤ 0 | `routingEval.test.js:227` |
 | Laboratory cost | $0.129 for 57 prompts | `routingEval` benchmark output |
-| Development cost | $5.47 for 565M tokens | DeepSeek API dashboard |
+| Development cost | $6.51 for 601M tokens | DeepSeek API dashboard |
 
 ```bash
 git clone https://github.com/aaronmarchant96-max/rei-ai-platform
@@ -388,7 +388,7 @@ A theory that doesn't acknowledge its boundaries isn't a theory — it's a belie
 
 6. **Benchmark is synthetic.** The 57 prompts are hand-curated, not drawn from real user traffic. Real-world routing accuracy and cost savings may differ from lab numbers. The feedback collection endpoint (`/api/feedback`) will provide real data but has not yet accumulated enough volume for analysis.
 
-7. **The $5.47 development cost is a point-in-time measurement.** It represents one developer's workflow, one toolchain (OpenCode CLI + DeepSeek API), and one project. It is not a controlled experiment with a control group. It is evidence, not proof, of development efficiency.
+7. **The $6.51 development cost is a point-in-time measurement.** It represents one developer's workflow, one toolchain (OpenCode CLI + DeepSeek API), and one project. It is not a controlled experiment with a control group. It is evidence, not proof, of development efficiency. DeepSeek introduced peak-valley pricing in mid-July 2026 (2x during peak hours), which may affect future cost comparisons.
 
 ---
 
@@ -453,7 +453,7 @@ See [`docs/FEEDBACK_ARCHITECTURE.md`](./FEEDBACK_ARCHITECTURE.md) for the full f
 | Unifies multiple phenomena? | Same architecture governs genealogy, coding, debate, telemetry, creativity |
 | Can be explained to a non-expert? | *"Find the hinge. Compare the cost of acting to the cost of doing nothing. Pick the cheaper one."* |
 | Makes novel predictions? | 5 testable predictions (Section 9) — feedback, canary probing, entropy-routing, lexical density, cost-constraint |
-| Has experimental evidence? | 565M development tokens for $5.47. 68% lab savings. 80% accuracy. 162 passing tests |
+| Has experimental evidence? | 601M development tokens for $6.51. 68% lab savings. 80% accuracy. 162 passing tests |
 
 ---
 
