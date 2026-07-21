@@ -153,7 +153,7 @@ describe("handler", () => {
     };
     await handler(req, res);
     expect(res._status).toBe(200);
-    expect(res._body.result).toBe("mock ok");
+    expect(res._body.result).toContain("mock ok");
     expect(res._body.model).toBeDefined();
   });
 

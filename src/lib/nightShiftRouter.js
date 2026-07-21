@@ -514,7 +514,11 @@ export function buildRouterDecision({
     : catalogConfidence > 0 ? catalogConfidence
     : decision.confidence?.[pathwayConfKey] || 0.5;
 
-  const premiumEntry = ROUTER_CATALOG.find((e) => e.id === "adversarial-validation");
+  const premiumEntry = ROUTER_CATALOG.reduce((max, entry) => {
+    const cost = (entry.costPer1kInput || 0) + (entry.costPer1kOutput || 0);
+    const maxCost = max ? (max.costPer1kInput || 0) + (max.costPer1kOutput || 0) : 0;
+    return cost > maxCost ? entry : max;
+  }, null) || ROUTER_CATALOG[0];
   const premiumCostPer1k = premiumEntry
     ? (premiumEntry.costPer1kInput + premiumEntry.costPer1kOutput)
     : selectedCostPer1k;

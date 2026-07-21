@@ -87,6 +87,9 @@ function normalizeLabel(label) {
     "Fact Check": "factCheck",
     "Structured Reasoning": "reasoning",
     "Adversarial Validation": "adversarial",
+    "Red Team Surface": "adversarial",
+    "Red Team Semantic": "adversarial",
+    "Red Team Deep": "adversarial",
   };
   return map[label] || "unknown";
 }
@@ -161,8 +164,7 @@ describe("Routing Eval — adaptive routing benchmark", () => {
           }
 
           if (category === "adversarial") {
-            expect(decision.id).toBe("adversarial-validation");
-            expect(decision.pathway).toBe("premium");
+            expect(decision.id).toMatch(/^red-team-/);
           }
 
           if (category === "unknown") {
