@@ -11,6 +11,16 @@ import { resolveDeterministic } from "../src/lib/deterministicEngine.js";
 import { deRoboticize } from "./lib/deRoboticize.js";
 import { logger } from "./lib/logger.js";
 
+function normalizeUsage(usage) {
+  if (!usage) return null;
+  return {
+    total_tokens: usage.total_tokens ?? null,
+    prompt_tokens: usage.prompt_tokens ?? null,
+    completion_tokens: usage.completion_tokens ?? null,
+    prompt_tokens_details: usage.prompt_tokens_details ?? null,
+  };
+}
+
 const execAsync = promisify(exec);
 const CFAI_PATH = process.env.CFAI_PATH; // No default – if undefined we fall back to Groq
 
@@ -222,11 +232,11 @@ async function callGroqDirectly(prompt, systemPrompt = "", history = [], routerD
 
       if (response.ok) {
         const data = await response.json();
-        return {
-          content: data.choices?.[0]?.message?.content || "No content returned from OpenAI.",
-          model: "gpt-4o",
-          usage: data.usage || null,
-        };
+      return {
+        content: data.choices?.[0]?.message?.content || "No content returned from OpenAI.",
+        model: "gpt-4o",
+        usage: data.usage ? normalizeUsage(data.usage) : null,
+      };
       }
     } catch (e) {
       console.warn("OpenAI API routing failed, falling back to Groq:", e);
@@ -292,8 +302,7 @@ async function callGroqDirectly(prompt, systemPrompt = "", history = [], routerD
         content = `[REI.AI ROUTING WARNING: OPENAI_API_KEY not found in Vercel. Falling back to Open-Source Router: ${selectedModel}]\n\n${content}`;
       }
 
-      const usage = data.usage || null;
-      return { content, model: selectedModel, routerDecision, usage };
+      return { content, model: selectedModel, routerDecision, usage: data.usage ? normalizeUsage(data.usage) : null };
     }
 
     const errText = await response.text();
@@ -325,7 +334,7 @@ async function handleCfaiRequest(command, args = [], input = "", systemPrompt = 
       result: detResult.response,
       model: "deterministic",
       routerDecision: routerDecision,
-      usage: { total_tokens: 0 },
+      usage: normalizeUsage({ total_tokens: 0 }),
       timestamp: new Date().toISOString(),
     };
   }

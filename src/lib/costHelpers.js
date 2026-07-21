@@ -1,26 +1,55 @@
 import { getRouterCosts } from "./nightShiftRouter.js";
-import { computeMsgCost, formatCostDisplay } from "./contracts.js";
 
 const FINGERPRINT_COSTS = getRouterCosts();
-const MODEL_COST_PER_1K = {
-  ...Object.fromEntries(
-    Object.entries(FINGERPRINT_COSTS).map(([model, costs]) => [
-      model,
-      (costs.costPer1kInput + costs.costPer1kOutput) / 2,
-    ])
-  ),
-  mock: 0,
-  "rate-limited": 0,
-};
+
+const MODEL_COSTS = Object.fromEntries(
+  Object.entries(FINGERPRINT_COSTS).map(([model, costs]) => [
+    model,
+    {
+      input: costs.costPer1kInput,                          // $/1K input tokens
+      output: costs.costPer1kOutput,                        // $/1K output tokens
+      ceiling: costs.costPer1kInput + costs.costPer1kOutput, // worst-case per pair (was /2)
+    },
+  ])
+);
+
+// Edge-case models
+MODEL_COSTS.mock = { input: 0, output: 0, ceiling: 0 };
+MODEL_COSTS["rate-limited"] = { input: 0, output: 0, ceiling: 0 };
 
 export const DEFAULT_COST_MODEL = "llama-3.3-70b-versatile";
 
-export function getModelCostRate(model) {
-  return MODEL_COST_PER_1K[model] || MODEL_COST_PER_1K[DEFAULT_COST_MODEL];
+export function getModelCosts(model) {
+  return MODEL_COSTS[model] || MODEL_COSTS[DEFAULT_COST_MODEL];
 }
 
-export function getCostBadgeLabel(model, tokens) {
-  const rate = getModelCostRate(model);
-  const cost = computeMsgCost(tokens, rate);
-  return `⚡ ${tokens} tok · ${formatCostDisplay(cost)}`;
+export function getModelCostRate(model) {
+  return getModelCosts(model).ceiling;
+}
+
+export function computeCeilingCost(totalTokens, model) {
+  return ((totalTokens || 0) / 1000) * getModelCostRate(model);
+}
+
+export function computeActualCost(promptTokens, completionTokens, inputRate, outputRate) {
+  return ((promptTokens || 0) * inputRate + (completionTokens || 0) * outputRate) / 1000;
+}
+
+function formatCostDisplay(cost) {
+  if (cost <= 0) return "~$0.0000";
+  if (cost < 0.0001) return "< $0.0001";
+  return `~$${cost.toFixed(4)}`;
+}
+
+export function getCostBadgeLabel(model, tokens, usage) {
+  const costs = getModelCosts(model);
+  if (usage?.prompt_tokens != null && usage?.completion_tokens != null) {
+    const actual = computeActualCost(
+      usage.prompt_tokens, usage.completion_tokens,
+      costs.input, costs.output
+    );
+    return `⚡ ${usage.total_tokens || tokens} tok · actual ${formatCostDisplay(actual)}`;
+  }
+  const ceiling = computeCeilingCost(tokens, model);
+  return `⚡ ${tokens} tok · est ${formatCostDisplay(ceiling)}`;
 }

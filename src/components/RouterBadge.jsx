@@ -12,7 +12,7 @@ export default function RouterBadge({ routerDecision, usage }) {
       <span>{routerDecision.label}</span>
       <span className="rei-router-badge__model">{routerDecision.model}</span>
       <span className="rei-router-badge__cost">
-        {isDeterministic ? "$0 · 0 tok" : getCostBadgeLabel(routerDecision.model, totalTokens)}
+        {isDeterministic ? "$0 · 0 tok" : getCostBadgeLabel(routerDecision.model, totalTokens, usage)}
       </span>
     </div>
   );

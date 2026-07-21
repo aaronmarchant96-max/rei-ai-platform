@@ -5,8 +5,8 @@ import { useSessionTracker } from "./hooks/useSessionTracker.js";
 import { useThriftyMode } from "./hooks/useThriftyMode.js";
 import { useDomainHint } from "./hooks/useDomainHint.js";
 import { buildRouterDecision, estimateTokens } from "./lib/nightShiftRouter.js";
-import { computeMsgCost, formatCostDisplay, estimateInputTokens, nextMessageId } from "./lib/contracts.js";
-import { getModelCostRate } from "./lib/costHelpers.js";
+import { formatCostDisplay, estimateInputTokens, nextMessageId } from "./lib/contracts.js";
+import { getModelCosts, computeCeilingCost, computeActualCost } from "./lib/costHelpers.js";
 import PhilosophyModal from "./components/PhilosophyModal.jsx";
 import SessionSummary from "./components/SessionSummary.jsx";
 import IngestPanel, { MAX_RECORD_CHARS, SOURCE_TYPES } from "./components/IngestPanel.jsx";
@@ -106,8 +106,7 @@ function buildDomainSystemMessage(domainId, currentDomain) {
 }
 
 function formatCost(totalTokens, model) {
-  const rate = getModelCostRate(model);
-  return formatCostDisplay(computeMsgCost(totalTokens, rate));
+  return formatCostDisplay(computeCeilingCost(totalTokens, model));
 }
 
 const GENERALIST_PROMPTS = [
@@ -480,11 +479,13 @@ export default function REI() {
 
       const usage = data.usage || null;
       const responseModel = data.model || "Local cfai CLI Executable";
-      const totalTokens = usage?.total_tokens || 0;
-      const modelRate = getModelCostRate(responseModel);
-      const msgCost = computeMsgCost(totalTokens, modelRate);
+      const costs = getModelCosts(responseModel);
+      const dataTokens = usage?.total_tokens || 0;
+      const msgCost = usage?.prompt_tokens != null && usage?.completion_tokens != null
+        ? computeActualCost(usage.prompt_tokens, usage.completion_tokens, costs.input, costs.output)
+        : computeCeilingCost(dataTokens, responseModel);
 
-      trackMessage(totalTokens, responseModel, msgCost, routerDecision.premiumCost, routerDecision.pathway === "premium");
+      trackMessage(dataTokens, responseModel, msgCost, routerDecision.premiumCost, routerDecision.pathway === "premium");
 
       const evidence = selectedDomain === "genealogy"
         ? parseEvidenceTiers(data.result)
