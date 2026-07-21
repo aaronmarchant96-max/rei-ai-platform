@@ -10,6 +10,9 @@ import { buildRouterDecision, resolveRoutingModel } from "../src/lib/nightShiftR
 import { resolveDeterministic } from "../src/lib/deterministicEngine.js";
 import { deRoboticize } from "./lib/deRoboticize.js";
 import { logger } from "./lib/logger.js";
+import { scanRedTeamInput } from "../src/lib/redTeamScanner.js";
+import { RED_TEAM_D2_PROMPT, RED_TEAM_D3_PROMPT } from "../src/lib/redTeamPrompts.js";
+import { resolveVerdict } from "../src/lib/redTeamPolicy.js";
 
 function normalizeUsage(usage) {
   if (!usage) return null;
@@ -323,6 +326,126 @@ async function callGroqDirectly(prompt, systemPrompt = "", history = [], routerD
   };
 }
 
+async function handleRedTeamRequest({ input, history = [], routerDecision = null }) {
+  const d1Result = scanRedTeamInput(input);
+
+  if (!d1Result.escalateToD2) {
+    return {
+      success: true,
+      result: {
+        verdict: d1Result.verdict,
+        score: d1Result.score,
+        dimensionsTriggered: ["D1"],
+        findings: d1Result.findings,
+        routingTrace: {
+          d1: {
+            confidence: d1Result.confidence,
+            escalated: false
+          }
+        },
+        cost: 0
+      },
+      model: "deterministic",
+      routerDecision,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey || apiKey.includes('your_groq_api_key_here')) {
+    return {
+      success: true,
+      result: {
+        verdict: d1Result.verdict,
+        score: d1Result.score,
+        dimensionsTriggered: ["D1"],
+        findings: d1Result.findings,
+        routingTrace: {
+          d1: {
+            confidence: d1Result.confidence,
+            escalated: true,
+            d2Status: "no_api_key"
+          }
+        },
+        cost: 0
+      },
+      model: "mock",
+      routerDecision,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  const d2Prompt = RED_TEAM_D2_PROMPT.replace("{{PROMPT}}", input);
+  const d2RequestBody = {
+    model: "llama-3.3-70b-versatile",
+    messages: [
+      {
+        role: "system",
+        content: "You are REI D2 Semantic Judge. Return only valid JSON.",
+      },
+      {
+        role: "user",
+        content: d2Prompt,
+      }
+    ],
+    temperature: 0.1,
+    max_tokens: 1000,
+  };
+
+  let d2Findings = [];
+  let d2Cost = 0;
+
+  try {
+    const d2Response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(d2RequestBody),
+    });
+
+    if (d2Response.ok) {
+      const d2Data = await d2Response.json();
+      d2Cost = ((d2Data.usage?.prompt_tokens || 0) * 0.00059 + (d2Data.usage?.completion_tokens || 0) * 0.00079) / 1000;
+
+      try {
+        const d2Content = d2Data.choices?.[0]?.message?.content || "{}";
+        const d2Parsed = JSON.parse(d2Content);
+        d2Findings = d2Parsed.findings || [];
+      } catch (e) {
+        logger.warn("d2_parse_error", { error: e.message });
+      }
+    }
+  } catch (e) {
+    logger.warn("d2_api_error", { error: e.message });
+  }
+
+  const allFindings = [...d1Result.findings, ...d2Findings];
+  const finalVerdict = resolveVerdict(allFindings, { unresolvedSpans: [] });
+
+  return {
+    success: true,
+    result: {
+      ...finalVerdict,
+      routingTrace: {
+        d1: {
+          confidence: d1Result.confidence,
+          escalated: true
+        },
+        d2: {
+          findingsCount: d2Findings.length,
+          cost: d2Cost
+        }
+      },
+      cost: d2Cost
+    },
+    model: "llama-3.3-70b-versatile",
+    routerDecision,
+    timestamp: new Date().toISOString(),
+  };
+}
+
 async function handleCfaiRequest(command, args = [], input = "", systemPrompt = "", history = [], routerDecision = null, domain = "", domainLabel = "", domainRules = [], recordBlock = "") {
   const resolvedPrompt = resolveSystemPrompt(systemPrompt, domain, domainLabel, domainRules);
   const payload = input || (args.length > 0 ? args.join(" ") : "help");
@@ -490,7 +613,14 @@ export default async function handler(req, res) {
 
     if (req.method === "POST") {
       const { command, args = [], input = "", systemPrompt = "", history = [], routerDecision, domain, domainLabel, domainRules, recordBlock } = req.body || {};
-      
+
+      // Red Team domain — handle separately
+      if (domain === "red-team") {
+        const result = await handleRedTeamRequest({ input, history, routerDecision });
+        res.status(200).json(result);
+        return;
+      }
+
       // Backend length guard - never trust client-side validation alone
       if (typeof input === "string" && input.length > MAX_INPUT_CHARS) {
         return res.status(400).json({
