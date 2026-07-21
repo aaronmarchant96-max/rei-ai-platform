@@ -1590,3 +1590,10 @@ body,
   color: var(--rei-accent);
   background: var(--rei-accent-dim);
 }
+
+.rei-router-panel__detail {
+  display: block;
+  font-size: 9px;
+  color: var(--rei-text-muted);
+  margin-top: 1px;
+}

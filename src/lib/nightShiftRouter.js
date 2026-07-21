@@ -250,9 +250,8 @@ function getComplexityTier(text) {
   const uncertaintyHits = UNCERTAINTY_TERMS.filter((term) => text.includes(term)).length;
   const score = words * 2 + questionMarks * 8 + uncertaintyHits * 10;
 
-  if (score >= 40) return "high";
-  if (score >= 20) return "medium";
-  return "low";
+  const tier = score >= 40 ? "high" : score >= 20 ? "medium" : "low";
+  return { tier, score, words, questionMarks, uncertaintyHits };
 }
 
 function getHighStructureSignals(text) {
@@ -360,7 +359,8 @@ export function buildRouterDecision({
   const text = normalizeText(combinedInput);
   const domainName = String(domain || "assistant").toLowerCase();
   const catalogRoute = getCatalogRouteMatch(input);
-  const complexityTier = getComplexityTier(text);
+  const complexity = getComplexityTier(text);
+  const complexityTier = complexity.tier;
   const highStructureSignals = getHighStructureSignals(text);
   const storedPreference = getStoredPreferenceForContext(text, domainName);
   const estimatedInputTokens = estimateTokens(combinedInput);
@@ -491,6 +491,7 @@ export function buildRouterDecision({
 
   const selectedCostPer1k = (decision.costPer1kInput + decision.costPer1kOutput);
   decision.estimatedInputTokens = estimatedInputTokens;
+  decision.routingComplexity = { score: complexity.score, words: complexity.words, questionMarks: complexity.questionMarks, uncertaintyHits: complexity.uncertaintyHits, tier: complexity.tier };
   decision.alternativeRoutes = buildAlternativeRoutes(text, selectedCostPer1k);
   const catalogMatchId = catalogRoute?.entry?.id;
   const catalogConfidence = (catalogMatchId && catalogMatchId === decision.id)

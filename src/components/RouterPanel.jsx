@@ -39,6 +39,15 @@ export default function RouterPanel({ routerDecision, model, defaultExpanded }) 
               ? `${(routerDecision.routingConfidence * 100).toFixed(0)}%`
               : routerDecision.pathway === "deterministic" ? "100%" : "n/a"}
           </div>
+          {routerDecision.routingComplexity && (
+            <div className="rei-router-panel__item">
+              <span className="rei-router-panel__label">Routing Complexity:</span>{" "}
+              {routerDecision.routingComplexity.score} ({routerDecision.routingComplexity.tier})
+              <span className="rei-router-panel__detail">
+                W: {routerDecision.routingComplexity.words}×2 · Q: {routerDecision.routingComplexity.questionMarks}×8 · U: {routerDecision.routingComplexity.uncertaintyHits}×10
+              </span>
+            </div>
+          )}
           <div className="rei-router-panel__item">
             <span className="rei-router-panel__label">Est. cost:</span>{" "}
             ${routerDecision.estimatedCost?.toFixed(6) || "0"}
@@ -63,7 +72,7 @@ export default function RouterPanel({ routerDecision, model, defaultExpanded }) 
                 : routerDecision.routingSignals.matchedTerms?.length > 0
                   ? `Matched: ${routerDecision.routingSignals.matchedTerms.join(", ")}`
                   : "No specific terms matched"}
-              {" · "}Complexity: {routerDecision.routingSignals.complexityTier || "n/a"}
+              {" · "}Complexity: {routerDecision.routingComplexity?.tier || routerDecision.routingSignals?.complexityTier || "n/a"}
             </div>
           )}
           {routerDecision.alternativeRoutes && routerDecision.alternativeRoutes.length > 0 && (
