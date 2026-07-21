@@ -1,7 +1,7 @@
-# CARDO REI: An Information-Theoretic Architecture for Cost-Aware Reasoning
+# CARDO REI: A Deterministic, Cost-Aware Routing Architecture for Multi-Domain LLM Reasoning
 
-**Toward an Information Theory of Practical AI Reasoning**  
-**Physics-inspired design principles applied to deterministic, cost-aware LLM routing.**
+**A cascading, zero-inference-first router with an explicit cost-benefit escalation gate,
+validated across five task domains.**
 
 ---
 
@@ -19,25 +19,29 @@ This paper makes claims at three levels. All are argued, but not all are proven 
 
 ## Abstract
 
-> While Large Language Models (LLMs) excel at generative tasks, agentic deployments face severe quality-bleed (hallucinations) and cost-bleed (over-routing simple queries to expensive models). We present CARDO REI, a unified reasoning framework inspired by theoretical physics decomposition. CARDO REI separates cognitive processing into a structured 8-step pipeline, isolates decision boundaries using a deterministic hinge detection algorithm, and evaluates execution paths using a cost-weighted utility gate (CARDO GUARD). We demonstrate the efficacy of this framework across five diverse domains (genealogy, coding, debate, industrial telemetry, and creative writing). Our system achieves 80% routing accuracy using a zero-inference lexical router, resulting in a 68% reduction in inference costs while maintaining strict consistency verified via 162 automated regression tests.
+> While Large Language Models (LLMs) excel at generative tasks, agentic deployments face severe quality-bleed (hallucinations) and cost-bleed (over-routing simple queries to expensive models). We present CARDO REI, a deterministic cascading router that extends prior cost-aware routing work (e.g., FrugalGPT's cascade-until-confident pattern, RouteLLM's preference-trained routing) with a zero-inference lexical fingerprint layer and an explicit cost-weighted escalation gate (CARDO GUARD). CARDO REI separates cognitive processing into a structured 8-step pipeline, isolates decision boundaries using a deterministic hinge detection algorithm, and evaluates execution paths using a cost-weighted utility gate (CARDO GUARD). We demonstrate the efficacy of this framework across five diverse domains (genealogy, coding, debate, industrial telemetry, and creative writing). Our system achieves 80% routing accuracy using a zero-inference lexical router, resulting in a 68% reduction in inference costs while maintaining strict consistency verified via 162 automated regression tests.
 
 ---
 
-## 1. Physics-Inspired Design Principles
+## 1. Design Philosophy
 
-Five design principles drawn from the methodology physicists use to solve complex problems. Every principle maps to a specific implementation in REI:
+REI is built on one working assumption: most routing problems reduce to a single decision
+boundary — the "hinge" — the point where a cheap pathway stops being adequate and a more
+expensive one becomes justified. The design principle is to find that boundary explicitly,
+price the cost of crossing it, and avoid building separate routing logic per domain.
 
-| Step | Physics Principle | REI Implementation |
-|------|----------------------|------------------------|
-| **1. Reduce** | Strip a problem to its fundamentals until one governing principle remains | CARDO REI 8-stage pipeline — every problem decomposes into the same fundamental stages |
-| **2. Find the equation** | Express the principle mathematically | `Miss Loss > Waste → ACT` — the entire decision reduces to one inequality |
-| **3. Unify** | Prove the same equation holds across different domains | Five domains (genealogy, coding, debate, telemetry, creative). Same architecture. Zero domain-specific code. |
-| **4. Test** | Verify experimentally | 162 assertion-gated tests. Build fails if savings ≤ 0. `npm test` |
-| **5. Falsify** | Define what would prove the theory wrong | If routing accuracy degrades, the benchmark fails. If costs exceed premium, the gate assertion blocks deployment. CI catches regression. |
+| Step | Principle | REI Implementation |
+|------|-----------|---------------------|
+| **1. Reduce** | Strip the problem to the smallest decision that matters | 8-stage pipeline — every input passes through the same stages regardless of domain |
+| **2. Formalize** | State the decision as an explicit rule, not a heuristic buried in prompt text | `Miss Loss > Waste → ACT` (Section 3) |
+| **3. Generalize** | Test whether the same rule holds across domains without domain-specific code | Five domains (genealogy, coding, debate, telemetry, creative) |
+| **4. Verify** | Test experimentally, not just argue | 162 assertion-gated tests; build fails if savings ≤ 0 |
+| **5. Falsify** | State what would disprove the design choice | If routing accuracy degrades or costs exceed premium, CI blocks deployment (Section 9 has the full falsifiable hypotheses) |
 
-In physics, we don't build separate theories for water boiling in a kettle and water boiling in a nuclear reactor. It's the same phase transition. The same equation. The same threshold. When we find the governing principle — the one equation that explains every variation — we stop building new models and start predicting new outcomes. This is the approach REI adapts to reasoning.
-
-REI applies this principle to reasoning: **every complex problem reduces to a hinge point** — the exact boundary condition where the answer flips. Find that phase transition, compute the cost of crossing it, and you don't need a thousand domain-specific models. You need one governing equation.
+This is closer to a cascading router with an explicit cost gate (in the tradition of FrugalGPT's
+cascade pattern) than to a new theoretical framework — the contribution is the specific
+combination (zero-inference lexical layer + cross-domain fingerprint catalog + cost-weighted
+escalation gate), not a new principle of reasoning.
 
 ---
 
@@ -49,7 +53,7 @@ The design principles demand a formal specification, not metaphors. Here is the 
 Let T be a reasoning task.
 Let R(T) = words×2 + questionMarks×8 + uncertaintyHits×10  [Routing Complexity Index, nightShiftRouter.js:247-255]
 Let P ∈ {deterministic, base, standard, premium}           [selected pathway]
-Let τ be the hinge threshold — the exact boundary          [phase transition point]
+Let τ be the hinge threshold — the exact boundary          [decision boundary point]
          where the answer flips
 Let C(P, T) be the estimated cost of routing T through P   [cost estimation, nightShiftRouter.js:506]
 
@@ -76,23 +80,22 @@ The pipeline operates correctly when it:
 R(T) = words×2 + questionMarks×8 + uncertaintyHits×10  [Routing Complexity Index]
 
 Lexical weight coefficient (×2):
-- Empirically calibrated baseline from the 57-prompt benchmark.
-- Each word adds ~2 units of processing complexity, consistent across
-  all 9 domains (genealogy, coding, debate, telemetry, creative).
-- Validated in routingEval.test.js.
+- A hand-set baseline, not statistically fit. Each word contributes 2 units
+  to the complexity score. This weighting is checked against routing outcomes
+  in the 57-prompt benchmark (routingEval.test.js) but has not been optimized
+  against a labeled dataset — see Limitation 2 (Section 8).
 
-Branching factor (×8, 4× lexical weight):
-- Questions signal branching. Each question mark indicates the user is
-  at a decision point. Branching multiplies uncertainty at 4× the
-  lexical baseline because a question mark changes the semantic
-  structure of the prompt, not just its lexical density.
+Branching factor (×8, 4x lexical weight):
+- Question marks are weighted higher on the assumption that they signal a
+  decision point in the user's request. The 4x multiplier is a design choice,
+  not a fitted parameter. It has not been validated against an alternative
+  weighting.
 
-Explicit uncertainty signal (×10, 5× lexical weight):
-- Terms: "not sure", "unclear", "unknown", "missing", "uncertain",
-  "doubt", "uncertainty". When the user states their own uncertainty,
-  the routing system must assume higher complexity. Weighted at 5× the
-  lexical baseline because uncertainty language carries disproportionate
-  cognitive load.
+Explicit uncertainty signal (×10, 5x lexical weight):
+- Terms: "not sure", "unclear", "unknown", "missing", "uncertain", "doubt",
+  "uncertainty". Weighted highest on the assumption that user-stated
+  uncertainty correlates with routing difficulty — this is Testable
+  Hypothesis 3 (Section 9), not yet confirmed.
 
 Tier mapping:
   R(T) < 20  → low    (deterministic or base tier adequate)
@@ -132,11 +135,12 @@ Breakeven: the exact cost at which the decision flips
 
 ---
 
-## 3. The Governing Equation (CARDO GUARD)
+## 3. The Escalation Gate (CARDO GUARD)
 
-A core design principle: every action has an associated cost. You don't fire a rocket without computing the fuel budget. You don't route a query to gpt-4o without computing the financial budget.
-
-The governing equation is universal within the system. It governs every decision — whether routing a user query to gpt-4o, evaluating evidence for a genealogy claim, or deciding whether to shut down a failing compressor in Tracepoint. The domain changes. The equation doesn't.
+Every escalation decision has an associated cost. The gate below is applied at every decision
+point in the system — routing a user query to gpt-4o, evaluating evidence for a genealogy claim,
+or deciding whether to flag a compressor anomaly in Tracepoint. The domain changes; the gate logic
+does not.
 
 ```
 Expected Waste    = Cost to Act   × False Alarm Rate
@@ -148,7 +152,7 @@ Verdict = DO NOT ACT if Expected Waste > Expected Loss
 
 *This is an application of expected utility theory with cost-weighted parameters. The contribution is not the equation — it is the adaptive parameterization: false alarm rates derived from routing confidence scores, cost weights calibrated against provider pricing, and the equation deployed at a specific decision boundary in a multi-tier routing pipeline.*
 
-The breakeven point — the exact cost at which the decision flips — is computed by `calculateBreakevenMissCost()` (`cardoGuard.js:85-91`). This is the thermodynamic equilibrium point of the system.
+The breakeven point — the exact cost at which the decision flips — is computed by `calculateBreakevenMissCost()` (`cardoGuard.js:85-91`).
 
 The `shouldEscalateToRemote()` cost-governor extends this to model routing: when confidence drops below a pathway-specific threshold, the system escalates to a higher-capability model, updating the model identifier, cost estimates, and token budget.
 
@@ -188,16 +192,17 @@ Each design concept maps to a specific, verifiable code path:
 | **Signal-to-Noise Ratio** | `isLikelyGenealogyRequest(input)` — current input only. History is noise. Signal is the user's immediate intent | `nightShiftRouter.js:426`. Fixed routing bleed |
 | **Decision Equilibrium** | CARDO GUARD: the equilibrium point where `Action Waste = Miss Loss` — the breakeven hinge where the decision flips | `cardoGuard.js:85-91` |
 
-### Solutions Come From Reduction
+### Design Heuristics
 
-The insight drawn from physics: the solution is already in the problem. You don't add complexity to find it — you strip away what's hiding it.
+The pipeline is built around one working rule: keep the decision logic as simple as possible,
+and look for the single boundary that actually determines the outcome.
 
-| Reduction Principle | REI Application |
+| Heuristic | REI Application |
 |---------------|----------------|
-| "Don't add complexity. Strip it away." | The 8-stage CARDO REI pipeline decomposes every problem into the same fundamental steps |
-| "The answer is already there. Remove what's hiding it." | The hinge already exists in the problem. REI doesn't generate it — it isolates it |
-| "If the equation is getting more complex, you're not done reducing." | The governing equation is one inequality. If a domain needs more, the reduction isn't complete |
-| "Every problem has a phase transition. Find it." | The hinge is the exact boundary where the answer changes. Not a gradient. A threshold |
+| Don't add complexity to find the answer — strip it away. | The 8-stage pipeline decomposes every problem into the same fundamental steps |
+| The deciding factor is usually already in the input. | The hinge exists in the problem; REI isolates it rather than generating it |
+| If the rule needs more branches per domain, it isn't reduced enough. | The escalation rule is one inequality (Section 3). If a domain needs a different rule, that's a sign the reduction isn't complete |
+| Look for the exact boundary, not a gradient. | The hinge is a threshold, not a continuous score |
 
 ---
 
@@ -468,7 +473,7 @@ All numbers independently verifiable at the provider dashboard.
 
 ## 6. Empirical Verification
 
-A law of physics is only as good as its experimental verification. REI's verification is deterministic and reproducible — no model calls, no embeddings, no non-determinism. Identical input produces identical output every run. This is what makes it engineering rather than speculation.
+A design claim is only as good as its verification. REI's verification is deterministic and reproducible — no model calls, no embeddings, no non-determinism. Identical input produces identical output every run. This is what makes it engineering rather than speculation.
 
 | Measurement | Result | Method |
 |------------|--------|--------|
@@ -554,21 +559,34 @@ These hypotheses are about the routing system's behavior, not about reasoning in
 
 ---
 
-## 10. Comparison to Existing Systems
+## 10. Comparison to Prior Routing Work
 
-| System | Unified principle? | Governing equation? | Testable? | Falsifiable? | Cross-domain? |
-|--------|-------------------|-------------------|-----------|-------------|---------------|
-| Chain-of-thought prompting | No — ad-hoc per prompt | No | No | No | Partial |
-| RAG systems | No — retrieval + generation glued together | No | Partial | No | No |
-| Mixture of Experts (MoE) | Yes — gating network | Yes — softmax over experts | Yes | Yes | No — architecture-specific |
-| DSPy | Partial — prompt optimization | No — optimizer, not a theory | Yes | Partial | Yes |
-| **CARDO REI** | **Yes — A routing model with a cost-weighted hinge** | **Yes — `Miss Loss > Waste → ACT`** | **Yes — 162 tests** | **Yes — build gate** | **Yes — 5 domains** |
+CARDO REI's routing pattern (deterministic → cheap → medium → premium) is an implementation of the
+cascading approach FrugalGPT (Chen et al., 2023) established. RouteLLM (Ong et al., 2025) and
+RouterBench (Hu et al., 2024) address the same problem with learned/trained routers rather than a
+lexical fingerprint catalog. CARGO (Barrak et al., 2025) is the closest prior work in name and
+mechanism — confidence-aware routing with an explicit escalation threshold.
+
+| System | Routing mechanism | Requires training data? | Zero-inference tier? | Cross-domain validated? | Reproducibility |
+|--------|-------------------|--------------------------|----------------------|--------------------------|------------------|
+| FrugalGPT | Cascade until confidence threshold met | No | No | Not evaluated | Not published as a suite |
+| RouteLLM | Preference-trained classifier (matrix factorization / BERT) | Yes — human preference data | No | Not domain-specific | Model-dependent, not fully deterministic |
+| CARGO | Confidence-aware escalation | Yes | No | Not evaluated | Not published as a suite |
+| **CARDO REI** | Lexical fingerprint + deterministic layer 0 + cost gate | No — hand-set catalog, not trained | Yes — Layer 0 handles ~9% of traffic at $0 | Yes — 5 domains, same architecture | Fully deterministic; identical input → identical output |
+
+Where CARDO REI is weaker: it has not been benchmarked against RouteLLM or FrugalGPT on the same
+prompt set, so the accuracy/cost-savings comparison above is qualitative, not measured head-to-head.
+That comparison is listed as future work (Section 9) rather than claimed here.
 
 ---
 
-## 11. The Human as Boundary Condition
+## 11. What Requires a Human
 
-The theory's boundary conditions are defined by three human interventions that no governing equation can replace. The AI operates within the paradigm established by the human; the human verifies external reality, calibrates the value functions, and originates new paradigms. Without these boundary conditions, the system is a closed thermodynamic cycle — internally consistent but physically ungrounded. With them, the system operates on real-world problems with human-defined values.
+Three human interventions sit outside what the routing logic can do on its own. The system
+operates within constraints a human sets; it has no independent way to verify claims against
+external reality, no way to set its own cost/risk tradeoffs, and no mechanism to decide when its
+own rules need to change. Without a human in these three roles, the system is internally
+consistent but has no check against being wrong in a way it can't detect.
 
 See [`docs/HUMAN_VALUE_FRAMEWORK.md`](./HUMAN_VALUE_FRAMEWORK.md) for the full framework documenting the human as:
 
@@ -578,28 +596,26 @@ See [`docs/HUMAN_VALUE_FRAMEWORK.md`](./HUMAN_VALUE_FRAMEWORK.md) for the full f
 
 ---
 
-## 12. Future Work: Self-Healing Routing
+## 12. Future Work: Self-Adjusting Routing
 
-The feedback loop extends the thermodynamic model: user feedback signals are energy measurements. When the base tier consistently receives downvotes for a specific pattern, the system accumulates enough signal to trigger a phase transition — the fingerprint is elevated to a higher-confidence pathway.
+The feedback loop is designed to make the fingerprint catalog adapt over time rather than stay
+fixed. When the base tier consistently receives downvotes for a specific pattern, that's a signal
+to elevate the fingerprint to a higher-confidence pathway (Hypothesis 1, Section 9).
 
-The canary probing mechanism maintains equilibrium: when the base model improves, patterns are released back to the cheaper tier. The system doesn't just find the hinge once. It finds it continuously, adapting to changing conditions — like a thermostat, not a one-time measurement.
+The canary probing mechanism works the other direction: when a cheaper model's quality improves,
+previously-escalated patterns are tested against it and released back to the cheaper tier if they
+pass (Hypothesis 2, Section 9). The goal is continuous adjustment rather than a fixed threshold set
+once and left alone.
 
 See [`docs/FEEDBACK_ARCHITECTURE.md`](./FEEDBACK_ARCHITECTURE.md) for the full feedback loop design.
 
 ---
 
-## 13. The Design Principles Checklist (Answered)
+## 13. Summary
 
-| This theory... | REI's answer |
-|---------------|-------------|
-| Has a simple governing principle? | **A routing model with a cost-weighted hinge** — every decision reduces to a cost-weighted hinge |
-| Can be written as an equation? | `Expected Miss Loss > Expected Action Waste → ACT` |
-| Is experimentally testable? | 162 tests, 57 prompts, zero inference. `npm test` |
-| Is falsifiable? | Build fails if savings ≤ 0. Routing accuracy gate. CI blocks regression |
-| Unifies multiple phenomena? | Same architecture governs genealogy, coding, debate, telemetry, creativity |
-| Can be explained to a non-expert? | *"Find the hinge. Compare the cost of acting to the cost of doing nothing. Pick the cheaper one."* |
-| Makes testable hypotheses? | 5 testable hypotheses (Section 9) — feedback, canary probing, entropy-routing, lexical density, cost-constraint |
-| Has verifiable evidence? | 601M development tokens for $6.51. 68% lab savings. 80% accuracy. 162 passing tests |
+For a one-paragraph summary of what's proven vs. argued vs. hypothesized, see the Claim
+Stratification table at the top of this document. For evidence, see Section 6 (Empirical
+Verification). For open questions, see Section 8 (Limitations) and Section 9 (Testable Hypotheses).
 
 ---
 
@@ -611,8 +627,8 @@ Every step in Section 5 maps to these exact code paths. To verify: open each fil
 |------|------|-------|----------|---------|
 | Layer 0 Check | `src/lib/deterministicEngine.js` | 43-61 | `resolveDeterministic()` | Pattern-match input against greetings/smalltalk. Return null if no match |
 | Layer 0 Check | `src/lib/nightShiftRouter.js` | 370 | `buildRouterDecision()` | Call site that invokes deterministic check first |
-| Entropy Computation | `src/lib/nightShiftRouter.js` | 247-255 | `getComplexityTier()` | Compute H = words×2 + questionMarks×8 + uncertaintyHits×10 |
-| Entropy Computation | `src/lib/nightShiftRouter.js` | 363 | `buildRouterDecision()` | Call site passing combined text for tiering |
+| Complexity Computation | `src/lib/nightShiftRouter.js` | 247-255 | `getComplexityTier()` | Compute H = words×2 + questionMarks×8 + uncertaintyHits×10 |
+| Complexity Computation | `src/lib/nightShiftRouter.js` | 363 | `buildRouterDecision()` | Call site passing combined text for tiering |
 | Fingerprint Match | `src/lib/nightShiftRouter.js` | 125-152 | `getCatalogRouteMatch()` | Iterate 9 fingerprint entries, score match terms, subtract negative terms |
 | Fingerprint Match | `src/lib/nightShiftRouter.js` | 362 | `buildRouterDecision()` | Call site using `input` (not `text`) for history isolation |
 | Domain Detection | `src/lib/nightShiftRouter.js` | 235-237 | `isLikelyGenealogyRequest()` | Regex match for genealogy keywords (input-isolated) |
