@@ -21,7 +21,18 @@ export function d1SpanConfidence(match) {
 
   const signalStrength = Math.min(1, match.score / 1.5);
   const coverage = Math.min(1, match.matchedKeywords.length / 2);
-  const evidenceQuality = match.severity === "critical" ? 1.0 : 0.9;
+
+  // Higher evidence quality for regex/proximity matches (more specific)
+  let evidenceQuality = match.severity === "critical" ? 1.0 : 0.9;
+  if (match.matchType === "regex") evidenceQuality = Math.min(1.0, evidenceQuality + 0.1);
+  if (match.matchType === "proximity") evidenceQuality = Math.min(1.0, evidenceQuality + 0.05);
+
+  // Combination boost
+  if (match.combinationBoost) evidenceQuality = Math.min(1.0, evidenceQuality + 0.15);
+
+  // Position suspicion boost
+  if (match.positionSuspicion) evidenceQuality = Math.min(1.0, evidenceQuality + 0.1);
+
   const agreement = 1.0;
 
   const product = signalStrength * coverage * evidenceQuality * agreement;

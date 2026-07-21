@@ -29,18 +29,34 @@ export function scanRedTeamInput(input, context = {}) {
   const findings = matches.map(match => {
     const confidence = d1SpanConfidence(match);
 
+    // Context-aware suggested fixes based on match type and category
+    const suggestedFixes = [
+      "Review the input for legitimate use cases",
+      "Consider whether the detected pattern is intentional or accidental",
+      "If this is a test, ensure it's within authorized scope"
+    ];
+
+    if (match.matchType === "regex") {
+      suggestedFixes.unshift("Detected obfuscation attempt — review for encoded instructions");
+    }
+    if (match.matchType === "proximity") {
+      suggestedFixes.unshift("Detected phrase proximity pattern — related terms found near each other");
+    }
+    if (match.combinationBoost) {
+      suggestedFixes.unshift("Multiple attack categories detected — elevated risk due to combination");
+    }
+    if (match.positionSuspicion) {
+      suggestedFixes.unshift("Injection detected at end of long prompt — classic prompt injection pattern");
+    }
+
     return {
       finding: match.label,
       severity: match.severity,
       dimension: "D1",
       category: match.category,
       evidence: match.matchedKeywords,
-      impact: `Detected ${match.matchedKeywords.length} keyword(s) matching ${match.label} pattern`,
-      suggestedFix: [
-        "Review the input for legitimate use cases",
-        "Consider whether the detected pattern is intentional or accidental",
-        "If this is a test, ensure it's within authorized scope"
-      ],
+      impact: `Detected ${match.matchedKeywords.length} keyword(s) matching ${match.label} pattern${match.matchType ? ` via ${match.matchType}` : ""}`,
+      suggestedFix: suggestedFixes,
       confidence
     };
   });
