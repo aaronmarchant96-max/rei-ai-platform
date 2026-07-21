@@ -5,7 +5,6 @@ export default function InstrumentRail({
   savingsVsPremium,
   escalationCount,
   modelBreakdown,
-  formatCost,
 }) {
   const totalPremiumCost = sessionCost + savingsVsPremium;
   const savingsPercent = totalPremiumCost > 0
@@ -17,7 +16,7 @@ export default function InstrumentRail({
       <div className="rei-instrument-rail__section rei-instrument-rail__section--hero">
         <div className="rei-instrument-rail__hero-label">Efficiency</div>
         <div className="rei-instrument-rail__hero-value">
-          {savingsPercent}%
+          {totalPremiumCost > 0 ? `${savingsPercent}%` : "\u2014"}
         </div>
       </div>
 

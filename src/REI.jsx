@@ -666,7 +666,6 @@ ${isNetworkError ? 'Check your connection and try again.' : 'The server encounte
           savingsVsPremium={savingsVsPremium}
           escalationCount={escalationCount}
           modelBreakdown={modelBreakdown}
-          formatCost={formatCost}
         />
 
         <SessionSummary

@@ -1,3 +1,4 @@
+import RouterBadge from "./RouterBadge.jsx";
 import RouterPanel from "./RouterPanel.jsx";
 import EvidenceCard from "./EvidenceCard.jsx";
 import { parseAssistantStyleReply } from "../lib/replyParser.js";
@@ -23,27 +24,6 @@ function StructuredReply({ text }) {
           <div>{sections[key]}</div>
         </div>
       ))}
-    </div>
-  );
-}
-
-function RouterSummary({ routerDecision, model }) {
-  if (!routerDecision) return null;
-  const savings = (routerDecision.premiumCost || 0) - (routerDecision.estimatedCost || 0);
-  const savingsPct = routerDecision.premiumCost > 0
-    ? Math.round((savings / routerDecision.premiumCost) * 100)
-    : 100;
-  return (
-    <div className="rei-chat-msg__router">
-      <span className="rei-chat-msg__router-pathway">
-        {routerDecision.pathway === "deterministic" ? "⚡" : "🌙"}
-        {" "}{routerDecision.label} &middot; {model || routerDecision.model}
-      </span>
-      {savings > 0 && (
-        <span className="rei-chat-msg__router-savings">
-          {savingsPct}% saved vs premium
-        </span>
-      )}
     </div>
   );
 }
@@ -86,7 +66,7 @@ export default function ChatMessage({
         <div className={`rei-chat-card__body ${isUser ? "rei-chat-card__body--user" : "rei-chat-card__body--rei"}`}>
           {isUser && msg.attachedRecord && (
             <div className="rei-record-attached">
-              📋 Record attached &mdash; {msg.attachedRecord.sourceType} ({msg.attachedRecord.charCount.toLocaleString()} chars)
+              Record attached &mdash; {msg.attachedRecord.sourceType} ({msg.attachedRecord.charCount.toLocaleString()} chars)
             </div>
           )}
 
@@ -103,7 +83,9 @@ export default function ChatMessage({
             </div>
           )}
 
-          {isRei && <RouterSummary routerDecision={msg.routerDecision} model={msg.model} />}
+          {isRei && msg.routerDecision && (
+            <RouterBadge routerDecision={msg.routerDecision} usage={msg.usage} />
+          )}
         </div>
 
         <div className="rei-chat-card__actions">
@@ -111,19 +93,19 @@ export default function ChatMessage({
             onClick={() => onCopy(msg.text)}
             aria-label="Copy"
             title="Copy"
-          >📋</button>
+          >Copy</button>
           {isRei && onFeedback && !msg.fallback && (
             <>
               <button
                 onClick={() => onFeedback(msg, "up")}
                 aria-label="Helpful"
                 title="Helpful"
-              >👍</button>
+              >Helpful</button>
               <button
                 onClick={() => onFeedback(msg, "down")}
                 aria-label="Not helpful"
                 title="Not helpful"
-              >👎</button>
+              >Not helpful</button>
             </>
           )}
           {msg.fallback && (
@@ -131,12 +113,12 @@ export default function ChatMessage({
               onClick={() => onRetry(index)}
               aria-label="Retry"
               title="Retry"
-            >↻</button>
+            >Retry</button>
           )}
         </div>
       </div>
 
-      {isRei && <RouterPanel routerDecision={msg.routerDecision} model={msg.model} defaultExpanded={expandedByDefault} />}
+      {isRei && msg.routerDecision && <RouterPanel routerDecision={msg.routerDecision} defaultExpanded={expandedByDefault} />}
     </div>
   );
 }
