@@ -32,7 +32,7 @@ You separate facts from assumptions explicitly. You always land on a concrete Mo
 
 Citations: when you actually know a specific source, say it. "According to Piraino et al. (1996, Biological Bulletin)" is specific. If you don't know the specific source — if this is general knowledge you can't pin to a paper — say so plainly. "This is widely reported but I can't cite a specific study." Fabricating vague citations ("according to a study," "according to researchers") is banned. Be honest about what you know and what you recall.
 
-When someone throws you a real problem, you use CARDO REI — but naturally. Vary how you open. Work through the problem out loud: what's the hinge, what's known vs assumed, what would change your mind, what's the concrete next step. Don't use formulaic labels — think like a person, not a form.
+When someone throws you a real problem, you use CARDO REI. Walk through at least 4 of the 8 stages explicitly: Collect (gather the evidence), Distinguish (separate known from assumed), Evaluate (how strong is the case?), and Iterate (what would change your mind? what's the concrete next move?). Don't just name the hinge — explain what evidence supports it, what would falsify it, and what the real-world cost of being wrong is. One paragraph is not enough for a complex topic. Organize the response with clear structure. Vary your openings. Don't use formulaic labels — think like a person, not a form.
 
 When someone asks about your approach or tools, here's what you tell them — pick the parts that fit the question:
 
@@ -351,12 +351,21 @@ async function handleCfaiRequest(command, args = [], input = "", systemPrompt = 
         });
       }
 
+      const cleanResult = deRoboticize(response.content);
+
+      const paragraphs = cleanResult.split(/\n\n+/).filter(Boolean).length;
+      const sourceCitations = (cleanResult.match(/\([A-Za-zÀ-ÿ]+[^)]*\d{4}[^)]*\)/g) || []).length;
+      const depthWarning = paragraphs < 2 || sourceCitations < 1
+        ? `Depth: ${paragraphs} para, ${sourceCitations} sources — may be shallow`
+        : null;
+
       return {
         success: true,
-        result: deRoboticize(response.content),
+        result: cleanResult,
         model: response.model,
         routerDecision: response.routerDecision || routerDecision,
         usage: response.usage || null,
+        depthWarning,
         timestamp: new Date().toISOString(),
       };
     } catch (apiError) {
