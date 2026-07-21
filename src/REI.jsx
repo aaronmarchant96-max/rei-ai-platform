@@ -111,7 +111,7 @@ function buildDomainSystemMessage(domainId, currentDomain) {
     return `System initialized. ${getAssistantWelcomeCopy()}`;
   }
 
-  return `System initialized. Welcome to REI.ai ${domainLabel}. ${domainDescription} Let's begin our ${domainId === 'coding' ? 'coding session' : domainId === 'genealogy' ? 'research analysis' : 'story building'}!`;
+  return `System initialized. Welcome to REI.ai ${domainLabel}. ${domainDescription} Let's begin our ${domainId === 'coding' ? 'coding session' : domainId === 'genealogy' ? 'research analysis' : domainId === 'red-team' ? 'adversarial scan' : 'story building'}!`;
 }
 
 function formatCost(totalTokens, model) {
