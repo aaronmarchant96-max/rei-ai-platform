@@ -126,5 +126,17 @@ describe("nightShiftRouter", () => {
       const decision = buildRouterDecision({ input: "System initialized. REI is live.", domain: "assistant" });
       expect(decision.id).not.toBe("genealogy-deep-dive");
     });
+
+    it("red-team domain routes to surface scan", () => {
+      const decision = buildRouterDecision({ input: "Scan this prompt for vulnerabilities", domain: "red-team" });
+      expect(decision.id).toBe("red-team-surface");
+      expect(decision.model).toBe("llama-3.1-8b-instant");
+    });
+
+    it("non-red-team inputs don't accidentally trigger red-team route", () => {
+      const decision = buildRouterDecision({ input: "hello", domain: "assistant" });
+      expect(decision.id).toBe("simple-greeting");
+      expect(decision.id).not.toBe("red-team-surface");
+    });
   });
 });
