@@ -225,6 +225,7 @@ async function callGroqDirectly(prompt, systemPrompt = "", history = [], routerD
         return {
           content: data.choices?.[0]?.message?.content || "No content returned from OpenAI.",
           model: "gpt-4o",
+          usage: data.usage || null,
         };
       }
     } catch (e) {
@@ -358,6 +359,47 @@ async function handleCfaiRequest(command, args = [], input = "", systemPrompt = 
       const depthWarning = paragraphs < 2 || sourceCitations < 1
         ? `Depth: ${paragraphs} para, ${sourceCitations} sources — may be shallow`
         : null;
+
+      if (depthWarning && response.model !== "gpt-4o" && routerDecision?.pathway !== "premium") {
+        logger.info("depth_escalation", {
+          originalModel: response.model,
+          depthWarning,
+          route: routerDecision?.id || "unknown",
+        });
+
+        const premiumDecision = {
+          ...routerDecision,
+          id: "depth-escalation",
+          model: "gpt-4o",
+          pathway: "premium",
+          escalatedByDepth: true,
+          rationale: "Depth gate: base model produced shallow response. Escalated to premium for quality.",
+        };
+
+        try {
+          const premiumResponse = await callGroqDirectly(contextPayload, resolvedPrompt, history, premiumDecision);
+
+          if (premiumResponse.model !== "gpt-4o") {
+            logger.warn("depth_escalation_fallback", {
+              actualModel: premiumResponse.model,
+              expectedModel: "gpt-4o",
+            });
+          }
+
+          return {
+            success: true,
+            result: deRoboticize(premiumResponse.content),
+            model: premiumResponse.model,
+            routerDecision: premiumDecision,
+            usage: premiumResponse.usage || null,
+            depthEscalated: true,
+            depthEscalationReason: depthWarning,
+            timestamp: new Date().toISOString(),
+          };
+        } catch (e) {
+          logger.warn("depth_escalation_failed", { error: e.message });
+        }
+      }
 
       return {
         success: true,

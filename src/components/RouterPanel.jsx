@@ -18,10 +18,12 @@ export default function RouterPanel({ routerDecision, model, defaultExpanded }) 
         aria-expanded={expanded}
       >
         <span>
-          {routerDecision.pathway === "deterministic" ? "⚡" : "🌙"}
+          {routerDecision.pathway === "deterministic" ? "⚡" : routerDecision.escalatedByDepth ? "⚡" : "🌙"}
           {" "}{routerDecision.label} · {model || routerDecision.model}
         </span>
-        {savingsPct > 0 && (
+        {routerDecision.escalatedByDepth ? (
+          <span className="rei-router-panel__savings">Depth Escalated</span>
+        ) : savingsPct > 0 && (
           <span className="rei-router-panel__savings">
             Saved {savingsPct}% vs premium
           </span>
@@ -59,6 +61,18 @@ export default function RouterPanel({ routerDecision, model, defaultExpanded }) 
           <div className="rei-router-panel__item">
             <span className="rei-router-panel__label">Quality gate:</span> {routerDecision.qualityGate}
           </div>
+          {routerDecision.escalated && routerDecision.escalationReason && (
+            <div className="rei-router-panel__item">
+              <span className="rei-router-panel__label">Escalated:</span>{" "}
+              {routerDecision.escalationReason}
+            </div>
+          )}
+          {routerDecision.escalatedByDepth && (
+            <div className="rei-router-panel__item">
+              <span className="rei-router-panel__label">Depth Gate:</span>{" "}
+              Base model response was too shallow. Escalated to premium for quality.
+            </div>
+          )}
           {routerDecision.rationale && (
             <div className="rei-router-panel__why">
               <span className="rei-router-panel__label">Why:</span> {routerDecision.rationale}
