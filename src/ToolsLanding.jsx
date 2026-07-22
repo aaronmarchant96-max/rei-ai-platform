@@ -28,7 +28,7 @@ export const TOOL_CARDS = [
   },
   {
     id: "cardo-guard",
-    label: "CARDO GUARD",
+    label: "REI.ai Guard",
     description: "Cost beats confidence.",
     liveHref: "/#cardo-guard",
   },

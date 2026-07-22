@@ -81,7 +81,7 @@ export default function InstrumentRail({
         </div>
         <div className="rei-instrument-rail__row">
           <span>Gateway</span>
-          <span className="rei-instrument-rail__value">CARDO GUARD</span>
+          <span className="rei-instrument-rail__value">REI.ai Guard</span>
         </div>
       </div>
     </aside>

@@ -1,26 +1,26 @@
 import { formatCostDisplay } from "../lib/contracts.js";
+import { useState } from "react";
+import { VERDICT_COLORS, SEVERITY_COLORS } from "../theme/redTeamColors.js";
+import Spinner from "./Spinner";
 
-const VERDICT_COLORS = {
-  clean: { bg: "bg-green-500/10", border: "border-green-500", text: "text-green-500" },
-  suspicious: { bg: "bg-yellow-500/10", border: "border-yellow-500", text: "text-yellow-500" },
-  "high-risk": { bg: "bg-orange-500/10", border: "border-orange-500", text: "text-orange-500" },
-  critical: { bg: "bg-red-500/10", border: "border-red-500", text: "text-red-500" },
-};
+// Color constants are now imported from shared theme file
 
-const SEVERITY_COLORS = {
-  low: "border-blue-400",
-  medium: "border-yellow-400",
-  high: "border-orange-400",
-  critical: "border-red-400",
-};
-
-export default function RedTeamReport({ report }) {
+export default function RedTeamReport({ report, isLoading = false }) {
   if (!report) return null;
 
   const { verdict, score, dimensionsTriggered, findings, routingTrace, cost } = report;
-  const colors = VERDICT_COLORS[verdict] || VERDICT_COLORS.clean;
+  if (verdict == null || score == null) return null;
+const colors = VERDICT_COLORS[verdict] || VERDICT_COLORS.clean;
+  const [showAll, setShowAll] = useState(false);
 
+  if (isLoading) {
   return (
+    <div className="rei-redteam-report" aria-busy={true}>
+      <Spinner aria-label="Loading Red-Team report" />
+    </div>
+  );
+}
+return (
     <div className="rei-redteam-report">
       <div className="rei-redteam-header">
         <span className={`rei-redteam-verdict ${colors.bg} ${colors.border} ${colors.text}`}>
@@ -46,7 +46,7 @@ export default function RedTeamReport({ report }) {
       {findings && findings.length > 0 && (
         <div className="rei-redteam-findings">
           <h4 className="rei-redteam-section-title">Findings</h4>
-          {findings.map((finding, idx) => (
+          {(showAll ? findings : findings.slice(0, 20)).map((finding, idx) => (
             <div key={idx} className={`rei-redteam-finding ${SEVERITY_COLORS[finding.severity] || SEVERITY_COLORS.low}`}>
               <div className="rei-redteam-finding-header">
                 <span className="rei-redteam-finding-label">{finding.finding}</span>
@@ -75,6 +75,11 @@ export default function RedTeamReport({ report }) {
               )}
             </div>
           ))}
+          {findings.length > 20 && (
+            <button className="rei-show-more" onClick={() => setShowAll(!showAll)} aria-label="Toggle findings display">
+              {showAll ? "Show less" : "Show more"}
+            </button>
+          )}
         </div>
       )}
 
@@ -106,6 +111,14 @@ export default function RedTeamReport({ report }) {
           <span className="rei-redteam-cost-value">{formatCostDisplay(cost)}</span>
         </div>
       )}
+      <button className="rei-copy-json" onClick={() => {
+        const json = JSON.stringify(report, null, 2);
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(json).catch(() => alert(json));
+        } else {
+          alert(json);
+        }
+      }} aria-label="Copy report JSON">Copy JSON</button>
     </div>
   );
 }

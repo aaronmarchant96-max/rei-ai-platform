@@ -34,8 +34,8 @@ const TOP_LEVEL = [
   },
   {
     id: "cardo-guard",
-    label: "CARDO GUARD",
-    subtitle: "AI scores get checked against cost."
+    label: "REI.ai Guard",
+    subtitle: "Escalation to premium models is controlled by the REI.ai Guard cost gate."
   },
   {
     id: "rei",
@@ -85,7 +85,7 @@ function getToolLabel(tool) {
   if (tool === "tools") return "Tools";
   if (tool === "story-forge") return "Story Forge";
   if (tool === "storm-replay") return "Storm Replay";
-  if (tool === "cardo-guard") return "CARDO GUARD";
+  if (tool === "cardo-guard") return "REI.ai Guard";
   if (tool === "rei" || tool === "cfai") return "REI.ai";
   if (tool === "tracepoint") return "Tracepoint";
   return "Debate Furnace";
@@ -115,8 +115,10 @@ export default function AppShell() {
       window.history.replaceState({}, "", resolvedPath);
     }
     document.title =
-      tool === "landing"
-        ? "PromptHound Labs | CARDO REI"
+      tool === "rei"
+        ? "PromptHound Labs | REI.ai"
+        : tool === "landing"
+          ? "PromptHound Labs | REI.ai"
         : tool === "tools"
         ? "PromptHound Labs | Tools"
         : tool === "story-forge"

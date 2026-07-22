@@ -73,14 +73,14 @@ describe("AppShell", () => {
     expect(document.title).toBe("PromptHound Labs | Storm Replay");
   });
 
-  it("loads CARDO GUARD from the hash", async () => {
+  it("loads REI.ai Guard from the hash", async () => {
     window.history.replaceState({}, "", "/#cardo-guard");
 
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(document.querySelector(".shell-tool-bar__current")?.textContent).toBe("CARDO GUARD");
-    expect(document.title).toBe("PromptHound Labs | CARDO GUARD");
+    expect(document.querySelector(".shell-tool-bar__current")?.textContent).toBe("REI.ai Guard");
+    expect(document.title).toBe("PromptHound Labs | REI.ai Guard");
   });
 
   it("loads Tracepoint from the hash", async () => {
@@ -109,8 +109,8 @@ describe("AppShell", () => {
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(screen.getByText(/An Information-Theoretic Routing & Reasoning Engine/i)).toBeInTheDocument();
+    expect(screen.getByText(/Budget-respecting reasoning/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Try the Demo/i })).toBeInTheDocument();
-    expect(document.title).toBe("PromptHound Labs | CARDO REI");
+    expect(document.title).toBe("PromptHound Labs | REI.ai");
   });
 });

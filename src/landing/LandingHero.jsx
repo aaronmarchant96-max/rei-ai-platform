@@ -12,9 +12,12 @@ export function LandingHero({ onTryDemo }) {
         </div>
 
         {/* Heading */}
-        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight md:leading-none mb-6">
-          REI.ai: <span className="bg-gradient-to-r from-amber-500 to-amber-600 bg-clip-text text-transparent">The AI that routes itself. Pay for reasoning, not greetings.</span>
-        </h1>
+          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight md:leading-none mb-6">
+            Budget-respecting reasoning — REI.ai
+          </h1>
+          <p className="text-lg md:text-xl text-zinc-400 max-w-3xl leading-relaxed mb-10">
+            Route every query to the cheapest adequate model. Pay for reasoning, not greetings.
+          </p>
 
         {/* Subheading */}
         <p className="text-lg md:text-xl text-zinc-400 max-w-3xl leading-relaxed mb-10">
@@ -37,7 +40,7 @@ export function LandingHero({ onTryDemo }) {
         <div className="w-full max-w-4xl rounded-2xl border border-zinc-800 bg-zinc-900/40 p-2 shadow-2xl relative">
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10 rounded-2xl pointer-events-none" />
           <img
-            src="/rei_app_screenshot.jpg"
+            src="/coding_demo.jpg"
             alt="REI.ai Workspace Preview"
             className="w-full h-auto rounded-xl object-cover border border-zinc-800/80 shadow-inner"
           />
