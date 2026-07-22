@@ -12,6 +12,7 @@ module.exports = {
   verbose: true,
   moduleNameMapper: {
     "\\.css$": "identity-obj-proxy",
+    "^@/(.*)$": "<rootDir>/src/$1",
   },
   coverageThreshold: {
     "./src/CardoGuard.jsx": {
