@@ -235,7 +235,10 @@ function selectGroqModel(prompt = "", routerDecision = null) {
  *   // → { content: "The capital of France is Paris.", model: "llama-3.3-70b-versatile", usage: {...} }
  */
 async function callGroqDirectly(prompt, systemPrompt = "", history = [], routerDecision = null) {
-  const isPremiumRoute = routerDecision?.model === "gpt-4o" || routerDecision?.id === "adversarial-validation";
+  const isPremiumRoute =
+    routerDecision?.model === "gpt-4o" ||
+    routerDecision?.model?.startsWith("openai/") ||
+    routerDecision?.id === "adversarial-validation";
   const isGptMode =
     isPremiumRoute ||
     prompt.toLowerCase().includes("proprietary model profiles") ||
