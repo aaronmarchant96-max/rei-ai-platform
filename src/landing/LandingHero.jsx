@@ -12,16 +12,13 @@ export function LandingHero({ onTryDemo }) {
         </div>
 
         {/* Heading */}
-          <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight md:leading-none mb-6">
-            Budget-respecting reasoning — REI.ai
-          </h1>
-          <p className="text-lg md:text-xl text-zinc-400 max-w-3xl leading-relaxed mb-10">
-            Route every query to the cheapest adequate model. Pay for reasoning, not greetings.
-          </p>
+        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-4xl leading-tight md:leading-none mb-6">
+          CARDO REI: <span className="bg-gradient-to-r from-amber-500 to-amber-600 bg-clip-text text-transparent">An Information-Theoretic Routing & Reasoning Engine</span>
+        </h1>
 
         {/* Subheading */}
         <p className="text-lg md:text-xl text-zinc-400 max-w-3xl leading-relaxed mb-10">
-          A lightweight routing layer that saves you money by sending only the hard queries to premium models.
+          Deconstruct reasoning under uncertainty. Deflect simple greetings to $0 paths. Route coding to 70B models at $0.0014/1K tokens. Escalate to premium models only when the utility justification is proven.
         </p>
 
         {/* CTA Buttons */}
@@ -40,7 +37,7 @@ export function LandingHero({ onTryDemo }) {
         <div className="w-full max-w-4xl rounded-2xl border border-zinc-800 bg-zinc-900/40 p-2 shadow-2xl relative">
           <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10 rounded-2xl pointer-events-none" />
           <img
-            src="/coding_demo.jpg"
+            src="/rei_app_screenshot.jpg"
             alt="REI.ai Workspace Preview"
             className="w-full h-auto rounded-xl object-cover border border-zinc-800/80 shadow-inner"
           />

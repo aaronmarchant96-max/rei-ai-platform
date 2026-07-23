@@ -52,7 +52,7 @@ const TOP_LEVEL = [
 const isTest = typeof process !== "undefined" && process.env.NODE_ENV === "test";
 
 function getInitialTool() {
-  if (typeof window === "undefined") return "rei";
+  if (typeof window === "undefined") return "landing";
   const hash = window.location.hash;
   if (hash && hash !== "") {
     if (hash === "#story-forge") return "story-forge";
@@ -65,16 +65,16 @@ function getInitialTool() {
   }
   if (window.location.pathname === "/tools" || window.location.pathname === "/tools/")
     return "tools";
-  return "rei";
+  return "landing";
 }
 
 function getToolPath(tool) {
-  if (tool === "landing") return "/#landing";
+  if (tool === "landing") return "/";
   if (tool === "tools") return "/tools";
   if (tool === "story-forge") return "/#story-forge";
   if (tool === "storm-replay") return "/#storm-replay";
   if (tool === "cardo-guard") return "/#cardo-guard";
-  if (tool === "rei") return "/";
+  if (tool === "rei") return "/#rei";
   if (tool === "tracepoint") return "/#tracepoint";
   return "/";
 }
