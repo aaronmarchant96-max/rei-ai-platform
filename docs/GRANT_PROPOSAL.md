@@ -170,7 +170,7 @@ The requested $10,000–$25,000 would close the gap between prototype validation
 - **UAP footage analyzer:** https://github.com/aaronmarchant96-max/uap-footage-analyzer
 - **Satellite anomaly monitor:** https://github.com/aaronmarchant96-max/goes-anomaly-hunter
 - **Motion zone detector:** https://github.com/aaronmarchant96-max/local-video-motion-zone-detector
-- **Live portfolio:** https://debate-furnace.vercel.app
+- **Live portfolio:** https://rei-ai.prompthound-s-projects.vercel.app
 
 ---
 

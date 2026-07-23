@@ -40,6 +40,11 @@ npm test -- --testPathPatterns=routingEval
 | **Savings percentage** | **68%** |
 | **Queries handled at $0** | **5 of 57 (9%)** |
 
+> [!NOTE]
+> **Methodology & Pricing Baseline:**
+> The "always-premium" baseline is calculated against OpenAI **GPT-4o** rates ($0.0025/1K input, $0.0100/1K output; total $0.0125/1K).
+> In the fingerprints catalog (`data/fingerprints.json`), the premium model is registered as `openai/gpt-oss-120b`. Under the hood in `api/cfai.js`, any model prefixed with `openai/` is intercepted and routed to the OpenAI API using the real `gpt-4o` model. To ensure the benchmark's dynamic lookup remains accurate to actual production costs, the catalog cost for `openai/gpt-oss-120b` is set to match the live `gpt-4o` rate ($0.0125/1K). This provides a stable comparison baseline against the actual premium model routed to in production.
+
 ## 4. How the Savings Work
 
 ### Layer 0: Deterministic Engine (biggest per-query savings)

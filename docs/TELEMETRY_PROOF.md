@@ -79,7 +79,7 @@ expect(savings).toBeGreaterThan(0);
 
 **What's counted in "actual cost":** Pre-send estimates based on `estimatedInputTokens + maxOutputTokens`, multiplied by the selected pathway's `costPer1kInput + costPer1kOutput`. These are the same numbers the LLM provider would charge. Layer 0 deterministic queries cost $0 (no API call made).
 
-**What's counted in "premium-always cost":** The same 57 prompts routed to the adversarial-validation fingerprint (gpt-4o at $0.0125/1K). This is the worst-case cost if every query hit the most expensive model.
+**What's counted in "premium-always cost":** The same 57 prompts routed to the maximum-cost catalog model (`openai/gpt-oss-120b`, which maps to `gpt-4o` at $0.0125/1K in production). This is the worst-case cost if every query hit the most expensive model.
 
 ---
 

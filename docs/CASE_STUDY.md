@@ -1,6 +1,6 @@
 # Case Study: Building a testable, cost-aware AI reasoning system
 
-Live system: https://debate-furnace.vercel.app/#rei
+Live system: https://rei-ai.prompthound-s-projects.vercel.app/#rei
 
 Repository: https://github.com/aaronmarchant96-max/rei-ai-platform
 
