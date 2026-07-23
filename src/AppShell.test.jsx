@@ -12,26 +12,28 @@ describe("AppShell", () => {
     document.title = "";
   });
 
-  it("defaults to REI.ai and shows the breadcrumb", async () => {
+  it("defaults to Tools landing and shows the brand header", async () => {
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(screen.getByRole("button", { name: /PromptHound Labs/i })).toBeInTheDocument();
-    expect(document.querySelector(".shell-tool-bar__current")?.textContent).toBe("REI.ai");
+    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
     await waitFor(() => {
-      expect(document.title).toBe("PromptHound Labs | REI.ai");
+      expect(document.title).toBe("PromptHound Labs | Tools");
     });
   });
 
   it("navigates back to Tools landing from a tool", async () => {
+    window.history.replaceState({}, "", "/#storm-replay");
     render(<AppShell />);
     await waitForLazySettle();
 
+    expect(screen.getByRole("button", { name: /PromptHound Labs/i })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /PromptHound Labs/i }));
     await waitForLazySettle();
 
     await waitFor(() => {
-      expect(window.location.pathname).toBe("/tools");
+      expect(window.location.pathname).toBe("/");
+      expect(window.location.hash).toBe("");
     });
     await waitFor(() => {
       expect(document.title).toBe("PromptHound Labs | Tools");
@@ -45,12 +47,7 @@ describe("AppShell", () => {
     render(<AppShell />);
     await waitForLazySettle();
 
-    fireEvent.click(screen.getByRole("button", { name: /PromptHound Labs/i }));
-    await waitForLazySettle();
-
-    await waitFor(() => {
-      expect(window.location.pathname).toBe("/tools");
-    });
+    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /Old sources into story blueprints/i }));
     await waitForLazySettle();
@@ -93,24 +90,13 @@ describe("AppShell", () => {
     expect(document.title).toBe("PromptHound Labs | Tracepoint");
   });
 
-  it("loads REI.ai from the /tools pathname", async () => {
+  it("loads Tools from the /tools pathname", async () => {
     window.history.replaceState({}, "", "/tools");
 
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(document.querySelector(".shell-tool-bar__current")?.textContent).toBe("REI.ai");
-    expect(document.title).toBe("PromptHound Labs | REI.ai");
-  });
-
-  it("loads the landing page storefront from the #landing hash", async () => {
-    window.history.replaceState({}, "", "/#landing");
-
-    render(<AppShell />);
-    await waitForLazySettle();
-
-    expect(screen.getByText(/Budget-respecting reasoning/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Try the Demo/i })).toBeInTheDocument();
-    expect(document.title).toBe("PromptHound Labs | REI.ai");
+    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
+    expect(document.title).toBe("PromptHound Labs | Tools");
   });
 });

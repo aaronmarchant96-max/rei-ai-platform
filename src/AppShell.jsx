@@ -9,7 +9,6 @@ const StormReplay = lazy(() => import("./StormReplay.jsx"));
 const CardoGuard = lazy(() => import("./CardoGuard.jsx"));
 const REI = lazy(() => import("./REI.jsx"));
 const Tracepoint = lazy(() => import("./Tracepoint.jsx"));
-const LandingPage = lazy(() => import("./landing/LandingPage.jsx"));
 
 const TOP_LEVEL = [
   {
@@ -52,7 +51,7 @@ const TOP_LEVEL = [
 const isTest = typeof process !== "undefined" && process.env.NODE_ENV === "test";
 
 function getInitialTool() {
-  if (typeof window === "undefined") return "landing";
+  if (typeof window === "undefined") return "tools";
   const hash = window.location.hash;
   if (hash && hash !== "") {
     if (hash === "#story-forge") return "story-forge";
@@ -60,17 +59,13 @@ function getInitialTool() {
     if (hash === "#cardo-guard") return "cardo-guard";
     if (hash === "#rei" || hash === "#cfai" || hash === "#hinge-meter") return "rei";
     if (hash === "#tracepoint") return "tracepoint";
-    if (hash === "#landing") return "landing";
     if (hash === "#tools") return "tools";
   }
-  if (window.location.pathname === "/tools" || window.location.pathname === "/tools/")
-    return "tools";
-  return "landing";
+  return "tools";
 }
 
 function getToolPath(tool) {
-  if (tool === "landing") return "/";
-  if (tool === "tools") return "/tools";
+  if (tool === "tools") return "/";
   if (tool === "story-forge") return "/#story-forge";
   if (tool === "storm-replay") return "/#storm-replay";
   if (tool === "cardo-guard") return "/#cardo-guard";
@@ -80,7 +75,6 @@ function getToolPath(tool) {
 }
 
 function getToolLabel(tool) {
-  if (tool === "landing") return "Home";
   if (tool === "tools") return "Tools";
   if (tool === "story-forge") return "Story Forge";
   if (tool === "storm-replay") return "Storm Replay";
@@ -114,23 +108,19 @@ export default function AppShell() {
       window.history.replaceState({}, "", resolvedPath);
     }
     document.title =
-      tool === "rei"
-        ? "PromptHound Labs | REI.ai"
-        : tool === "landing"
-          ? "PromptHound Labs | REI.ai"
-        : tool === "tools"
+      tool === "tools"
         ? "PromptHound Labs | Tools"
         : tool === "story-forge"
         ? "PromptHound Labs | Story Forge"
         : tool === "storm-replay"
-          ? "PromptHound Labs | Storm Replay"
+        ? "PromptHound Labs | Storm Replay"
         : tool === "cardo-guard"
-            ? "PromptHound Labs | REI.ai Guard"
-            : tool === "rei"
-            ? "PromptHound Labs | REI.ai"
-              : tool === "tracepoint"
-                ? "PromptHound Labs | Tracepoint"
-                : "PromptHound Labs | Debate Furnace";
+        ? "PromptHound Labs | REI.ai Guard"
+        : tool === "rei"
+        ? "PromptHound Labs | REI.ai"
+        : tool === "tracepoint"
+        ? "PromptHound Labs | Tracepoint"
+        : "PromptHound Labs | Debate Furnace";
   }, [tool]);
 
   const currentToolLabel = getToolLabel(tool);
@@ -270,9 +260,7 @@ export default function AppShell() {
 
       <main className="shell-main" style={mobile && drawerOpen ? { opacity: 0.3 } : {}}>
         <Suspense fallback={<div className="shell-loading" />}>
-          {tool === "landing" ? (
-            <LandingPage onTryDemo={() => setTool("rei")} />
-          ) : tool === "tools" ? (
+          {tool === "tools" ? (
             <ToolsLanding onOpenTool={setTool} />
           ) : tool === "story-forge" ? (
             <CreativeEngine />
