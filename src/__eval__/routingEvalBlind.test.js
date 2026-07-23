@@ -76,9 +76,13 @@ describe("Routing Eval — blind held-out set", () => {
             "Coding Hinge": "coding",
             "Genealogy Deep Dive": "genealogy",
             "Story Architect": "creative",
+            "Creative Prose": "creative",
             "Fact Check": "factCheck",
             "Structured Reasoning": "reasoning",
             "Adversarial Validation": "adversarial",
+            "Red Team Surface": "adversarial",
+            "Red Team Semantic": "adversarial",
+            "Red Team Deep": "adversarial",
           };
           const actualLabel = labelMap[decision.label] || "unknown";
 

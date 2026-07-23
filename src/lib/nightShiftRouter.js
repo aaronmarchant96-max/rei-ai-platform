@@ -94,8 +94,8 @@ function getCatalogEntry(id) {
 function escapeKeyword(term = "") {
   return String(term ?? "")
     .trim()
-    .replace(/\s+/g, "\\s+")
-    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    .replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\s+/g, "\\s+");
 }
 
 /**
@@ -471,9 +471,20 @@ export function buildRouterDecision({
         storedPreference,
       },
     });
-  } else if (domainName === "story" || catalogRoute?.entry?.id === "story-architect" || isLikelyStoryRequest(input)) {
-    decision = buildDecision("story-architect", {
-      rationale: "Story or narrative language detected; route through the storytelling blueprint path.",
+  } else if (domainName === "story" || domainName === "creative" || catalogRoute?.entry?.id === "story-architect" || catalogRoute?.entry?.id === "creative-prose" || isLikelyStoryRequest(input)) {
+    const targetId = catalogRoute?.entry?.id === "creative-prose" ? "creative-prose" : "story-architect";
+    decision = buildDecision(targetId, {
+      rationale: "Story or creative writing language detected; route through the storytelling/prose blueprint path.",
+      routingSignals: {
+        complexityTier,
+        matchedTerms: catalogRoute?.entry?.matchTerms || [],
+        highStructureSignals,
+        storedPreference,
+      },
+    });
+  } else if (domainName === "factcheck" || domainName === "fact-check" || catalogRoute?.entry?.id === "fact-check") {
+    decision = buildDecision("fact-check", {
+      rationale: "Factual verification request detected; route through the fact-checking gate.",
       routingSignals: {
         complexityTier,
         matchedTerms: catalogRoute?.entry?.matchTerms || [],
