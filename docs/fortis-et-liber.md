@@ -23,7 +23,7 @@ This file is a compact handoff document for future CLI sessions. It gathers the 
 
 REI.ai is a reasoning-first web app for structured decision support. The repo combines a flagship REI experience with a broader multi-tool platform that includes Debate Furnace, Story Forge, Storm Replay, CARDO GUARD, and Tracepoint.
 
-Live demo: https://debate-furnace.vercel.app/#rei
+Live demo: https://rei-ai.prompthound-s-projects.vercel.app/#rei
 - **Status**: ✅ Verified accessible (2026-07-01)
 - **Purpose**: Production deployment of the REI.ai reasoning platform
 

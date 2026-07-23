@@ -1,11 +1,11 @@
 #!/bin/bash
-# Deployment Verification Script for debate-furnace
+# Deployment Verification Script for rei-ai
 # Usage: ./scripts/verify-deploy.sh
 # Saves tokens by not asking Vibe to check deployment status
 
 set -e
 
-echo "=== DEBATE FURNACE DEPLOYMENT CHECK ==="
+echo "=== REI.AI DEPLOYMENT CHECK ==="
 echo ""
 
 # 1. Check live site
@@ -24,13 +24,13 @@ echo ""
 
 # 3. Check git status
  echo "3. Checking local git..."
- cd /home/potatoking/debate-furnace
+ cd /home/potatoking/rei-ai
  CURRENT_COMMIT=$(git rev-parse --short HEAD)
  echo "   🪲 Local commit: $CURRENT_COMMIT"
 
 # 4. Check GitHub
  echo "4. Checking GitHub main..."
- GITHUB_COMMIT=$(curl -s https://api.github.com/repos/aaronmarchant96-max/debate-furnace/commits/main | grep '\"sha\"' | head -1 | cut -d'"' -f4 | head -c 7)
+ GITHUB_COMMIT=$(curl -s https://api.github.com/repos/aaronmarchant96-max/rei-ai/commits/main | grep '\"sha\"' | head -1 | cut -d'"' -f4 | head -c 7)
  echo "   🌍 GitHub commit: $GITHUB_COMMIT"
 
 # 5. Compare
@@ -39,6 +39,7 @@ echo ""
    echo "   ✅ Local matches GitHub"
  else
    echo "   ⚠️  Local ($CURRENT_COMMIT) != GitHub ($GITHUB_COMMIT)"
+   echo "      (Push local changes or wait for Vercel auto-build to complete)"
  fi
 
 echo ""

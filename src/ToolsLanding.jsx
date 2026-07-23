@@ -1,4 +1,4 @@
-const REPO_URL = "https://github.com/aaronmarchant96-max/debate-furnace";
+const REPO_URL = "https://github.com/aaronmarchant96-max/rei-ai";
 
 export const TOOL_CARDS = [
   {

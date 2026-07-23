@@ -337,8 +337,8 @@ npm run test:watch
 ## 🏗️ REI APP SURFACE *(Verified)*
 
 ### Current State
-- **Repo:** `aaronmarchant96-max/debate-furnace`
-- **Live:** https://debate-furnace.vercel.app
+- **Repo:** aaronmarchant96-max/rei-ai
+- **Live:** https://rei-ai.prompthound-s-projects.vercel.app
 - **Entry:** `src/AppShell.jsx` (navigation), `src/REI.jsx` (chat)
 
 ### Personas (Live in Code)
@@ -373,15 +373,15 @@ npm run test:watch
 ## 🚀 DEPLOYMENT
 
 ### Official Deployment
-- **URL:** https://debate-furnace.vercel.app
-- **Repository:** https://github.com/aaronmarchant96-max/debate-furnace
-- **API:** https://debate-furnace.vercel.app/api/cfai
+- **URL:** https://rei-ai.prompthound-s-projects.vercel.app
+- **Repository:** https://github.com/aaronmarchant96-max/rei-ai
+- **API:** https://rei-ai.prompthound-s-projects.vercel.app/api/cfai
 - **Vercel Project:** debate-furnace (team: prompthound-s-projects)
 
 ### Verification Checklist
 1. ✅ Site returns HTTP/2 200
 2. ✅ API /api/cfai returns success: true
-3. ✅ Git remote = origin https://github.com/aaronmarchant96-max/debate-furnace
+3. ✅ Git remote = origin https://github.com/aaronmarchant96-max/rei-ai
 4. ✅ Vercel project = debate-furnace
 5. ✅ Last-modified header ≥ your commit timestamp
 
@@ -391,7 +391,7 @@ npm run test:watch
 ./scripts/verify-deploy.sh
 
 # Test API
-curl -s -X POST https://debate-furnace.vercel.app/api/cfai \
+curl -s -X POST https://rei-ai.prompthound-s-projects.vercel.app/api/cfai \
   -H "Content-Type: application/json" \
   -d '{"input":"test"}' | jq -r '.success'
 

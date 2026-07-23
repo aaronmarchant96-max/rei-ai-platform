@@ -22,7 +22,7 @@ This is the experiment repository for **PromptHound Labs** — an applied AI eng
 
 The flagship experiment is **REI.ai**, a reasoning-first chat interface that applies the lab's methods in a live setting. It uses cost-aware routing (Night Shift), a deterministic decision gate (CARDO GUARD), and domain-specific reasoning modes.
 
-- **Lab portfolio:** https://debate-furnace.vercel.app
+- **Lab portfolio:** https://rei-ai.prompthound-s-projects.vercel.app
 - **Repo:** https://github.com/aaronmarchant96-max/rei-ai-platform
 - **Lab reports:** `docs/experiments/`
 - **Goal:** Build AI systems that are testable, reviewable, cost-conscious, and well-documented
