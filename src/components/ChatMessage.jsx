@@ -6,22 +6,22 @@ import { parseAssistantStyleReply } from "../lib/replyParser.js";
 function StructuredReply({ text }) {
   const sections = parseAssistantStyleReply(text);
   const sectionOrder = [
-    { key: "Hinge", label: "Hinge" },
-    { key: "Facts", label: "Facts" },
-    { key: "Assumptions", label: "Assumptions" },
-    { key: "Evaluation", label: "Evaluation" },
-    { key: "ChangeMind", label: "What would change my mind" },
-    { key: "Move", label: "Move" },
+    { key: "Hinge", label: "📌 Hinge Point" },
+    { key: "Facts", label: "📊 Known Facts" },
+    { key: "Assumptions", label: "💡 Inferred Assumptions" },
+    { key: "Evaluation", label: "⚖️ Risk & Evaluation" },
+    { key: "ChangeMind", label: "🔄 What Would Change My Mind" },
+    { key: "Move", label: "➡️ Next Action" },
   ];
   const visible = sectionOrder.filter(({ key }) => sections[key]?.trim());
   if (!sections.intro && visible.length === 0) return <>{text}</>;
   return (
-    <div style={{ display: "grid", gap: "10px" }}>
-      {sections.intro && <div>{sections.intro}</div>}
+    <div style={{ display: "grid", gap: "14px" }}>
+      {sections.intro && <div style={{ fontSize: "14.5px", lineHeight: "1.7" }}>{sections.intro}</div>}
       {visible.map(({ key, label }) => (
-        <div key={key}>
+        <div key={key} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
           <div className="rei-section-label">{label}</div>
-          <div>{sections[key]}</div>
+          <div style={{ fontSize: "14px", lineHeight: "1.7", color: "var(--rei-text-secondary)" }}>{sections[key]}</div>
         </div>
       ))}
     </div>
@@ -100,15 +100,15 @@ export default function ChatMessage({
                 onClick={() => onFeedback(msg, "up")}
                 aria-label="Helpful"
                 title="Helpful"
-              >Helpful</button>
+              >👍</button>
               <button
                 onClick={() => onFeedback(msg, "down")}
                 aria-label="Not helpful"
                 title="Not helpful"
-              >Not helpful</button>
+              >👎</button>
             </>
           )}
-          {msg.fallback && (
+          {isRei && onRetry && (
             <button
               onClick={() => onRetry(index)}
               aria-label="Retry"
@@ -117,8 +117,6 @@ export default function ChatMessage({
           )}
         </div>
       </div>
-
-      {isRei && msg.routerDecision && <RouterPanel routerDecision={msg.routerDecision} defaultExpanded={expandedByDefault} />}
     </div>
   );
 }
