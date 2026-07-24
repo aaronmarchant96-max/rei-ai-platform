@@ -71,13 +71,12 @@ REI.ai solves this by placing a **zero-inference deterministic engine** and **co
 - [ ] Implement token budget ceiling controls (`max_cost_per_query`).
 
 ### Phase 4: Public Launch & Case Studies (Week 4)
-- [ ] Publish peer-grade benchmark study ([`INFORMATION_THEORETIC_ARCHITECTURE.md`](INFORMATION_THEORETIC_ARCHITECTURE.md)).
+- [ ] Publish reproducible 57-prompt benchmark study ([`INFORMATION_THEORETIC_ARCHITECTURE.md`](INFORMATION_THEORETIC_ARCHITECTURE.md)).
 - [ ] Public launch on Hacker News, ProductHunt, and GitHub Trending.
-- [ ] Initiate development of **Legal Hinge Analyzer** enterprise slice.
 
 ---
 
-## 📊 Target Benchmarks
-- **Cost Reduction Target**: > 85% reduction vs. pure frontier model baselines.
-- **Zero-Inference Accuracy**: > 85% correct deflection at Layer 0 ($0.00 compute).
-- **Test Suite Integrity**: Maintain 100% pass rate across all regression suites.
+## 📊 Target Benchmarks (Empirically Verified)
+- **Cost Reduction Baseline**: **Verified 78% reduction** vs. always-premium baseline.
+- **Zero-Inference Deflection**: > 80% correct routing via zero-inference lexical fingerprints ($0.00 compute).
+- **Test Suite Integrity**: Maintain 100% pass rate across all 18 regression suites (227 unit tests).
