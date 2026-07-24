@@ -16,7 +16,7 @@ describe("AppShell", () => {
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Structured Reasoning/i })).toBeInTheDocument();
     await waitFor(() => {
       expect(document.title).toBe("PromptHound Labs | Tools");
     });
@@ -39,7 +39,7 @@ describe("AppShell", () => {
       expect(document.title).toBe("PromptHound Labs | Tools");
     });
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: /Structured Reasoning/i })).toBeInTheDocument();
     });
   });
 
@@ -47,9 +47,9 @@ describe("AppShell", () => {
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Structured Reasoning/i })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /Old sources into story blueprints/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Launch Story Forge/i }));
     await waitForLazySettle();
 
     await waitFor(() => {
@@ -70,14 +70,14 @@ describe("AppShell", () => {
     expect(document.title).toBe("PromptHound Labs | Storm Replay");
   });
 
-  it("loads REI.ai Guard from the hash", async () => {
+  it("loads CARDO Guard from the hash", async () => {
     window.history.replaceState({}, "", "/#cardo-guard");
 
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(document.querySelector(".shell-tool-bar__current")?.textContent).toBe("REI.ai Guard");
-    expect(document.title).toBe("PromptHound Labs | REI.ai Guard");
+    expect(document.querySelector(".shell-tool-bar__current")?.textContent).toBe("CARDO Guard");
+    expect(document.title).toBe("PromptHound Labs | CARDO Guard");
   });
 
   it("loads Tracepoint from the hash", async () => {
@@ -96,7 +96,7 @@ describe("AppShell", () => {
     render(<AppShell />);
     await waitForLazySettle();
 
-    expect(screen.getByRole("heading", { name: /^tools$/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Structured Reasoning/i })).toBeInTheDocument();
     expect(document.title).toBe("PromptHound Labs | Tools");
   });
 });

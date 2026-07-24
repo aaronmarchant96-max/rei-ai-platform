@@ -118,7 +118,7 @@ export default function CardoGuard() {
             <div className="muted" style={{ fontSize: "0.85em", marginBottom: 4 }}>
               Structured outputs for messy input.
             </div>
-            <div className="cardo-guard__tool-name">REI.ai Guard</div>
+            <div className="cardo-guard__tool-name">CARDO Guard</div>
             <h2>Should we act on this AI risk score?</h2>
             <p className="lede">
               A synthetic decision checker that weighs the cost of acting against the cost of
@@ -323,7 +323,7 @@ export default function CardoGuard() {
               <span>If the model is wrong: acting may waste money.</span>
               <span>If the risk is real: ignoring it may cost more.</span>
               <span>
-                REI.ai Guard compares those two numbers before turning a score into a decision.
+                CARDO Guard compares those two numbers before turning a score into a decision.
               </span>
             </div>
             <div className="cardo-guard__math">

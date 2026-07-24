@@ -47,7 +47,7 @@ export const TOOL_CARDS = [
   },
   {
     id: "cardo-guard",
-    label: "REI.ai Guard",
+    label: "CARDO Guard",
     category: "SPECIALIZED SLICE",
     tagline: "Enforce strict cost-versus-confidence model gates.",
     description: "Safety and cost gate controlling when prompts are escalated to premium model tiers versus low-cost local models.",
