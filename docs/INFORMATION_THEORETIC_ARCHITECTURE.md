@@ -447,7 +447,7 @@ Result: exact same routing decision, cost estimate, and savings as Section 5.
 npm test -- --testPathPatterns=routingEval
 ```
 
-Result: 57/57 passing, 68% savings, 80% accuracy, 5 deterministic queries at $0.
+Result: 57/57 passing, 78% savings, 80% accuracy, 5 deterministic queries at $0.
 
 ### 3. Run Full Test Suite
 
@@ -461,10 +461,10 @@ Result: 162 tests, 15 suites, all passing.
 
 ```
 Source: DeepSeek API dashboard
-Tokens: 601M processed
-Cost: $6.51 total
-API calls: 1,497
-Cost per million: $0.0108
+Tokens: 795M processed
+Cost: $9.03 total
+API calls: 1,854
+Cost per million: $0.0113
 ```
 
 All numbers independently verifiable at the provider dashboard.
@@ -539,7 +539,7 @@ A theory that doesn't acknowledge its boundaries isn't a theory — it's a belie
 
 6. **Benchmark is synthetic.** The 57 prompts are hand-curated, not drawn from real user traffic. Real-world routing accuracy and cost savings may differ from lab numbers. The feedback collection endpoint (`/api/feedback`) will provide real data but has not yet accumulated enough volume for analysis.
 
-7. **The $6.51 development cost is a point-in-time measurement.** It represents one developer's workflow, one toolchain (OpenCode CLI + DeepSeek API), and one project. It is not a controlled experiment with a control group. It is evidence, not proof, of development efficiency. DeepSeek introduced peak-valley pricing in mid-July 2026 (2x during peak hours), which may affect future cost comparisons.
+7. **The $9.03 development cost is a point-in-time measurement.** It represents one developer's workflow, one toolchain (OpenCode CLI + DeepSeek API), and one project. It is not a controlled experiment with a control group. It is evidence, not proof, of development efficiency. DeepSeek introduced peak-valley pricing in mid-July 2026 (2x during peak hours), which may affect future cost comparisons.
 
 ---
 

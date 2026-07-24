@@ -36,7 +36,7 @@ REI solves three problems simultaneously:
 |--------|-------|
 | Total API calls | 1,497 |
 | Total tokens processed | 601,255,780 |
-| Total cost | $6.51 |
+| Total cost | $9.03 |
 | Cost per million tokens | $0.0108 |
 | Savings vs always-premium | 68% (lab), 90% (real-world) |
 | Routing accuracy | 80% across 57 prompts, 9 categories |
