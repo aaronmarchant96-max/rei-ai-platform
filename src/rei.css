@@ -6,10 +6,10 @@
   --rei-border: rgba(255,255,255,0.06);
   --rei-text: #fafafa;
   --rei-text-secondary: #a1a1aa;
-  --rei-text-muted: #71717a;
+  --rei-text-muted: #a8a8b0;
 
-  --rei-accent: #05060c; /* dark color from logo */
-  --rei-accent-dim: rgba(5,6,12,0.08);
+  --rei-accent: #e66b2b; /* softer accent color */
+  --rei-accent-dim: rgba(230,107,43,0.12);
   --rei-success: #4ade80;
   --rei-danger: #f87171;
   --rei-spectral: linear-gradient(90deg, #ef4444, var(--rei-accent), #22d3ee);
@@ -151,7 +151,7 @@ code, pre, .rei-code {
   height: 50px;
   min-height: 50px;
   background: var(--rei-surface);
-  border-bottom: 2px solid var(--rei-accent);
+  border-bottom: 1px solid var(--rei-accent);
   z-index: 20;
 }
 
@@ -229,20 +229,20 @@ code, pre, .rei-code {
 .rei-domain-tab__sub {
   display: none;
 }
-.rei-action-btn {
-  border: 1px solid var(--rei-border);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--rei-text-muted);
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  min-height: 28px;
-  display: inline-flex;
-  align-items: center;
-}
+  .rei-action-btn {
+    border: 1px solid var(--rei-border);
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #09090b;
+    background: var(--rei-accent);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+  }
   .rei-action-btn:hover {
     border-color: var(--rei-accent);
     transform: translateY(-1px);
