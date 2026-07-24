@@ -202,3 +202,20 @@ Each entry captures: what problem was being solved, what alternatives were consi
 **Trade-off:** Client-side storage means a user can reset escalations by clearing localStorage or reloading. The escalation cap (5/session) prevents budget drain but isn't a security guarantee. For production, a server-side `/api/feedback` endpoint with proper rate limiting and authentication is the correct fix.
 
 **Code:** `src/REI.jsx:handleFeedback()`, `src/components/ChatMessage.jsx:115-123`
+
+---
+
+## 12. Open-Core Architecture Strategy & Drop-in Proxy API
+
+**Date:** July 24, 2026  
+**Tagline:** *"The only router that thinks before it spends."*
+
+**Problem:** To scale REI.ai beyond a standalone web interface, we need a friction-free adoption path for developers and enterprise teams while establishing a clear commercial monetization model.
+
+**Choice:**
+1. **Open-Source Core (MIT / Apache 2.0)**: Open-source the core Night Shift router algorithm, Layer 0 deterministic engine, R(T) complexity calculator, and a crowdsourced **`rei-ai/fingerprints`** catalog.
+2. **Drop-in Proxy API (`proxy.rei.ai`)**: Provide a serverless OpenAI/Groq-compatible proxy endpoint where developers change `baseURL` to instantly reduce API spend by 78% without code rewrites.
+3. **Enterprise Specialized Slices**: Dual-license domain-specific high-value engines (Legal Hinge Analyzer, Math Solver, Red Team Scanner).
+
+**Code & Specs:** `docs/ROADMAP.md`, `src/ToolsLanding.jsx`, `src/lib/nightShiftRouter.js`
+
