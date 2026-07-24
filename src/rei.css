@@ -27,6 +27,26 @@
   --rei-space-24: 24px;
 }
 
+/* ─── Global Strict Button & Control Reset (Eliminates Browser White Boxes) ─── */
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  background: transparent;
+  color: inherit;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  outline: none;
+}
+
 /* ─── Global Custom Scrollbars ─── */
 ::-webkit-scrollbar {
   width: 6px;
@@ -535,26 +555,26 @@ code, pre, .rei-code {
 }
 
 .rei-chat-card__actions button {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 5px;
-  color: var(--rei-text-muted);
-  cursor: pointer;
-  font-size: 11px;
-  padding: 4px 12px;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 5px !important;
+  color: var(--rei-text-muted) !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  padding: 4px 12px !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
 .rei-chat-card__actions button:hover {
-  border-color: var(--rei-accent-glow);
-  color: var(--rei-accent-glow);
-  background: rgba(214, 176, 76, 0.15);
-  box-shadow: 0 0 10px rgba(214, 176, 76, 0.2);
-  transform: translateY(-1px);
+  border-color: var(--rei-accent-glow) !important;
+  color: var(--rei-accent-glow) !important;
+  background: rgba(214, 176, 76, 0.15) !important;
+  box-shadow: 0 0 10px rgba(214, 176, 76, 0.2) !important;
+  transform: translateY(-1px) !important;
 }
 
 .rei-chat-card__actions button:active {
-  transform: scale(0.95);
+  transform: scale(0.95) !important;
 }
 
 /* ─── Floating Gold-Accented Input Shell ─── */
@@ -608,27 +628,27 @@ code, pre, .rei-code {
 }
 
 .rei-touch-button {
-  background: var(--rei-gold-btn-gradient);
-  color: #07090d;
-  border: none;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 14px;
-  padding: 0 28px;
-  min-height: 46px;
-  cursor: pointer;
-  box-shadow: 0 4px 18px rgba(214, 176, 76, 0.35);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+  background: var(--rei-gold-btn-gradient) !important;
+  color: #07090d !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  padding: 0 28px !important;
+  min-height: 46px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 18px rgba(214, 176, 76, 0.35) !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
 }
 
 .rei-touch-button:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 8px 28px rgba(240, 201, 101, 0.5);
+  transform: translateY(-2px) scale(1.03) !important;
+  box-shadow: 0 8px 28px rgba(240, 201, 101, 0.5) !important;
 }
 
 .rei-touch-button:active {
-  transform: translateY(0) scale(0.96);
+  transform: translateY(0) scale(0.96) !important;
 }
 
 /* ─── Quick Prompts ─── */
@@ -639,29 +659,29 @@ code, pre, .rei-code {
 }
 
 .rei-quick-prompt {
-  padding: 6px 14px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--rei-text-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 6px 14px !important;
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--rei-text-secondary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 }
 
 .rei-quick-prompt:hover {
-  border-color: var(--rei-accent-glow);
-  color: var(--rei-accent-glow);
-  background: linear-gradient(135deg, rgba(214, 176, 76, 0.18) 0%, rgba(214, 176, 76, 0.04) 100%);
-  box-shadow: 0 4px 14px rgba(214, 176, 76, 0.2);
-  transform: translateY(-2px);
+  border-color: var(--rei-accent-glow) !important;
+  color: var(--rei-accent-glow) !important;
+  background: linear-gradient(135deg, rgba(214, 176, 76, 0.18) 0%, rgba(214, 176, 76, 0.04) 100%) !important;
+  box-shadow: 0 4px 14px rgba(214, 176, 76, 0.2) !important;
+  transform: translateY(-2px) !important;
 }
 
 .rei-quick-prompt:active {
-  transform: scale(0.96);
+  transform: scale(0.96) !important;
 }
 
-/* ─── Telemetry Control Panel Inset Styling ─── */
+/* ─── Telemetry Sidebar (`.rei-instrument-rail`) ─── */
 .rei-instrument-rail {
   display: flex;
   flex-direction: column;
@@ -784,6 +804,106 @@ code, pre, .rei-code {
   font-weight: 600;
 }
 
+.rei-router-panel__summary {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--rei-text-muted) !important;
+  font-size: 11px !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  cursor: pointer !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+  transition: color 0.15s ease, background 0.15s ease !important;
+}
+
+.rei-router-panel__summary:hover {
+  color: var(--rei-accent-glow) !important;
+  background: rgba(214, 176, 76, 0.08) !important;
+}
+
+.rei-router-panel__grid {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(8, 10, 16, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: var(--rei-text-secondary);
+}
+
+/* ─── Session Footer & Popups ─── */
+.rei-session-footer__toggle {
+  background: rgba(214, 176, 76, 0.1) !important;
+  border: 1px solid rgba(214, 176, 76, 0.3) !important;
+  color: var(--rei-accent-glow) !important;
+  padding: 4px 12px !important;
+  border-radius: 6px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.rei-session-footer__toggle:hover {
+  background: rgba(214, 176, 76, 0.22) !important;
+  border-color: var(--rei-accent-glow) !important;
+  box-shadow: 0 0 12px rgba(214, 176, 76, 0.3) !important;
+}
+
+.rei-session-footer__popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 16px;
+  background: rgba(14, 18, 28, 0.96);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--rei-border-gold);
+  border-radius: 10px;
+  padding: 16px;
+  min-width: 300px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(214, 176, 76, 0.15);
+  z-index: 101;
+  font-size: 12px;
+}
+
+.rei-session-footer__popup-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--rei-accent-glow);
+  font-family: 'Fraunces', serif;
+  font-size: 14px;
+}
+
+.rei-session-footer__popup-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--rei-text-secondary);
+}
+
+.rei-session-footer__popup-btn {
+  padding: 6px 14px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(214, 176, 76, 0.3) !important;
+  background: rgba(214, 176, 76, 0.12) !important;
+  color: var(--rei-accent-glow) !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.rei-session-footer__popup-btn:hover {
+  background: rgba(214, 176, 76, 0.25) !important;
+  border-color: var(--rei-accent-glow) !important;
+  box-shadow: 0 0 12px rgba(214, 176, 76, 0.35) !important;
+}
+
 /* ─── Modals & Context Slide-Over Panels ─── */
 .rei-context-panel {
   position: fixed;
@@ -847,28 +967,28 @@ code, pre, .rei-code {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  background: linear-gradient(135deg, rgba(214, 176, 76, 0.25) 0%, rgba(20, 26, 40, 0.9) 100%);
-  border: 1px solid var(--rei-border-gold);
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-  color: var(--rei-accent-glow);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  writing-mode: vertical-rl;
-  padding: 14px 8px;
-  z-index: 50;
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: -4px 0 15px rgba(0,0,0,0.5);
+  background: linear-gradient(135deg, rgba(214, 176, 76, 0.25) 0%, rgba(20, 26, 40, 0.9) 100%) !important;
+  border: 1px solid var(--rei-border-gold) !important;
+  border-right: none !important;
+  border-radius: 6px 0 0 6px !important;
+  color: var(--rei-accent-glow) !important;
+  cursor: pointer !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  writing-mode: vertical-rl !important;
+  padding: 14px 8px !important;
+  z-index: 50 !important;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.5) !important;
 }
 
 .rei-context-toggle:hover {
-  color: #ffffff;
-  border-color: var(--rei-accent-glow);
-  box-shadow: -6px 0 22px rgba(214, 176, 76, 0.4);
-  transform: translateY(-50%) translateX(-2px);
+  color: #ffffff !important;
+  border-color: var(--rei-accent-glow) !important;
+  box-shadow: -6px 0 22px rgba(214, 176, 76, 0.4) !important;
+  transform: translateY(-50%) translateX(-2px) !important;
 }
 
 /* ─── Responsive Media Queries ─── */
